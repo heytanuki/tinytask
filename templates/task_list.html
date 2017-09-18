@@ -1,0 +1,215 @@
+<head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+{% macro date_nav() %}
+<a href="/{{ get_days(date, -1) }}">
+  <svg class="date_arrow" width="28" height="28" viewBox="0 0 28 28">
+    <line x1="14" y1="2" x2="2" y2="14" />
+    <line x1="14" y1="26" x2="2" y2="14" />
+  </svg>
+</a>
+
+<svg id="logo" class="{{ date_status }}" width="28" height="28" viewBox="0 0 28 28">
+  <g transform="translate(0) rotate(45 16 16)"><!-- second 2 rotate args: rect x + width/2 -->
+    <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke-width="2" fill="white"  />
+  </g>
+ <line id="forwardslash" stroke-width="0" x1="27" y1="5" x2="5" y2="27" />
+ <line id="backslash" stroke-width="0" x1="5" y1="5" x2="27" y2="27" />
+</svg>
+
+{{ get_readable_date(date) }}
+<a href="/{{ get_days(date, 1) }}">
+  <svg class="date_arrow" width="28" height="28" viewBox="0 0 28 28">
+    <line x1="14" y1="2" x2="26" y2="14" />
+    <line x1="14" y1="26" x2="26" y2="14" />
+  </svg>
+</a>
+{% endmacro %}
+
+{% macro draw_task(task) %}
+<div class="task_container" date="{{ date }}"" key="{{ task['task_key'] }}">
+  <svg id="taskdiamond" class="{{ task['status'] }}" width="28" height="28" viewBox="0 0 28 28">
+    <g transform="translate(0) rotate(45 16 16)"><!-- second 2 rotate args: rect x + width/2 -->
+      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="black" stroke-width="2" fill="white"  />
+    </g>
+    <line id="forwardslash" stroke="black" stroke-width="0" x1="27" y1="5" x2="5" y2="27" />
+    <line id="backslash" stroke="black" stroke-width="0" x1="5" y1="5" x2="27" y2="27" />
+  </svg>
+  <span class="task_text">{{ task['description'] }}</span>
+  <div class="taskmenu">
+    <span id="un-do">{{ draw_undo() }}un-do</span>
+    <span id="delete"><br>{{ draw_delete() }}delete</span>
+    <span id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro draw_undo() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <g transform="translate(0) rotate(45 15 10)"><!-- second 2 rotate args: rect x + width/2 -->
+    <rect x="6" y="6" rx="1" ry="1" width="14" height="14" stroke="black" stroke-width="2" fill-opacity="0.0" />
+  </g>
+</svg>
+{% endmacro %}
+
+{% macro draw_delete() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="3" y1="3" x2="19" y2="19" />
+  <line x1="19" y1="3" x2="3" y2="19" />
+</svg>
+{% endmacro %}
+
+{% macro draw_tomorrow() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="3" y1="10" x2="19" y2="10" />
+  <line x1="10" y1="3" x2="19" y2="10" />
+  <line x1="10" y1="18" x2="19" y2="10" />
+</svg>
+{% endmacro %}
+
+<body>
+<div class="logo">
+{{ date_nav() }} 
+</div>
+
+
+
+<!-- task list -->
+{% for task in tasks %}
+{{ draw_task(task) }}
+{% endfor %}
+
+<!-- proto entry form -->
+<div id="input_form" date="{{ date }}">
+<form action="/insert" method="post" autocomplete="off">
+    <input type="text" name="description" autofocus="autofocus">
+    <input hidden="hidden" type="text" name="date_due" value="{{ date }}">
+    <input type="submit" value="Submit">
+</form>
+</div>
+
+<!-- delete this -->
+<div class="hidden" id="tools">
+  <p id="flask-date">{{ date }}</p>
+  <p><a href="reset/{{ date }}">reset</a></p>
+</div>
+
+<div class="tinylogo" align="right">
+  <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
+    <g transform="translate(0) rotate(45 16 16)"><!-- second 2 rotate args: rect x + width/2 -->
+      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
+    </g>
+    <line id="forwardslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
+  </svg><span> tinytask</span>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+function set_task(task, container) {
+  console.log("Task " + task["task_key"] + " set to: " + task["status"]);
+  container.attr("class", task["status"]);
+};
+
+function update_logo() {
+  count = 0;
+  done_count = 0;
+  $("svg#taskdiamond").each(function(i) {
+    if ($(this).attr("class")==="done") { done_count += 1; };
+    count += 1;
+  });
+  if (count===done_count) { $("svg#logo").attr("class", "done"); };
+};
+
+$(document).ready(function() {
+
+// Advance task status
+  $("svg#taskdiamond").click(function() {
+    if ($(this).attr("class")==="done") {
+      return;
+    };
+    if ($(this).attr("class")==="started") {
+      $(this).attr("class", "done");
+      update_logo();
+    };
+    if ($(this).attr("class")==="notdone") {
+      $(this).attr("class", "started");
+    };
+    data = {
+      "date_due": $(this).parent().attr("date"),
+      "task_key": $(this).parent().attr("key")
+    };
+    $.post("tasklist/advance", data, function(response) {
+      set_task(response, $(this));
+    }, "json");
+  });
+
+// Open/close task menu
+  $("span.task_text").click(function() {
+    if ($(this).next().is(":visible")) {
+      $(this).next().hide(200);
+    } else {
+      $("div.taskmenu").hide(200);
+      $(this).next().show(200);
+    }
+  });
+
+// Un-do task, reset to "notdone" status
+  $("span#un-do").click(function() {
+    diamond = $(this).parent().parent().children().first();
+    $(this).parent().hide(200);
+    if (diamond.attr("class")==="notdone") { return ;};
+    data = {
+      "date_due": $(this).parent().parent().attr("date"),
+      "task_key": $(this).parent().parent().attr("key"),
+      "status": "notdone"
+    };
+    set_task(data, diamond);
+    $(this).parent().hide(200);
+    $.post("tasklist/undo", data);
+    $("svg#logo").attr("class", "started");
+  });
+
+// Delete task
+  $("span#delete").click(function() {
+    data = {
+      "date_due": $(this).parent().parent().attr("date"),
+      "task_key": $(this).parent().parent().attr("key")
+    };
+    $(this).parent().parent().hide(200);
+    $.post("tasklist/delete", data, function() {
+      window.location.href = "/" + data["date_due"];
+    });
+  });
+
+// Move it to tomorrow
+  $("span#move-tomorrow").click(function() {
+    data = {
+      "date_due": $(this).parent().parent().attr("date"),
+      "task_key": $(this).parent().parent().attr("key"),
+      "x_days": 1
+    };
+    $(this).parent().parent().hide(200);
+    $.post("tasklist/moveto", data, function() {
+      window.location.href = "/" + data["date_due"];
+    });
+  });
+
+// Home
+  $("div.logo").click(function() {
+    window.location.href = "/";
+  });
+});
+
+$(document).keyup(function(e) {
+  if (e.keyCode===27){
+    $("div.taskmenu").hide(200);
+  };
+});
+
+// window.onfocus = function() {location.reload(true);};
+</script>
+</body>

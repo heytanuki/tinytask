@@ -1,7 +1,7 @@
 <head>
 <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"> -->
 <link rel="icon" type="image/png" href="/static/favicon.png" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, target-densityDpi=device-dpi, initial-scale=1.0">
 <style>
 div.logo {
   font-family: Helvetica, sans-serif;
@@ -170,14 +170,11 @@ div.tinylogo > svg > line {
 {{ date_nav() }} 
 </div>
 
-
-
 <!-- task list -->
 {% for task in tasks %}
 {{ draw_task(task) }}
 {% endfor %}
 
-<!-- proto entry form -->
 <div id="input_form" date="{{ date }}">
 <form action="/insert" method="post" autocomplete="off">
     <input id="entry_box" type="text" name="description" autofocus="autofocus">

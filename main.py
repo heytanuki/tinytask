@@ -44,6 +44,9 @@ def get_overall_status(tasks):
     return 'started'
 
 @app.route('/')
+def get_local_time_page():
+    return render_template('get_date.html')
+    
 @app.route('/<date>')
 def render_tasklist(date=None):
     if date is None:

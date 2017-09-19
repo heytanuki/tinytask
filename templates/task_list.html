@@ -124,13 +124,13 @@ div.tinylogo > svg > line {
   </svg>
   <span class="task_text">{{ task['description'] }}</span>
   <div class="taskmenu">
-    {% if task['status'] != 'notdone' %}
+    
     <span id="un-do">{{ draw_undo() }}un-do</span><br>
-    {% endif %}
+
     <span id="delete">{{ draw_delete() }}delete</span>
-    {% if task['status'] != 'done' %}
+
     <span id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
-    {% endif %}
+
   </div>
 </div>
 {% endmacro %}
@@ -212,8 +212,33 @@ function update_logo() {
   if (count===done_count) { $("svg#logo").attr("class", "done"); };
 };
 
+function update_menu_undo(container) {
+  undo_span = container.parent().find($("span#un-do"));
+  if (container.attr("class")==="notdone") {
+      undo_span.hide();
+      undo_span.next().hide();
+  } else {
+      undo_span.show();
+      undo_span.next().show();
+  };
+};
+
+function update_menu_tomorrow(container) {
+  tomorrow_span = container.parent().find($("span#move-tomorrow"));
+  if (container.attr("class")==="done") {
+    tomorrow_span.hide();
+  } else {
+    tomorrow_span.show();
+  }
+};
+
 $(document).ready(function() {
 
+  $("svg#taskdiamond").each(function(i) {
+    update_menu_tomorrow($(this));
+    update_menu_undo($(this));
+  });
+  
 // Advance task status
   $("svg#taskdiamond").click(function() {
     if ($(this).attr("class")==="done") {
@@ -222,9 +247,11 @@ $(document).ready(function() {
     if ($(this).attr("class")==="started") {
       $(this).attr("class", "done");
       update_logo();
+      update_menu_tomorrow($(this));
     };
     if ($(this).attr("class")==="notdone") {
       $(this).attr("class", "started");
+      update_menu_undo($(this));
     };
     data = {
       "date_due": $(this).parent().attr("date"),
@@ -258,6 +285,8 @@ $(document).ready(function() {
     $(this).parent().hide(200);
     $.post("tasklist/undo", data);
     $("svg#logo").attr("class", "started");
+    update_menu_undo(diamond);
+    update_menu_tomorrow(diamond);
   });
 
 // Delete task

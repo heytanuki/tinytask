@@ -3,7 +3,14 @@
 </head>
 
 <body>
-this shouldn't be here
+<div class="tinylogo">
+  <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
+    <g transform="translate(0) rotate(45 16 16)"><!-- second 2 rotate args: rect x + width/2 -->
+      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
+    </g>
+    <line id="forwardslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
+  </svg><font face="sans-serif" size="6"> tinytask</font>
+</div>
 
 <script>
     today = new Date();

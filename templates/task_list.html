@@ -8,6 +8,7 @@ div.logo {
   font-weight: normal;
   stroke: black;
   margin-bottom: 20px;
+  margin-left: 10px;
 }
 input {
   font-family: sans-serif;
@@ -58,6 +59,9 @@ svg {
 }
 svg.date_arrow {
   vertical-align: -3px;
+  margin-right: -10px;
+  margin-left: -5px;
+  /*padding-left: 5px;*/
 }
 svg.notdone > line#forwardslash {
   stroke-width: 0px;
@@ -84,6 +88,9 @@ line {
 }
 div.tinylogo > svg > line {
   stroke: gray;
+}
+#entry_box {
+  width: 300px;
 }
 </style>
 </head>
@@ -173,16 +180,10 @@ div.tinylogo > svg > line {
 <!-- proto entry form -->
 <div id="input_form" date="{{ date }}">
 <form action="/insert" method="post" autocomplete="off">
-    <input type="text" name="description" autofocus="autofocus">
+    <input id="entry_box" type="text" name="description" autofocus="autofocus">
     <input hidden="hidden" type="text" name="date_due" value="{{ date }}">
     <input hidden="hidden" type="submit" value="Submit">
 </form>
-</div>
-
-<!-- delete this -->
-<div class="hidden" id="tools">
-  <p id="flask-date">{{ date }}</p>
-  <p><a href="reset/{{ date }}">reset</a></p>
 </div>
 
 <div class="tinylogo" align="right">
@@ -232,13 +233,21 @@ function update_menu_tomorrow(container) {
   }
 };
 
+function go_tomorrow() {
+  window.location.href = "/{{ get_days(date, 1) }}";
+};
+
+function go_yesterday() {
+  window.location.href = "/{{ get_days(date, -1) }}";
+}
+
 $(document).ready(function() {
 
   $("svg#taskdiamond").each(function(i) {
     update_menu_tomorrow($(this));
     update_menu_undo($(this));
   });
-  
+
 // Advance task status
   $("svg#taskdiamond").click(function() {
     if ($(this).attr("class")==="done") {
@@ -321,10 +330,27 @@ $(document).ready(function() {
 });
 
 $(document).keyup(function(e) {
-  if (e.keyCode===27){
+  inputting_status = true;
+  if (!$("#entry_box").is(':focus')) {
+    inputting_status = false;
+  } else if ($("#entry_box").val()==="") {
+    inputting_status = false;
+  };
+  if (inputting_status) {
+    return;
+  }
+  if (e.keyCode===27) {
     $("div.taskmenu").hide(200);
   };
+  if (e.keyCode===37) {
+    go_yesterday();
+  };
+  if (e.keyCode===39) {
+    go_tomorrow();
+  };
 });
+
+
 
 // window.onfocus = function() {location.reload(true);};
 </script>

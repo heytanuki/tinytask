@@ -46,7 +46,7 @@ def get_overall_status(tasks):
 @app.route('/')
 def get_local_time_page():
     return render_template('get_date.html')
-    
+
 @app.route('/<date>')
 def render_tasklist(date=None):
     if date is None:
@@ -54,8 +54,16 @@ def render_tasklist(date=None):
     if not date_is_valid(date):
         return redirect('/')
     tasks = task_db.tasks_for_day(date)
+    tasks_by_type = {
+        'started': [],
+        'notdone': [],
+        'done': []
+    }
+    for task in tasks:
+        tasks_by_type[task['status']].append(task)
+    tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
     date_status = get_overall_status(tasks)
-    return render_template('task_list.html', tasks=tasks, date=date, date_status=date_status)
+    return render_template('task_list.html', tasks=tasks_ordered, date=date, date_status=date_status)
 
 @app.route('/insert', methods=['POST'])
 def insert_from_form():

@@ -124,9 +124,13 @@ div.tinylogo > svg > line {
   </svg>
   <span class="task_text">{{ task['description'] }}</span>
   <div class="taskmenu">
-    <span id="un-do">{{ draw_undo() }}un-do</span>
-    <span id="delete"><br>{{ draw_delete() }}delete</span>
+    {% if task['status'] != 'notdone' %}
+    <span id="un-do">{{ draw_undo() }}un-do</span><br>
+    {% endif %}
+    <span id="delete">{{ draw_delete() }}delete</span>
+    {% if task['status'] != 'done' %}
     <span id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
+    {% endif %}
   </div>
 </div>
 {% endmacro %}
@@ -245,7 +249,6 @@ $(document).ready(function() {
   $("span#un-do").click(function() {
     diamond = $(this).parent().parent().children().first();
     $(this).parent().hide(200);
-    if (diamond.attr("class")==="notdone") { return ;};
     data = {
       "date_due": $(this).parent().parent().attr("date"),
       "task_key": $(this).parent().parent().attr("key"),

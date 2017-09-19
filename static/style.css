@@ -18,7 +18,7 @@ div.tinylogo {
   color: gray;
 }
 div.task_container {
-  width: 400px;
+  /*width: 400px;*/
   padding-bottom: 5px;
 }
 div.hidden {

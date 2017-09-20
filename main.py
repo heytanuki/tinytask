@@ -49,6 +49,10 @@ def render_tasklist(date=None):
     tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
     return render_template('task_list.html', tasks=tasks_ordered, date=date)
 
+@app.route('/phil')
+def philosophy():
+    return render_template('philosophy.html')
+
 @app.route('/insert', methods=['POST'])
 def insert_from_form():
     description = request.form.get('description')

@@ -28,21 +28,6 @@ def date_is_valid(date):
     except ValueError:
         return False
 
-@app.route('/tasklist/getdatestatus', methods=['GET'])
-def get_date_status():
-    date = request.args.get('date')
-    if not date_is_valid(date):
-        return 'started'
-    return get_overall_status(task_db.tasks_for_day(date))
-
-def get_overall_status(tasks):
-    tasks_done = len([task['status'] for task in tasks if task['status'] == 'done'])
-    if len(tasks) == 0:
-        return 'notdone' 
-    if tasks_done == len(tasks):
-        return 'done'    
-    return 'started'
-
 @app.route('/')
 def get_local_time_page():
     return render_template('get_date.html')
@@ -62,8 +47,7 @@ def render_tasklist(date=None):
     for task in tasks:
         tasks_by_type[task['status']].append(task)
     tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
-    date_status = get_overall_status(tasks)
-    return render_template('task_list.html', tasks=tasks_ordered, date=date, date_status=date_status)
+    return render_template('task_list.html', tasks=tasks_ordered, date=date)
 
 @app.route('/insert', methods=['POST'])
 def insert_from_form():

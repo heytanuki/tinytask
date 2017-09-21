@@ -1,6 +1,9 @@
 # tinytask
 is a daily task list for the things you have to do.
 
+### Write down tasks
+Offload things you have to do from your working memory by writing them down. Come back to the list later.
+
 ### Keep it simple
 This space is small, made for tiny tasks. If it can't be stated in a few words, break it into smaller tasks.
 

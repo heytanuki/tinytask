@@ -2,74 +2,80 @@
 <head>
 <style>
 body {
-  font-face: sans-serif;
+  font-family: sans-serif;
   font-size: 20pt;
   color: black;
+  width: 80%;
+  margin-left: 5%;
+  margin-top: 20px;
 }
 .gray {
   color: gray;
-  font-size: 22pt;
+  font-size: 20pt;
 }
 .indented {
   color: darkgray;
   margin-left: 50px; 
+  font-size: 16pt;
+}
+svg {
+  vertical-align: -4px;
+}
+svg * {
+  stroke: black;
+  stroke-width: 2px;
+}
+svg#notdone line#backslash {
+  stroke-width: 0px;
+}
+svg#notdone line#forwardslash {
+  stroke-width: 0px;
+}
+
+svg#started line#backslash {
+  stroke-width: 0px;
+}
+svg#logo * {
+  stroke: gray;
+}
+svg#logo line#backslash {
+  stroke-width: 0px;
 }
 </style>
 
 </head>
 
 <body>
+{% macro draw_diamond(kind) %}
 
+<svg id="{{ kind }}" class="diamond" width="28" height="28" >
+  <g transform="translate(0) rotate(45 12 16)">
+    <rect x="3" y="4" rx="1" ry="1" width="18" height="18" fill="white"  />
+  </g>
+  <line id="forwardslash" stroke-linecap="round" x1="27" y1="1" x2="1" y2="27" />
+  <line id="backslash" stroke-linecap="round" x1="1" y1="1" x2="27" y2="27" />
+</svg>
 
-  <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
-    <g transform="translate(0) rotate(45 16 16)">
-      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
-    </g>
-    <line id="logoslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
-    <line id="logobackslash" stroke="gray" stroke-width="0" x1="5" y1="5" x2="27" y2="27" />
-  </svg> <span class="gray">tinytask</span> is a daily task list for the things you have to do today.
+{% endmacro %}
+
+  {{ draw_diamond('logo') }} <span class="gray">tinytask</span> is a daily task list for the things you have to do.
 
   <p class="gray">Philosophy</p>
   
-  <p><svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
-    <g transform="translate(0) rotate(45 16 16)">
-      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
-    </g>
-    <line stroke-width="0" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
-  </svg>Write down tasks.</p>
-  <p class="indented">Keep your mind clear and focused by offloading them to a list. Use your memory for more important things.</p>
+  <p>{{ draw_diamond('notdone') }} Write down tasks</p>
+  <p class="indented">Offload things you have to do from your working memory by writing them down. Come back to the list later.</p>
 
-  <p><svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
-    <g transform="translate(0) rotate(45 16 16)">
-      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
-    </g>
-    <line id="logoslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
-  </svg>Keep it simple.</p>
-  <p class="indented">Your space is small, built for tiny tasks. If it can't be stated in a few words, your task may be too large. Break it into smaller tasks and spread them out.</p>
+  <p>{{ draw_diamond('notdone') }} Keep it simple</p>
+  <p class="indented">This space is small, made for tiny tasks. If it can't be stated in a few words, break it into smaller tasks.</p>
+
+  <p>{{ draw_diamond('started') }} Mark a task as soon as you begin</p>
+  <p class="indented">Tasks that you have started will go to the top of the list. Use this to remind yourself of what to come back to.</p>
   
-  <p><svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
-    <g transform="translate(0) rotate(45 16 16)">
-      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
-    </g>
-    <line id="logoslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
-  </svg>Don't get bogged down.</p>
-  <p class="indented">Some tasks don't get finished. Some aren't important, though they seemed to be in the past. Important tasks will resurface in your life, and can be re-added or scheduled for a future date. You can move a task to tomorrow, but each list is specific to the date and unfinished business will remain in the past.</p>
+  <p>{{ draw_diamond('started') }} Don't get bogged down</p>
+  <p class="indented">Some tasks don't get finished. Important tasks will resurface in your life, and can be re-added or scheduled for a future date.</p>
+  <p class="indented">You can push a task to tomorrow or put it on a future list, but unfinished business will happily remain in the past.</p>
   
-  <p><svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
-    <g transform="translate(0) rotate(45 16 16)">
-      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
-    </g>
-    <line id="logoslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
-  </svg>Mark a task as soon as you begin.</p>
-  <p class="indented">Tasks that you have started will rise to the top of the list. Use this to remind yourself of what you were just doing.</p>
-  
-  <p><svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
-    <g transform="translate(0) rotate(45 16 16)">
-      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
-    </g>
-    <line id="logoslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
-    <line id="logobackslash" stroke="gray" stroke-width="2" x1="5" y1="5" x2="27" y2="27" />
-  </svg>It's okay to put something you've already done on the list.</p>
+  <p>{{ draw_diamond('done') }} It's okay to put something you've already done on the list</p>
   <p class="indented">Keep a record of what you've accomplished. You might need it later.
 </body>
 

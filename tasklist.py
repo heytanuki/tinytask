@@ -131,7 +131,7 @@ class TaskDB(object):
         self.db.child(self.tasks_database) \
                .child(date) \
                .remove(self.get_token())
-        self.set_last_updated_time(date_due)
+        self.set_last_updated_time(date)
 
     def tasks_to_list(self, tasks):
         tasks_as_list = []
@@ -150,7 +150,7 @@ class TaskDB(object):
                        .val()
         if tasks:
             return self.tasks_to_list(tasks)
-        return {}
+        return []
 
     def test_database(self, fix_errors=False):
         whole_db = self.db.child('tasks') \
@@ -178,6 +178,18 @@ class TaskDB(object):
             print 'Fixing task to proper due date {}: {}'.format(date_due_from_task, description_from_task)
             self.update_task(date, key, {'date_due': date_due_from_task})
 
+    def reload_demo(self):
+        date = '20170218'
+        self.delete_all_tasks_for_date(date)
+        tasks = [
+            ('empty for things to do', 'notdone'),
+            ('one slash for tasks in progress', 'started'),
+            ('two slashes for things done', 'done'),
+        ]
+        for t in tasks:
+            data = {'date_due': date}
+            data['description'], data['status'] = t
+            self.insert_data(data)
 
 class TaskItem(object):
 

@@ -266,6 +266,18 @@ function set_logo_tense() {
   $("span#date_nav").attr("class", tense);
 }
 
+function check_if_refresh_needed(today, page_load_time) {
+  data = {
+    'date': today,
+    'page_load_time': page_load_time,
+  };
+  $.get('/tasklist/need_to_refresh', data, function(result) {
+    if (result==="true"){
+      window.location.href = "/" + {{ date }};
+    };
+  });
+}
+
 // jQuery magic
 $(document).ready(function() {
 
@@ -376,6 +388,8 @@ $(document).keyup(function(e) {
   };
 });
 
-// window.onfocus = function() {location.reload(true);};
+window.onfocus = function() { 
+  check_if_refresh_needed({{ date }}, {{ time_loaded }}); 
+};
 </script>
 </body>

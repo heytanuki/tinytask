@@ -1,5 +1,6 @@
-import pyrebase
 import datetime
+import time
+import pyrebase
 from secrets import FIREBASE_CONFIG, FIREBASE_AUTH_USER, FIREBASE_AUTH_PW
 
 
@@ -56,6 +57,7 @@ class TaskDB(object):
                      .child(self.tasks_database) \
                      .child(data['date_due']) \
                      .push(data, self.get_token())
+        self.set_last_updated_time(data['date_due'])
         return result
 
     def insert_task(self, description, date_due=None):
@@ -68,6 +70,26 @@ class TaskDB(object):
         }
         result = self.insert_data(data)
         return (date_due, result['name'])
+
+    def set_last_updated_time(self, date):
+        update_time = int(time.time())
+        self.db \
+            .child(self.tasks_database) \
+            .child(date) \
+            .child('last_updated') \
+            .set(update_time, self.get_token())
+        return update_time
+
+    def get_last_updated_time(self, date):
+        updated_time = self.db \
+            .child(self.tasks_database) \
+            .child(date) \
+            .child('last_updated') \
+            .get(self.get_token()) \
+            .val()
+        if updated_time is None:
+            updated_time = self.set_last_updated_time(date)
+        return updated_time
 
     def get_task(self, date_due, task_key):
         try:
@@ -89,6 +111,7 @@ class TaskDB(object):
                .child(date_due) \
                .child(task_key) \
                .update(update_data, self.get_token())
+        self.set_last_updated_time(date_due)
         if 'date_due' in update_data:
             if update_data['date_due'] != date_due:
                 old_key, task_data = self.get_task(date_due, task_key)
@@ -102,15 +125,19 @@ class TaskDB(object):
                .child(date_due) \
                .child(task_key) \
                .remove(self.get_token())
+        self.set_last_updated_time(date_due)
 
     def delete_all_tasks_for_date(self, date):
         self.db.child(self.tasks_database) \
                .child(date) \
                .remove(self.get_token())
+        self.set_last_updated_time(date_due)
 
     def tasks_to_list(self, tasks):
         tasks_as_list = []
         for item in tasks:
+            if item == 'last_updated':
+                continue
             task_as_dict = tasks[item]
             task_as_dict['task_key'] = item
             tasks_as_list.append(task_as_dict)
@@ -119,7 +146,6 @@ class TaskDB(object):
     def tasks_for_day(self, day):
         tasks = self.db.child(self.tasks_database) \
                        .child(day) \
-                       .order_by_child('timestamp') \
                        .get(self.get_token()) \
                        .val()
         if tasks:

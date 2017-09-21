@@ -1,5 +1,6 @@
 import json
 import datetime
+import time
 from flask import Flask, render_template, request, redirect
 from tasklist import TaskDB, TaskItem
 
@@ -30,12 +31,13 @@ def date_is_valid(date):
 
 @app.route('/')
 def get_local_time_page():
+    print 'getting local time'
     return render_template('get_date.html')
 
 @app.route('/<date>')
 def render_tasklist(date=None):
-    if date is None:
-        date = task_db.get_today()
+    # if date is None:
+    #     date = task_db.get_today()
     if not date_is_valid(date):
         return redirect('/')
     tasks = task_db.tasks_for_day(date)
@@ -47,7 +49,7 @@ def render_tasklist(date=None):
     for task in tasks:
         tasks_by_type[task['status']].append(task)
     tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
-    return render_template('task_list.html', tasks=tasks_ordered, date=date)
+    return render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()))
 
 @app.route('/phil')
 def philosophy():
@@ -63,18 +65,22 @@ def insert_from_form():
     insert_from_api(description, date_due)
     return redirect('/{}'.format(redir_date))
 
-# test method, kill this one
-@app.route('/reset/<date>')
-def reset_day(date):
-    tasks = task_db.tasks_for_day(date)
-    for task in tasks:
-        item = TaskItem(task['date_due'], task['task_key'])
-        item.advance(reset=True)
-    return redirect('/{}'.format(date))
 
 ###############
 # API METHODS #
 ###############
+
+@app.route('/tasklist/need_to_refresh', methods=['GET'])
+def need_to_refresh():
+    date = request.args.get('date')
+    loaded_time = int(request.args.get('page_load_time'))
+    last_updated = task_db.get_last_updated_time(date)
+    print '{}: {}'.format(type(loaded_time), loaded_time)
+    print '{}: {}'.format(type(last_updated), last_updated)
+    if last_updated > loaded_time:
+        return "true"
+    else:
+        return "false"
 
 @app.route('/tasklist/insert', methods=['POST'])
 def insert_from_api(description=None, date_due=None):

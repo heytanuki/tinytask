@@ -36,8 +36,8 @@ def get_local_time_page():
 
 @app.route('/<date>')
 def render_tasklist(date=None):
-    # if date is None:
-    #     date = task_db.get_today()
+    if date is None:
+        date = task_db.get_today()
     if not date_is_valid(date):
         return redirect('/')
     tasks = task_db.tasks_for_day(date)
@@ -47,13 +47,20 @@ def render_tasklist(date=None):
         'done': []
     }
     for task in tasks:
-        tasks_by_type[task['status']].append(task)
+        try:
+            tasks_by_type[task['status']].append(task)
+        except KeyError:
+            continue
     tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
     return render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()))
 
 @app.route('/phil')
 def philosophy():
     return render_template('philosophy.html')
+
+@app.route('/demo')
+def render_demo():
+    pass
 
 @app.route('/insert', methods=['POST'])
 def insert_from_form():

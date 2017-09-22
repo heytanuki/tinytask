@@ -5,12 +5,12 @@
 
 <style>
 
-div.hidden {
+/*div.hidden {
   display: none;
 }
 span.hidden {
   display: none;
-}
+}*/
 body {
   font-family: sans-serif;
   font-weight: normal;
@@ -26,8 +26,9 @@ line {
   stroke: black;
 }
 svg {
-  vertical-align: -4px;
+  vertical-align: -3px;
   stroke-width: 2px;
+  stroke: black;
 }
 
 /* Date nav styling */
@@ -36,9 +37,6 @@ div#date_nav {
   margin-top: 20px;
   width: 250px;
   font-size: 22pt;
-}
-div#date_nav svg#date_diamond {
-  vertical-align: -2px;
 }
 span.past {
   color: gray;
@@ -49,10 +47,7 @@ span.past line, span.past rect {
 span.present line, span.present rect, span.future line, span.future rect {
   stroke: black;
 }
-span.present line#backslash {
-  stroke-width: 0;
-}
-span.future line#backslash, span.future line#forwardslash {
+span.present line#backslash, span.future line#backslash, span.future line#forwardslash {
   stroke-width: 0;
 }
 
@@ -75,31 +70,27 @@ div.taskmenu {
 }
 
 /* Diamond styles */
-svg.notdone line {
+svg.notdone line, svg.started > line#backslash {
   stroke-width: 0px;
 }
 svg.started > line#forwardslash {
   stroke-width: 2px;
 }
-svg.started > line#backslash {
-  stroke-width: 0px;
-}
 svg.done + span.task_text {
   color: gray;
 }
-svg.done rect {
+svg.done * {
   stroke: gray;
 }
 svg.done line {
   stroke-width: 2px;
-  stroke: gray;
 }
 
 /* Entry form style */
 input {
   font-family: sans-serif;
   font-weight: normal;
-  font-size: 22pt;
+  font-size: 18pt;
   margin-top: 5px;
 }
 #entry_box {
@@ -119,41 +110,41 @@ div.bottomlogo {
 </head>
 
 {% macro date_nav() %}
-  <span id="date_nav" class="present">
-    <a href="/{{ get_days(date, -1) }}">
-      <svg id="da_left" width="15" height="28">
-        <line x1="14" y1="1" x2="1" y2="14" />
-        <line x1="14" y1="26" x2="1" y2="14" />
-      </svg>
-    </a>
-
-    <svg id="date_diamond" width="28" height="28" viewBox="0 0 28 28">
-      <g transform="translate(0) rotate(45 16 16)"><!-- second 2 rotate args: rect x + width/2 -->
-        <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke-width="2" fill="white"  />
-      </g>
-     <line id="forwardslash" stroke-width="0" x1="27" y1="5" x2="5" y2="27" />
-     <line id="backslash" stroke-width="0" x1="5" y1="5" x2="27" y2="27" />
+<span id="date_nav" class="present">
+  <a href="/{{ get_days(date, -1) }}">
+    <svg id="da_left" width="15" height="28">
+      <line x1="14" y1="1" x2="1" y2="14" />
+      <line x1="14" y1="26" x2="1" y2="14" />
     </svg>
-    {{ get_readable_date(date) }}
+  </a>
 
-    <a href="/{{ get_days(date, 1) }}">
-      <svg id="da_right" width="15" height="28">
-        <line x1="1" y1="1" x2="14" y2="14" />
-        <line x1="1" y1="26" x2="14" y2="14" />
-      </svg>
-    </a>
+  <svg id="date_diamond" width="28" height="28" >
+    <g transform="translate(0) rotate(45 12 16)">
+      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" fill="white"  />
+    </g>
+    <line id="forwardslash" stroke-width="0" x1="27" y1="1" x2="1" y2="27" />
+    <line id="backslash" stroke-width="0" x1="1" y1="1" x2="27" y2="27" />
+  </svg>
+  {{ get_readable_date(date) }}
 
-  </span>
+  <a href="/{{ get_days(date, 1) }}">
+    <svg id="da_right" width="15" height="28">
+      <line x1="1" y1="1" x2="14" y2="14" />
+      <line x1="1" y1="26" x2="14" y2="14" />
+    </svg>
+  </a>
+
+</span>
 {% endmacro %}
 
 {% macro draw_task(task) %}
 <div class="task_container" date="{{ date }}"" key="{{ task['task_key'] }}">
   <svg id="task_diamond" class="{{ task['status'] }}" width="28" height="28">
     <g transform="translate(0) rotate(45 12 16)">
-      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" stroke="black" stroke-width="2" fill="white"  />
+      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2" fill="white" />
     </g>
-    <line id="forwardslash" stroke="black" stroke-width="0" x1="27" y1="1" x2="1" y2="27" />
-    <line id="backslash" stroke="black" stroke-width="0" x1="1" y1="1" x2="27" y2="27" />
+    <line id="forwardslash" stroke-width="0" x1="27" y1="1" x2="1" y2="27" />
+    <line id="backslash" stroke-width="0" x1="1" y1="1" x2="27" y2="27" />
   </svg>
   <span class="task_text">{{ task['description'] }}</span>
   <div class="taskmenu">

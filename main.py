@@ -10,7 +10,7 @@ task_db = TaskDB()
 @app.context_processor
 def context_proc():
     def goto_x_days_difference(day, x):
-        return task_db.get_x_days_difference(day, x)
+        return get_x_days_difference(day, x)
 
     def get_readable_date(date):
         date_parsed = datetime.datetime.strptime(date, '%Y%m%d')
@@ -19,6 +19,18 @@ def context_proc():
         get_days=goto_x_days_difference,
         get_readable_date=get_readable_date,
     )
+
+###########
+# Helpers #
+###########
+
+def get_x_days_difference(self, day, x):
+    date = datetime.datetime.strptime(day, '%Y%m%d')
+    diff = date + datetime.timedelta(days=x)
+    return diff.strftime('%Y%m%d')
+
+def get_today(self):
+    return datetime.date.today().isoformat().replace('-', '')
 
 def date_is_valid(date):
     if not date:
@@ -37,7 +49,7 @@ def get_local_time_page():
 @app.route('/<date>')
 def render_tasklist(date=None):
     if date is None:
-        date = task_db.get_today()
+        date = get_today()
     if not date_is_valid(date):
         return redirect('/')
     tasks = task_db.tasks_for_day(date)
@@ -68,7 +80,7 @@ def insert_from_form():
     date_due = request.form.get('date_due', None)
     redir_date = date_due
     if not date_due:
-        date_due = task_db.get_today()
+        date_due = get_today()
     insert_from_api(description, date_due)
     return redirect('/{}'.format(redir_date))
 

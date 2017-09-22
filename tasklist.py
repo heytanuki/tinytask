@@ -36,19 +36,7 @@ class TaskDB(object):
         except KeyError:
             self.__init__()
 
-    def log_error(self, err_msg):
-        self.db \
-            .child('errors') \
-            .child(err_msg) \
-            .set(self.get_token())
 
-    def get_x_days_difference(self, day, x):
-        date = datetime.datetime.strptime(day, '%Y%m%d')
-        diff = date + datetime.timedelta(days=x)
-        return diff.strftime('%Y%m%d')
-
-    def get_today(self):
-        return datetime.date.today().isoformat().replace('-', '')
 
     def insert_data(self, data):
         if 'timestamp' not in data:

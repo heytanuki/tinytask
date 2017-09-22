@@ -24,12 +24,12 @@ def context_proc():
 # Helpers #
 ###########
 
-def get_x_days_difference(self, day, x):
+def get_x_days_difference(day, x):
     date = datetime.datetime.strptime(day, '%Y%m%d')
     diff = date + datetime.timedelta(days=x)
     return diff.strftime('%Y%m%d')
 
-def get_today(self):
+def get_today():
     return datetime.date.today().isoformat().replace('-', '')
 
 def date_is_valid(date):

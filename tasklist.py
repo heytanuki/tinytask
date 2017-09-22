@@ -38,10 +38,10 @@ class TaskDB(object):
 
 class UserTasks(object):
 
-    def __init__(self, username, tasks_database='tasks'):
+    def __init__(self, username, db_connection, tasks_database='tasks'):
         self.username = username
         self.tasks_database = tasks_database
-        self.db_connection = TaskDB()
+        self.db_connection = db_connection
         self.db = self.db_connection.database
 
     def insert_data(self, data):

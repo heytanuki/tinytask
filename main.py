@@ -23,14 +23,10 @@ def context_proc():
 ###########
 # Helpers #
 ###########
-
 def get_x_days_difference(day, x):
     date = datetime.datetime.strptime(day, '%Y%m%d')
     diff = date + datetime.timedelta(days=x)
     return diff.strftime('%Y%m%d')
-
-def get_today():
-    return datetime.date.today().isoformat().replace('-', '')
 
 def date_is_valid(date):
     if not date:
@@ -41,6 +37,18 @@ def date_is_valid(date):
     except ValueError:
         return False
 
+def get_today():
+    return datetime.date.today().isoformat().replace('-', '')
+
+def date_is_in_past(date):
+    today_date = datetime.datetime.strptime(get_today(), '%Y%m%d')
+    loaded_date = datetime.datetime.strptime(date, '%Y%m%d')
+    delta = today_date - loaded_date
+    print delta.days
+    if delta.days > 1:
+        return True
+    return False
+
 @app.route('/')
 def get_local_time_page():
     print 'getting local time'
@@ -48,6 +56,9 @@ def get_local_time_page():
 
 @app.route('/<date>')
 def render_tasklist(date=None):
+    if date is not None:
+        if date_is_in_past(date):
+            return render_past_tasklist(date)
     if date is None:
         date = get_today()
     if not date_is_valid(date):
@@ -65,6 +76,21 @@ def render_tasklist(date=None):
             continue
     tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
     return render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()))
+
+def render_past_tasklist(date):
+    tasks = task_db.tasks_for_day(date)
+    tasks_by_type = {
+        'started': [],
+        'notdone': [],
+        'done': []
+    }
+    for task in tasks:
+        try:
+            tasks_by_type[task['status']].append(task)
+        except KeyError:
+            continue
+    tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
+    return render_template('task_list_past.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()))
 
 @app.route('/phil')
 def philosophy():
@@ -126,7 +152,7 @@ def undo_from_api():
 def move_to_x_days():
     x_days = request.form.get('x_days', None)
     task = parse_task(request)
-    new_date = task_db.get_x_days_difference(task.date_due, int(x_days))
+    new_date = get_x_days_difference(task.date_due, int(x_days))
     task.update({'date_due': new_date})
     return 'ok'
 

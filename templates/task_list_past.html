@@ -1,0 +1,265 @@
+<head>
+<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"> -->
+<link rel="icon" type="image/png" href="/static/favicon.png" />
+<meta name="viewport" content="width=device-width, target-densityDpi=device-dpi, initial-scale=1.0">
+
+<style>
+
+/*div.hidden {
+  display: none;
+}
+span.hidden {
+  display: none;
+}*/
+body {
+  font-family: sans-serif;
+  font-weight: normal;
+  font-size: 18pt;
+}
+a {
+  text-decoration: none;
+  color: black;
+}
+line {
+  stroke-linecap: round;
+  stroke-width: 2px;
+  stroke: black;
+}
+svg {
+  vertical-align: -3px;
+  stroke-width: 2px;
+  stroke: black;
+}
+
+/* Date nav styling */
+div#date_nav {
+  margin-bottom: 20px;
+  margin-top: 20px;
+  width: 250px;
+  font-size: 22pt;
+}
+span.past {
+  color: gray;
+}
+span.past line, span.past rect {
+  stroke: gray;
+}
+span.present line, span.present rect, span.future line, span.future rect {
+  stroke: black;
+}
+span.present line#backslash, span.future line#backslash, span.future line#forwardslash {
+  stroke-width: 0;
+}
+
+/* Task text and menu */
+div.task_container {
+  padding-bottom: 10px;
+}
+span.task_text {
+  padding-left: 5px;
+}
+div.taskmenu {
+  display: none;
+  border-width: 2px 0px 0px 0px;
+  border-style: solid;
+  border-color: darkgray;
+  background-color: rgb(245, 245, 245);
+  padding-left: 33px;
+  margin-top: 5px;
+  vertical-align: top;
+}
+
+/* Diamond styles */
+svg.notdone line, svg.started > line#backslash {
+  stroke-width: 0px;
+}
+svg.started > line#forwardslash {
+  stroke-width: 2px;
+}
+svg.done + span.task_text {
+  color: gray;
+}
+svg.done * {
+  stroke: gray;
+}
+svg.done line {
+  stroke-width: 2px;
+}
+
+/* Entry form style */
+input {
+  font-family: sans-serif;
+  font-weight: normal;
+  font-size: 18pt;
+  margin-top: 5px;
+}
+#entry_box {
+  width: 300px;
+}
+
+/* Bottom logo stuff */
+div.bottomlogo {
+  padding-top: 20px;
+  color: gray;
+}
+#logoslash {
+  stroke: gray;
+}
+</style>
+
+</head>
+{% macro date_nav() %}
+<span id="date_nav" class="past">
+  <a href="/{{ get_days(date, -1) }}">
+    <svg id="da_left" width="15" height="28">
+      <line x1="14" y1="1" x2="1" y2="14" />
+      <line x1="14" y1="26" x2="1" y2="14" />
+    </svg>
+  </a>
+
+  <svg id="date_diamond" width="28" height="28" >
+    <g transform="translate(0) rotate(45 12 16)">
+      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" fill="white"  />
+    </g>
+    <line id="forwardslash" stroke-width="0" x1="27" y1="1" x2="1" y2="27" />
+    <line id="backslash" stroke-width="0" x1="1" y1="1" x2="27" y2="27" />
+  </svg>
+  {{ get_readable_date(date) }}
+
+  <a href="/{{ get_days(date, 1) }}">
+    <svg id="da_right" width="15" height="28">
+      <line x1="1" y1="1" x2="14" y2="14" />
+      <line x1="1" y1="26" x2="14" y2="14" />
+    </svg>
+  </a>
+
+</span>
+{% endmacro %}
+
+{% macro draw_task(task) %}
+<div class="task_container" date="{{ date }}"" key="{{ task['task_key'] }}">
+  <svg id="task_diamond" class="{{ task['status'] }}" width="28" height="28">
+    <g transform="translate(0) rotate(45 12 16)">
+      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2" fill="white" />
+    </g>
+    <line id="forwardslash" stroke-width="0" x1="27" y1="1" x2="1" y2="27" />
+    <line id="backslash" stroke-width="0" x1="1" y1="1" x2="27" y2="27" />
+  </svg>
+  <span class="task_text">{{ task['description'] }}</span>
+  <div class="taskmenu">
+    <span id="un-do">{{ draw_undo() }}un-do</span><br>
+    <span id="delete">{{ draw_delete() }}delete</span>
+    <span id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro draw_undo() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <g transform="translate(0) rotate(45 15 10)"><!-- second 2 rotate args: rect x + width/2 -->
+    <rect x="6" y="6" rx="1" ry="1" width="14" height="14" stroke="black" stroke-width="2" fill-opacity="0.0" />
+  </g>
+</svg>
+{% endmacro %}
+
+{% macro draw_delete() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="3" y1="3" x2="19" y2="19" />
+  <line x1="19" y1="3" x2="3" y2="19" />
+</svg>
+{% endmacro %}
+
+{% macro draw_tomorrow() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="3" y1="10" x2="19" y2="10" />
+  <line x1="10" y1="3" x2="19" y2="10" />
+  <line x1="10" y1="18" x2="19" y2="10" />
+</svg>
+{% endmacro %}
+
+<body>
+<div id="date_nav">{{ date_nav() }}</div>
+
+<!-- task list -->
+{% for task in tasks %}
+{{ draw_task(task) }}
+{% endfor %}
+
+<div id="input_form" date="{{ date }}">
+<form action="/insert" method="post" autocomplete="off">
+    <input id="entry_box" type="text" name="description" autofocus="autofocus">
+    <input hidden="hidden" type="text" name="date_due" value="{{ date }}">
+    <input hidden="hidden" type="submit" value="Submit">
+</form>
+</div>
+
+<div class="bottomlogo" align="right">
+  <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
+    <g transform="translate(0) rotate(45 16 16)"><!-- second 2 rotate args: rect x + width/2 -->
+      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
+    </g>
+    <line id="logoslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
+  </svg><span> tinytask</span>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+
+// Helpers
+
+function go_tomorrow() {
+  window.location.href = "/{{ get_days(date, 1) }}";
+};
+
+function go_yesterday() {
+  window.location.href = "/{{ get_days(date, -1) }}";
+}
+
+function check_if_refresh_needed(today, page_load_time) {
+  data = {
+    'date': today,
+    'page_load_time': page_load_time,
+  };
+  $.get('/tasklist/need_to_refresh', data, function(result) {
+    if (result==="true"){
+      window.location.href = "/" + {{ date }};
+    };
+  });
+}
+
+// jQuery magic
+$(document).ready(function() {
+
+// Home
+  $("span#date_nav").click(function() {
+    window.location.href = "/";
+  });
+});
+
+$(document).keyup(function(e) {
+  inputting_status = true;
+  if (!$("#entry_box").is(':focus')) {
+    inputting_status = false;
+  } else if ($("#entry_box").val()==="") {
+    inputting_status = false;
+  };
+  if (inputting_status) {
+    return;
+  }
+  if (e.keyCode===27) {
+    $("div.taskmenu").hide(200);
+  };
+  if (e.keyCode===37) {
+    go_yesterday();
+  };
+  if (e.keyCode===39) {
+    go_tomorrow();
+  };
+});
+
+window.onfocus = function() { 
+  check_if_refresh_needed({{ date }}, {{ time_loaded }}); 
+};
+</script>
+</body>

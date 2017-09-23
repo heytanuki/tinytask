@@ -50,9 +50,12 @@ def date_is_in_past(date):
         return True
     return False
 
+##########
+# Routes #
+##########
+
 @app.route('/')
 def get_local_time_page():
-    print 'getting local time'
     return render_template('get_date.html')
 
 @app.route('/date/<date>/')
@@ -121,8 +124,6 @@ def need_to_refresh():
     date = request.args.get('date')
     loaded_time = int(request.args.get('page_load_time'))
     last_updated = task_db.get_last_updated_time(date)
-    print '{}: {}'.format(type(loaded_time), loaded_time)
-    print '{}: {}'.format(type(last_updated), last_updated)
     if last_updated > loaded_time:
         return "true"
     else:

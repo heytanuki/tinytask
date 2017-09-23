@@ -15,6 +15,7 @@ def context_proc():
     def get_readable_date(date):
         date_parsed = datetime.datetime.strptime(date, '%Y%m%d')
         return date_parsed.strftime('%a %-m/%-d')
+
     return dict(
         get_days=goto_x_days_difference,
         get_readable_date=get_readable_date,
@@ -54,7 +55,7 @@ def get_local_time_page():
     print 'getting local time'
     return render_template('get_date.html')
 
-@app.route('/<date>')
+@app.route('/date/<date>/')
 def render_tasklist(date=None):
     if date is not None:
         if date_is_in_past(date):
@@ -62,7 +63,7 @@ def render_tasklist(date=None):
     if date is None:
         date = get_today()
     if not date_is_valid(date):
-        return redirect('/')
+        return redirect('/date/')
     tasks = task_db.tasks_for_day(date)
     tasks_by_type = {
         'started': [],
@@ -92,15 +93,15 @@ def render_past_tasklist(date):
     tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
     return render_template('task_list_past.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()))
 
-@app.route('/phil')
+@app.route('/phil/')
 def philosophy():
     return render_template('philosophy.html')
 
-@app.route('/demo')
+@app.route('/demo/')
 def render_demo():
     pass
 
-@app.route('/insert', methods=['POST'])
+@app.route('/insert/', methods=['POST'])
 def insert_from_form():
     description = request.form.get('description')
     date_due = request.form.get('date_due', None)
@@ -108,14 +109,14 @@ def insert_from_form():
     if not date_due:
         date_due = get_today()
     insert_from_api(description, date_due)
-    return redirect('/{}'.format(redir_date))
+    return redirect('/date/{}'.format(redir_date))
 
 
 ###############
 # API METHODS #
 ###############
 
-@app.route('/tasklist/need_to_refresh', methods=['GET'])
+@app.route('/tasklist/need_to_refresh/', methods=['GET'])
 def need_to_refresh():
     date = request.args.get('date')
     loaded_time = int(request.args.get('page_load_time'))
@@ -127,7 +128,7 @@ def need_to_refresh():
     else:
         return "false"
 
-@app.route('/tasklist/insert', methods=['POST'])
+@app.route('/tasklist/insert/', methods=['POST'])
 def insert_from_api(description=None, date_due=None):
     if description is None and date_due is None:
         date_due = request.form.get('date_due', None)
@@ -135,20 +136,20 @@ def insert_from_api(description=None, date_due=None):
     new_task = TaskItem(date_due=date_due, description=description)
     return "ok"
 
-@app.route('/tasklist/advance', methods=['POST'])
+@app.route('/tasklist/advance/', methods=['POST'])
 def advance_from_api():
     task = parse_task(request)
     task.advance()
     output = task.details()
     return json.dumps(output)
 
-@app.route('/tasklist/undo', methods=['POST'])
+@app.route('/tasklist/undo/', methods=['POST'])
 def undo_from_api():
     task = parse_task(request)
     task.advance(reset=True)
     return 'ok'
 
-@app.route('/tasklist/moveto', methods=['POST'])
+@app.route('/tasklist/moveto/', methods=['POST'])
 def move_to_x_days():
     x_days = request.form.get('x_days', None)
     task = parse_task(request)
@@ -156,13 +157,13 @@ def move_to_x_days():
     task.update({'date_due': new_date})
     return 'ok'
 
-@app.route('/tasklist/details', methods=['GET'])
+@app.route('/tasklist/details/', methods=['GET'])
 def details_from_api():
     task = parse_task(request)
     output = task.details()
     return json.dumps(output)
 
-@app.route('/tasklist/delete', methods=['POST'])
+@app.route('/tasklist/delete/', methods=['POST'])
 def delete_from_api():
     task = parse_task(request)
     task.delete()

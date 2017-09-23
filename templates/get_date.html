@@ -17,7 +17,7 @@
     year = today.toLocaleDateString("en-US", {year: "numeric"});
     month = today.toLocaleDateString("en-US", {month: "2-digit"});
     day = today.toLocaleDateString("en-US", {day: "2-digit"}); 
-    date_url = "/" + year + month + day;
+    date_url = "/date/" + year + month + day + "/";
     console.log(date_url);
     window.location.replace(date_url);
 </script>

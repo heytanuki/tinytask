@@ -36,8 +36,6 @@ class TaskDB(object):
         except KeyError:
             self.__init__()
 
-
-
     def insert_data(self, data):
         if 'timestamp' not in data:
             data['timestamp'] = {'.sv': 'timestamp'}

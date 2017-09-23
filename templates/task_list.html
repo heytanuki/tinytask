@@ -111,7 +111,7 @@ div.bottomlogo {
 
 {% macro date_nav() %}
 <span id="date_nav" class="present">
-  <a href="/{{ get_days(date, -1) }}">
+  <a href="/date/{{ get_days(date, -1) }}/">
     <svg id="da_left" width="15" height="28">
       <line x1="14" y1="1" x2="1" y2="14" />
       <line x1="14" y1="26" x2="1" y2="14" />
@@ -127,7 +127,7 @@ div.bottomlogo {
   </svg>
   {{ get_readable_date(date) }}
 
-  <a href="/{{ get_days(date, 1) }}">
+  <a href="/date/{{ get_days(date, 1) }}/">
     <svg id="da_right" width="15" height="28">
       <line x1="1" y1="1" x2="14" y2="14" />
       <line x1="1" y1="26" x2="14" y2="14" />
@@ -187,7 +187,7 @@ div.bottomlogo {
 {% endfor %}
 
 <div id="input_form" date="{{ date }}">
-<form action="/insert" method="post" autocomplete="off">
+<form action="/insert/" method="post" autocomplete="off">
     <input id="entry_box" type="text" name="description" autofocus="autofocus">
     <input hidden="hidden" type="text" name="date_due" value="{{ date }}">
     <input hidden="hidden" type="submit" value="Submit">
@@ -234,11 +234,11 @@ function update_menu_tomorrow(container) {
 };
 
 function go_tomorrow() {
-  window.location.href = "/{{ get_days(date, 1) }}";
+  window.location.href = "/date/{{ get_days(date, 1) }}/";
 };
 
 function go_yesterday() {
-  window.location.href = "/{{ get_days(date, -1) }}";
+  window.location.href = "/date/{{ get_days(date, -1) }}/";
 }
 
 function get_todays_date() {
@@ -265,7 +265,7 @@ function check_if_refresh_needed(today, page_load_time) {
   };
   $.get('/tasklist/need_to_refresh', data, function(result) {
     if (result==="true"){
-      window.location.href = "/" + {{ date }};
+      window.location.href = "/date/" + {{ date }} + "/";
     };
   });
 }
@@ -278,6 +278,16 @@ $(document).ready(function() {
   $("svg#task_diamond").each(function(i) {
     update_menu_tomorrow($(this));
     update_menu_undo($(this));
+  });
+
+// Open/close task menu
+  $("span.task_text").click(function() {
+    if ($(this).next().is(":visible")) {
+      $(this).next().hide(200);
+    } else {
+      $("div.taskmenu").hide(200);
+      $(this).next().show(200);
+    }
   });
 
 // Advance task status
@@ -297,19 +307,9 @@ $(document).ready(function() {
       "date_due": $(this).parent().attr("date"),
       "task_key": $(this).parent().attr("key")
     };
-    $.post("tasklist/advance", data, function(response) {
+    $.post("/tasklist/advance/", data, function(response) {
       set_task(response, $(this));
     }, "json");
-  });
-
-// Open/close task menu
-  $("span.task_text").click(function() {
-    if ($(this).next().is(":visible")) {
-      $(this).next().hide(200);
-    } else {
-      $("div.taskmenu").hide(200);
-      $(this).next().show(200);
-    }
   });
 
 // Un-do task, reset to "notdone" status
@@ -323,7 +323,7 @@ $(document).ready(function() {
     };
     set_task(data, diamond);
     $(this).parent().hide(200);
-    $.post("tasklist/undo", data);
+    $.post("/tasklist/undo/", data);
     update_menu_undo(diamond);
     update_menu_tomorrow(diamond);
   });
@@ -335,8 +335,8 @@ $(document).ready(function() {
       "task_key": $(this).parent().parent().attr("key")
     };
     $(this).parent().parent().hide(200);
-    $.post("tasklist/delete", data, function() {
-      window.location.href = "/" + data["date_due"];
+    $.post("/tasklist/delete/", data, function() {
+      window.location.href = "/date/" + data["date_due"] + "/";
     });
   });
 
@@ -348,14 +348,19 @@ $(document).ready(function() {
       "x_days": 1
     };
     $(this).parent().parent().hide(200);
-    $.post("tasklist/moveto", data, function() {
-      window.location.href = "/" + data["date_due"];
+    $.post("/tasklist/moveto/", data, function() {
+      window.location.href = "/date/" + data["date_due"] + "/";
     });
   });
 
 // Home
   $("span#list_date").click(function() {
-    window.location.href = "/";
+    today = new Date();
+    year = today.toLocaleDateString("en-US", {year: "numeric"});
+    month = today.toLocaleDateString("en-US", {month: "2-digit"});
+    day = today.toLocaleDateString("en-US", {day: "2-digit"}); 
+    date_url = "/date/" + year + month + day + "/";
+    window.location.href = date_url;
   });
 });
 

@@ -110,7 +110,7 @@ div.bottomlogo {
 </head>
 {% macro date_nav() %}
 <span id="date_nav" class="past">
-  <a href="/{{ get_days(date, -1) }}">
+  <a href="/date/{{ get_days(date, -1) }}/">
     <svg id="da_left" width="15" height="28">
       <line x1="14" y1="1" x2="1" y2="14" />
       <line x1="14" y1="26" x2="1" y2="14" />
@@ -126,7 +126,7 @@ div.bottomlogo {
   </svg>
   {{ get_readable_date(date) }}
 
-  <a href="/{{ get_days(date, 1) }}">
+  <a href="/date/{{ get_days(date, 1) }}/">
     <svg id="da_right" width="15" height="28">
       <line x1="1" y1="1" x2="14" y2="14" />
       <line x1="1" y1="26" x2="14" y2="14" />
@@ -185,14 +185,6 @@ div.bottomlogo {
 {{ draw_task(task) }}
 {% endfor %}
 
-<div id="input_form" date="{{ date }}">
-<form action="/insert" method="post" autocomplete="off">
-    <input id="entry_box" type="text" name="description" autofocus="autofocus">
-    <input hidden="hidden" type="text" name="date_due" value="{{ date }}">
-    <input hidden="hidden" type="submit" value="Submit">
-</form>
-</div>
-
 <div class="bottomlogo" align="right">
   <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
     <g transform="translate(0) rotate(45 16 16)"><!-- second 2 rotate args: rect x + width/2 -->
@@ -202,6 +194,9 @@ div.bottomlogo {
   </svg><span> tinytask</span>
 </div>
 
+<div height="200">
+</div>
+.
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
@@ -209,11 +204,11 @@ div.bottomlogo {
 // Helpers
 
 function go_tomorrow() {
-  window.location.href = "/{{ get_days(date, 1) }}";
+  window.location.href = "/date/{{ get_days(date, 1) }}/";
 };
 
 function go_yesterday() {
-  window.location.href = "/{{ get_days(date, -1) }}";
+  window.location.href = "/date/{{ get_days(date, -1) }}/";
 }
 
 function check_if_refresh_needed(today, page_load_time) {
@@ -221,9 +216,9 @@ function check_if_refresh_needed(today, page_load_time) {
     'date': today,
     'page_load_time': page_load_time,
   };
-  $.get('/tasklist/need_to_refresh', data, function(result) {
+  $.get('/tasklist/need_to_refresh/', data, function(result) {
     if (result==="true"){
-      window.location.href = "/" + {{ date }};
+      window.location.href = "/" + {{ date }} + "/";
     };
   });
 }
@@ -232,8 +227,8 @@ function check_if_refresh_needed(today, page_load_time) {
 $(document).ready(function() {
 
 // Home
-  $("span#date_nav").click(function() {
-    window.location.href = "/";
+  $("div#date_nav").click(function() {
+    window.location.href = "/date/";
   });
 });
 

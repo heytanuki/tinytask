@@ -6,10 +6,16 @@ from tasklist import TaskDB, UserTasks, TaskError
 db_connection = TaskDB()
 
 class UserTasksTest(unittest.TestCase):
-    def setUp(self, username='test_tanuki'):
-        self.test_task_db = UserTasks(username, db_connection)
+    @classmethod
+    def setUpClass(self):
+        self.test_task_db = UserTasks('test_tanuki', db_connection)
         self.day = '20170218'
         self.tomorrow = '20170219'
+
+    @classmethod
+    def tearDownClass(self):
+        self.test_task_db.delete_all_tasks_for_date(self.day)
+        self.test_task_db.delete_all_tasks_for_date(self.tomorrow)
 
     def random_task(self):
         random_alphabet = 'abcd efghijk lmno pqrs tuvwx yzAB CDEFGHIJ KLMNOP QRSTU VWXYZ '

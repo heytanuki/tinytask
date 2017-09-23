@@ -4,13 +4,6 @@
 <meta name="viewport" content="width=device-width, target-densityDpi=device-dpi, initial-scale=1.0">
 
 <style>
-
-/*div.hidden {
-  display: none;
-}
-span.hidden {
-  display: none;
-}*/
 body {
   font-family: sans-serif;
   font-weight: normal;
@@ -18,12 +11,14 @@ body {
 }
 a {
   text-decoration: none;
-  color: black;
 }
 line {
   stroke-linecap: round;
   stroke-width: 2px;
   stroke: black;
+}
+rect {
+  fill: white;
 }
 svg {
   vertical-align: -3px;
@@ -43,9 +38,6 @@ span.past {
 }
 span.past line, span.past rect {
   stroke: gray;
-}
-span.present line, span.present rect, span.future line, span.future rect {
-  stroke: black;
 }
 span.present line#backslash, span.future line#backslash, span.future line#forwardslash {
   stroke-width: 0;
@@ -82,9 +74,6 @@ svg.done + span.task_text {
 svg.done * {
   stroke: gray;
 }
-svg.done line {
-  stroke-width: 2px;
-}
 
 /* Entry form style */
 input {
@@ -110,7 +99,7 @@ div.bottomlogo {
 </head>
 
 {% macro date_nav() %}
-<span id="date_nav" class="present">
+<span id="date_nav" class="future">
   <a href="/date/{{ get_days(date, -1) }}/">
     <svg id="da_left" width="15" height="28">
       <line x1="14" y1="1" x2="1" y2="14" />
@@ -120,10 +109,10 @@ div.bottomlogo {
 
   <svg id="date_diamond" width="28" height="28" >
     <g transform="translate(0) rotate(45 12 16)">
-      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" fill="white"  />
+      <rect x="3" y="4" rx="1" ry="1" width="18" height="18"   />
     </g>
-    <line id="forwardslash" stroke-width="0" x1="27" y1="1" x2="1" y2="27" />
-    <line id="backslash" stroke-width="0" x1="1" y1="1" x2="27" y2="27" />
+    <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
+    <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
   </svg>
   {{ get_readable_date(date) }}
 
@@ -141,10 +130,10 @@ div.bottomlogo {
 <div class="task_container" date="{{ date }}"" key="{{ task['task_key'] }}">
   <svg id="task_diamond" class="{{ task['status'] }}" width="28" height="28">
     <g transform="translate(0) rotate(45 12 16)">
-      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2" fill="white" />
+      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" />
     </g>
-    <line id="forwardslash" stroke-width="0" x1="27" y1="1" x2="1" y2="27" />
-    <line id="backslash" stroke-width="0" x1="1" y1="1" x2="27" y2="27" />
+    <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
+    <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
   </svg>
   <span class="task_text">{{ task['description'] }}</span>
   <div class="taskmenu">
@@ -157,7 +146,7 @@ div.bottomlogo {
 
 {% macro draw_undo() %}
 <svg width="22" height="22" viewBox="0 0 22 22">
-  <g transform="translate(0) rotate(45 15 10)"><!-- second 2 rotate args: rect x + width/2 -->
+  <g transform="translate(0) rotate(45 15 10)">
     <rect x="6" y="6" rx="1" ry="1" width="14" height="14" stroke="black" stroke-width="2" fill-opacity="0.0" />
   </g>
 </svg>
@@ -172,7 +161,7 @@ div.bottomlogo {
 
 {% macro draw_tomorrow() %}
 <svg width="22" height="22" viewBox="0 0 22 22">
-  <line x1="3" y1="10" x2="19" y2="10" />
+  <line x1="3" y1="10" x2="18" y2="10" />
   <line x1="10" y1="3" x2="19" y2="10" />
   <line x1="10" y1="18" x2="19" y2="10" />
 </svg>
@@ -197,12 +186,11 @@ div.bottomlogo {
 <div class="bottomlogo" align="right">
   <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
     <g transform="translate(0) rotate(45 16 16)"><!-- second 2 rotate args: rect x + width/2 -->
-      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
+      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" />
     </g>
-    <line id="logoslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
+    <line id="logoslash" x1="27" y1="5" x2="5" y2="27" />
   </svg><span> tinytask</span>
 </div>
-
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>

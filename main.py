@@ -2,7 +2,7 @@ import json
 import datetime
 import time
 from flask import Flask, render_template, request, redirect
-from tasklist import TaskDB, TaskItem
+from tasklist import TaskDB, UserTasks, TaskItem
 
 app = Flask(__name__)
 task_db = TaskDB()
@@ -60,6 +60,7 @@ def get_local_time_page():
 
 @app.route('/date/<date>/')
 def render_tasklist(date=None):
+    user_tasks = UserTasks('tanuki', task_db)
     if date is not None:
         if date_is_in_past(date):
             return render_past_tasklist(date)
@@ -67,7 +68,7 @@ def render_tasklist(date=None):
         date = get_today()
     if not date_is_valid(date):
         return redirect('/date/')
-    tasks = task_db.tasks_for_day(date)
+    tasks = user_tasks.tasks_for_day(date)
     tasks_by_type = {
         'started': [],
         'notdone': [],
@@ -82,7 +83,8 @@ def render_tasklist(date=None):
     return render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()))
 
 def render_past_tasklist(date):
-    tasks = task_db.tasks_for_day(date)
+    user_tasks = UserTasks('tanuki', task_db)
+    tasks = user_tasks.tasks_for_day(date)
     tasks_by_type = {
         'started': [],
         'notdone': [],
@@ -121,9 +123,10 @@ def insert_from_form():
 
 @app.route('/tasklist/need_to_refresh/', methods=['GET'])
 def need_to_refresh():
+    user_tasks = UserTasks('tanuki', task_db)
     date = request.args.get('date')
     loaded_time = int(request.args.get('page_load_time'))
-    last_updated = task_db.get_last_updated_time(date)
+    last_updated = user_tasks.get_last_updated_time(date)
     if last_updated > loaded_time:
         return "true"
     else:
@@ -134,7 +137,7 @@ def insert_from_api(description=None, date_due=None):
     if description is None and date_due is None:
         date_due = request.form.get('date_due', None)
         description = request.form.get('description')
-    new_task = TaskItem(date_due=date_due, description=description)
+    new_task = TaskItem('tanuki', task_db, date_due=date_due, description=description)
     return "ok"
 
 @app.route('/tasklist/advance/', methods=['POST'])
@@ -177,7 +180,7 @@ def parse_task(request):
     if request.method == 'GET':
         date = request.args.get('date_due')
         task_key = request.args.get('task_key')
-    task = TaskItem(date, task_key)
+    task = TaskItem('tanuki', task_db, date, task_key)
     return task
 
 if __name__ == '__main__':

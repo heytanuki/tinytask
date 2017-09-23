@@ -39,7 +39,8 @@ class TaskDB(object):
 class UserTasks(object):
 
     def __init__(self, username, db_connection, tasks_database='tasks'):
-        self.username = username
+        # self.username = username
+        self.username = 'tanuki'
         self.tasks_database = tasks_database
         self.db_connection = db_connection
         self.db = self.db_connection.database
@@ -136,7 +137,8 @@ class UserTasks(object):
             task_as_dict = tasks[item]
             task_as_dict['task_key'] = item
             tasks_as_list.append(task_as_dict)
-        return tasks_as_list
+        tasks_as_list_sorted = sorted(tasks_as_list, key=lambda k: k['timestamp']) 
+        return tasks_as_list_sorted
 
     def tasks_for_day(self, day):
         tasks = self.db \
@@ -180,8 +182,8 @@ class UserTasks(object):
 
 class TaskItem(object):
 
-    def __init__(self, username, date_due, task_key=None, description=None):
-        self.tasks_database = UserTasks(username)
+    def __init__(self, username, task_db, date_due, task_key=None, description=None):
+        self.tasks_database = UserTasks(username, task_db)
         if task_key:
             self.date_due = date_due
             self.task_key = task_key

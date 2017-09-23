@@ -354,12 +354,14 @@ $(document).ready(function() {
   });
 
 // Home
-  $("span#list_date").click(function() {
+  $("span#date_nav").click(function() {
     today = new Date();
     year = today.toLocaleDateString("en-US", {year: "numeric"});
     month = today.toLocaleDateString("en-US", {month: "2-digit"});
     day = today.toLocaleDateString("en-US", {day: "2-digit"}); 
-    date_url = "/date/" + year + month + day + "/";
+    date = year + month + day;
+    if (date=={{ date }}) { return; };
+    date_url = "/date/" + date + "/";
     window.location.href = date_url;
   });
 });

@@ -5,30 +5,24 @@
 
 <style>
 
-/*div.hidden {
-  display: none;
-}
-span.hidden {
-  display: none;
-}*/
 body {
   font-family: sans-serif;
   font-weight: normal;
   font-size: 18pt;
+  color: gray;
 }
 a {
   text-decoration: none;
-  color: black;
 }
 line {
   stroke-linecap: round;
   stroke-width: 2px;
-  stroke: black;
+  stroke: gray;
 }
 svg {
   vertical-align: -3px;
   stroke-width: 2px;
-  stroke: black;
+  stroke: gray;
 }
 
 /* Date nav styling */
@@ -38,18 +32,6 @@ div#date_nav {
   width: 250px;
   font-size: 22pt;
 }
-span.past {
-  color: gray;
-}
-span.past line, span.past rect {
-  stroke: gray;
-}
-span.present line, span.present rect, span.future line, span.future rect {
-  stroke: black;
-}
-span.present line#backslash, span.future line#backslash, span.future line#forwardslash {
-  stroke-width: 0;
-}
 
 /* Task text and menu */
 div.task_container {
@@ -57,16 +39,6 @@ div.task_container {
 }
 span.task_text {
   padding-left: 5px;
-}
-div.taskmenu {
-  display: none;
-  border-width: 2px 0px 0px 0px;
-  border-style: solid;
-  border-color: darkgray;
-  background-color: rgb(245, 245, 245);
-  padding-left: 33px;
-  margin-top: 5px;
-  vertical-align: top;
 }
 
 /* Diamond styles */
@@ -76,35 +48,12 @@ svg.notdone line, svg.started > line#backslash {
 svg.started > line#forwardslash {
   stroke-width: 2px;
 }
-svg.done + span.task_text {
-  color: gray;
-}
-svg.done * {
-  stroke: gray;
-}
-svg.done line {
-  stroke-width: 2px;
-}
 
-/* Entry form style */
-input {
-  font-family: sans-serif;
-  font-weight: normal;
-  font-size: 18pt;
-  margin-top: 5px;
-}
-#entry_box {
-  width: 300px;
-}
-
-/* Bottom logo stuff */
+/* Bottom logo */
 div.bottomlogo {
   padding-top: 20px;
-  color: gray;
 }
-#logoslash {
-  stroke: gray;
-}
+
 </style>
 
 </head>
@@ -146,35 +95,7 @@ div.bottomlogo {
     <line id="backslash" stroke-width="0" x1="1" y1="1" x2="27" y2="27" />
   </svg>
   <span class="task_text">{{ task['description'] }}</span>
-  <div class="taskmenu">
-    <span id="un-do">{{ draw_undo() }}un-do</span><br>
-    <span id="delete">{{ draw_delete() }}delete</span>
-    <span id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
-  </div>
 </div>
-{% endmacro %}
-
-{% macro draw_undo() %}
-<svg width="22" height="22" viewBox="0 0 22 22">
-  <g transform="translate(0) rotate(45 15 10)"><!-- second 2 rotate args: rect x + width/2 -->
-    <rect x="6" y="6" rx="1" ry="1" width="14" height="14" stroke="black" stroke-width="2" fill-opacity="0.0" />
-  </g>
-</svg>
-{% endmacro %}
-
-{% macro draw_delete() %}
-<svg width="22" height="22" viewBox="0 0 22 22">
-  <line x1="3" y1="3" x2="19" y2="19" />
-  <line x1="19" y1="3" x2="3" y2="19" />
-</svg>
-{% endmacro %}
-
-{% macro draw_tomorrow() %}
-<svg width="22" height="22" viewBox="0 0 22 22">
-  <line x1="3" y1="10" x2="19" y2="10" />
-  <line x1="10" y1="3" x2="19" y2="10" />
-  <line x1="10" y1="18" x2="19" y2="10" />
-</svg>
 {% endmacro %}
 
 <body>
@@ -188,15 +109,11 @@ div.bottomlogo {
 <div class="bottomlogo" align="right">
   <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
     <g transform="translate(0) rotate(45 16 16)"><!-- second 2 rotate args: rect x + width/2 -->
-      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" fill="white"  />
+      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" fill="white"  />
     </g>
-    <line id="logoslash" stroke-width="2" stroke="gray" x1="27" y1="5" x2="5" y2="27" />
+    <line id="logoslash" stroke-width="2" x1="27" y1="5" x2="5" y2="27" />
   </svg><span> tinytask</span>
 </div>
-
-<div height="200">
-</div>
-.
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
@@ -226,18 +143,6 @@ $(document).ready(function() {
 });
 
 $(document).keyup(function(e) {
-  inputting_status = true;
-  if (!$("#entry_box").is(':focus')) {
-    inputting_status = false;
-  } else if ($("#entry_box").val()==="") {
-    inputting_status = false;
-  };
-  if (inputting_status) {
-    return;
-  }
-  if (e.keyCode===27) {
-    $("div.taskmenu").hide(200);
-  };
   if (e.keyCode===37) {
     go_yesterday();
   };
@@ -246,8 +151,5 @@ $(document).keyup(function(e) {
   };
 });
 
-window.onfocus = function() { 
-  check_if_refresh_needed({{ date }}, {{ time_loaded }}); 
-};
 </script>
 </body>

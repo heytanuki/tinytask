@@ -1,7 +1,7 @@
 import datetime
 import time
 import pyrebase
-from secrets import FIREBASE_CONFIG, FIREBASE_AUTH_USER, FIREBASE_AUTH_PW
+from conf.secrets import FIREBASE_CONFIG, FIREBASE_AUTH_USER, FIREBASE_AUTH_PW
 
 
 class TaskError(Exception):
@@ -39,8 +39,7 @@ class TaskDB(object):
 class UserTasks(object):
 
     def __init__(self, username, db_connection, tasks_database='tasks'):
-        # self.username = username
-        self.username = 'tanuki'
+        self.username = username
         self.tasks_database = tasks_database
         self.db_connection = db_connection
         self.db = self.db_connection.database
@@ -128,6 +127,13 @@ class UserTasks(object):
             .child(task_key) \
             .remove(self.db_connection.get_token())
         self.set_last_updated_time(date_due)
+
+    def delete_all_tasks_for_date(self, date):
+        self.db \
+            .child(self.username) \
+            .child(self.tasks_database) \
+            .child(date) \
+            .remove(self.db_connection.get_token())
 
     def tasks_to_list(self, tasks):
         tasks_as_list = []

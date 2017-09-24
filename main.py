@@ -1,7 +1,7 @@
 import json
 import datetime
 import time
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, send_file
 from tasklist import TaskDB, TaskItem
 
 app = Flask(__name__)
@@ -113,7 +113,7 @@ def insert_from_form():
 
 @app.route('/icon/')
 def send_icon():
-    return flask.send_file('static/tinytask_icon_logo.png', mimetype='image/png')
+    return send_file('static/tinytask_icon_logo.png', mimetype='image/png')
 
 
 ###############

@@ -111,6 +111,10 @@ def insert_from_form():
     insert_from_api(description, date_due)
     return redirect('/date/{}'.format(redir_date))
 
+@app.route('/icon/')
+def send_icon():
+    return flask.send_file('static/tinytask_icon_logo.png', mimetype='image/png')
+
 
 ###############
 # API METHODS #

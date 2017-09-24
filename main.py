@@ -5,11 +5,12 @@ import httplib2
 import uuid
 from apiclient import discovery
 from oauth2client import client
-from flask import Flask, render_template, request, redirect, url_for, session
+# from flask import Flask, render_template, request, redirect, url_for, session
+import flask
 from tasklist import TaskDB, UserTasks, TaskItem
 from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KEY
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
 task_db = TaskDB()
 
 @app.context_processor
@@ -35,21 +36,21 @@ def get_google_oauth():
     flow = client.flow_from_clientsecrets(
         GOOGLE_CLIENT_SECRET_PATH,
         scope=' '.join(GOOGLE_SCOPES),
-        redirect_uri=url_for('get_google_oauth', _external=True),
+        redirect_uri=flask.url_for('get_google_oauth', _external=True),
     )
-    if 'code' not in request.args:
+    if 'code' not in flask.request.args:
         auth_uri = flow.step1_get_authorize_url()
-        return redirect(auth_uri)
+        return flask.redirect(auth_uri)
     else:
-        auth_code = request.args.get('code')
+        auth_code = flask.request.args.get('code')
         credentials = flow.step2_exchange(auth_code)
         http_auth = credentials.authorize(httplib2.Http())
         oauth2_service = discovery.build('oauth2', 'v2', http_auth)
         id = oauth2_service.userinfo().get().execute()
         email = id['email']
         user_id = email.replace('.', '')
-        session['tinytask_username'] = user_id
-        return redirect('/')
+        flask.session['tinytask_username'] = user_id
+        return flask.redirect('/')
 
 ###########
 # Helpers #
@@ -86,13 +87,13 @@ def date_is_in_past(date):
 
 @app.route('/')
 def get_local_time_page():
-    return render_template('get_date.html') # find a better way to do this plz
+    return flask.render_template('get_date.html') # find a better way to do this plz
 
 @app.route('/date/<date>/')
 def render_tasklist(date=None):
-    if 'tinytask_username' not in session:
-        return redirect(url_for('get_google_oauth'))
-    username = session['tinytask_username']
+    if 'tinytask_username' not in flask.session:
+        return flask.redirect(flask.url_for('get_google_oauth'))
+    username = flask.session['tinytask_username']
     user_tasks = UserTasks(username, task_db)
     if date is not None:
         if date_is_in_past(date):
@@ -100,7 +101,7 @@ def render_tasklist(date=None):
     if date is None:
         date = get_today()
     if not date_is_valid(date):
-        return redirect(url_for('render_tasklist', date=None))
+        return flask.redirect(flask.url_for('render_tasklist', date=None))
     tasks = user_tasks.tasks_for_day(date)
     tasks_by_type = {
         'started': [],
@@ -113,19 +114,19 @@ def render_tasklist(date=None):
         except KeyError:
             continue
     tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
-    return render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()), logged_in_as=username)
+    return flask.render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()), logged_in_as=username)
 
 def render_past_tasklist(date):
-    if 'tinytask_username' not in session:
-        return redirect(url_for('get_google_oauth'))
-    username = session['tinytask_username']
+    if 'tinytask_username' not in flask.session:
+        return flask.redirect(flask.url_for('get_google_oauth'))
+    username = flask.session['tinytask_username']
     user_tasks = UserTasks(username, task_db)
     tasks = user_tasks.tasks_for_day(date)
-    return render_template('task_list_past.html', tasks=tasks, date=date, logged_in_as=username)
+    return flask.render_template('task_list_past.html', tasks=tasks, date=date, logged_in_as=username)
 
 @app.route('/phil/')
 def philosophy():
-    return render_template('philosophy.html')
+    return flask.render_template('philosophy.html')
 
 @app.route('/demo/')
 def render_demo():
@@ -133,14 +134,17 @@ def render_demo():
 
 @app.route('/insert/', methods=['POST'])
 def insert_from_form():
-    description = request.form.get('description')
-    date_due = request.form.get('date_due', None)
+    description = flask.request.form.get('description')
+    date_due = flask.request.form.get('date_due', None)
     redir_date = date_due
     if not date_due:
         date_due = get_today()
     insert_from_api(description, date_due)
-    return redirect(url_for('render_tasklist', date=redir_date))
+    return flask.redirect(flask.url_for('render_tasklist', date=redir_date))
 
+@app.route('/icon/')
+def send_icon():
+    return flask.send_file('static/tinytask_icon_logo.png', mimetype='image/png')
 
 ###############
 # API METHODS #
@@ -148,12 +152,12 @@ def insert_from_form():
 
 @app.route('/tasklist/need_to_refresh/', methods=['GET'])
 def need_to_refresh():
-    if 'tinytask_username' not in session:
-        return redirect(url_for('get_google_oauth'))
-    username = session['tinytask_username']
+    if 'tinytask_username' not in flask.session:
+        return flask.redirect(flask.url_for('get_google_oauth'))
+    username = flask.session['tinytask_username']
     user_tasks = UserTasks(username, task_db)
-    date = request.args.get('date')
-    loaded_time = int(request.args.get('page_load_time'))
+    date = flask.request.args.get('date')
+    loaded_time = int(flask.request.args.get('page_load_time'))
     last_updated = user_tasks.get_last_updated_time(date)
     if last_updated > loaded_time:
         return "true"
@@ -162,58 +166,58 @@ def need_to_refresh():
 
 @app.route('/tasklist/insert/', methods=['POST'])
 def insert_from_api(description=None, date_due=None):
-    if 'tinytask_username' not in session:
-        return redirect(url_for('get_google_oauth'))
-    username = session['tinytask_username']
+    if 'tinytask_username' not in flask.session:
+        return flask.redirect(flask.url_for('get_google_oauth'))
+    username = flask.session['tinytask_username']
     if description is None and date_due is None:
-        date_due = request.form.get('date_due', None)
-        description = request.form.get('description')
+        date_due = flask.request.form.get('date_due', None)
+        description = flask.request.form.get('description')
     new_task = TaskItem(username, task_db, date_due=date_due, description=description)
     return "ok"
 
 @app.route('/tasklist/advance/', methods=['POST'])
 def advance_from_api():
-    task = parse_task(request)
+    task = parse_task(flask.request)
     task.advance()
     output = task.details()
     return json.dumps(output)
 
 @app.route('/tasklist/undo/', methods=['POST'])
 def undo_from_api():
-    task = parse_task(request)
+    task = parse_task(flask.request)
     task.advance(reset=True)
     return 'ok'
 
 @app.route('/tasklist/moveto/', methods=['POST'])
 def move_to_x_days():
-    x_days = request.form.get('x_days', None)
-    task = parse_task(request)
+    x_days = flask.request.form.get('x_days', None)
+    task = parse_task(flask.request)
     new_date = get_x_days_difference(task.date_due, int(x_days))
     task.update({'date_due': new_date})
     return 'ok'
 
 @app.route('/tasklist/details/', methods=['GET'])
 def details_from_api():
-    task = parse_task(request)
+    task = parse_task(flask.request)
     output = task.details()
     return json.dumps(output)
 
 @app.route('/tasklist/delete/', methods=['POST'])
 def delete_from_api():
-    task = parse_task(request)
+    task = parse_task(flask.request)
     task.delete()
     return 'ok'
 
-def parse_task(request):
-    if 'tinytask_username' not in session:
-        return redirect(url_for('get_google_oauth'))
-    username = session['tinytask_username']
-    if request.method == 'POST':
-        date = request.form.get('date_due')
-        task_key = request.form.get('task_key')
-    if request.method == 'GET':
-        date = request.args.get('date_due')
-        task_key = request.args.get('task_key')
+def parse_task(current_request):
+    if 'tinytask_username' not in flask.session:
+        return flask.redirect(flask.url_for('get_google_oauth'))
+    username = flask.session['tinytask_username']
+    if current_request.method == 'POST':
+        date = current_request.form.get('date_due')
+        task_key = current_request.form.get('task_key')
+    if current_request.method == 'GET':
+        date = current_request.args.get('date_due')
+        task_key = current_request.args.get('task_key')
     task = TaskItem(username, task_db, date, task_key)
     return task
 

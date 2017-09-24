@@ -7,7 +7,7 @@ from apiclient import discovery
 from oauth2client import client
 from flask import Flask, render_template, request, redirect, url_for, session
 from tasklist import TaskDB, UserTasks, TaskItem
-from conf.secrets import GOOGLE_SCOPES, APP_SECRET_KEY
+from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KEY
 
 app = Flask(__name__)
 task_db = TaskDB()
@@ -33,7 +33,7 @@ def context_proc():
 @app.route('/callback')
 def get_google_oauth():
     flow = client.flow_from_clientsecrets(
-        'conf/nklist_client_secret.json',
+        GOOGLE_CLIENT_SECRET_PATH,
         scope=' '.join(GOOGLE_SCOPES),
         redirect_uri=url_for('get_google_oauth', _external=True),
     )

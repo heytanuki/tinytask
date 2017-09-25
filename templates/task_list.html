@@ -190,7 +190,7 @@ div.bottomlogo {
     </g>
     <line id="logoslash" x1="27" y1="5" x2="5" y2="27" />
   </svg><span> tinytask</span>
-  <p>logged in as: <span id="username"></span>
+  <p><span id="username"></span>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -264,7 +264,8 @@ $(document).ready(function() {
 
   set_logo_tense();
 
-  $("span#username").text("{{ logged_in_as }}")
+  $("span#username").text("{{ logged_in_as }}");
+  $("span#username").hide();
 
   $("svg#task_diamond").each(function(i) {
     update_menu_tomorrow($(this));

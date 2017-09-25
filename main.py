@@ -5,7 +5,6 @@ import httplib2
 import uuid
 from apiclient import discovery
 from oauth2client import client
-# from flask import Flask, render_template, request, redirect, url_for, session
 import flask
 from tasklist import TaskDB, UserTasks, TaskItem
 from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KEY, AUTHORIZED_EMAILS
@@ -33,7 +32,7 @@ def context_proc():
 
 # TODO: figure out a decorator to simplify testing login status
 
-@app.route('/callback')
+@app.route('/callback/')
 def get_google_oauth():
     flow = client.flow_from_clientsecrets(
         GOOGLE_CLIENT_SECRET_PATH,
@@ -90,7 +89,7 @@ def date_is_in_past(date):
 @app.route('/')
 def index():
     return flask.render_template('index.html', content=""" is being tested right now. 
-  <p>If you've been invited, <a href="/callback">go here to log in</a>.""")
+  <p>If you've been invited, <a href="/callback/">go here to log in</a>.""")
 
 @app.route('/get_client_date/')
 def get_local_time_page():
@@ -150,7 +149,7 @@ def insert_from_form():
 @app.route('/noauth/')
 def not_authorized():
     flask.session.pop('tinytask_username', None)
-    return flask.render_template('index.html', content=""" is inaccessible, for now.""")
+    return flask.render_template('index.html', content=""" is not accessible, for now.""")
 
 
 @app.route('/icon/')

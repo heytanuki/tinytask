@@ -8,7 +8,7 @@ from oauth2client import client
 # from flask import Flask, render_template, request, redirect, url_for, session
 import flask
 from tasklist import TaskDB, UserTasks, TaskItem
-from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KEY
+from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KEY, AUTHORIZED_EMAILS
 
 app = flask.Flask(__name__)
 task_db = TaskDB()
@@ -31,6 +31,8 @@ def context_proc():
 # Authentication #
 ##################
 
+# TODO: figure out a decorator to simplify testing login status
+
 @app.route('/callback')
 def get_google_oauth():
     flow = client.flow_from_clientsecrets(
@@ -48,9 +50,11 @@ def get_google_oauth():
         oauth2_service = discovery.build('oauth2', 'v2', http_auth)
         id = oauth2_service.userinfo().get().execute()
         email = id['email']
+        if email not in AUTHORIZED_EMAILS:
+            return flask.redirect(flask.url_for('not_authorized'))
         user_id = email.replace('.', '')
         flask.session['tinytask_username'] = user_id
-        return flask.redirect('/')
+        return flask.redirect(flask.url_for('render_tasklist'))
 
 ###########
 # Helpers #
@@ -62,8 +66,6 @@ def get_x_days_difference(day, x):
     return diff.strftime('%Y%m%d')
 
 def date_is_valid(date):
-    if not date:
-        return False
     try:
         date_parsed = datetime.datetime.strptime(date, '%Y%m%d')
         return True
@@ -86,22 +88,25 @@ def date_is_in_past(date):
 ##########
 
 @app.route('/')
-def get_local_time_page():
-    return flask.render_template('get_date.html') # find a better way to do this plz
+def index():
+    return flask.render_template('index.html', content=""" is being tested right now. 
+  <p>If you've been invited, <a href="/callback">go here to log in</a>.""")
 
+@app.route('/get_client_date/')
+def get_local_time_page():
+    return flask.render_template('get_date.html') # TODO: see if there's a better way
+
+@app.route('/date/', defaults={'date': None})
 @app.route('/date/<date>/')
-def render_tasklist(date=None):
-    if 'tinytask_username' not in flask.session:
+def render_tasklist(date):
+    if date is None or not date_is_valid(date):
+        return flask.redirect(flask.url_for('get_local_time_page'))
+    if 'tinytask_username' not in flask.session or not flask.session['tinytask_username']:
         return flask.redirect(flask.url_for('get_google_oauth'))
     username = flask.session['tinytask_username']
     user_tasks = UserTasks(username, task_db)
-    if date is not None:
-        if date_is_in_past(date):
-            return render_past_tasklist(date)
-    if date is None:
-        date = get_today()
-    if not date_is_valid(date):
-        return flask.redirect(flask.url_for('render_tasklist', date=None))
+    if date_is_in_past(date):
+        return render_past_tasklist(date)
     tasks = user_tasks.tasks_for_day(date)
     tasks_by_type = {
         'started': [],
@@ -141,6 +146,12 @@ def insert_from_form():
         date_due = get_today()
     insert_from_api(description, date_due)
     return flask.redirect(flask.url_for('render_tasklist', date=redir_date))
+
+@app.route('/noauth/')
+def not_authorized():
+    flask.session.pop('tinytask_username', None)
+    return flask.render_template('index.html', content=""" is inaccessible, for now.""")
+
 
 @app.route('/icon/')
 def send_icon():

@@ -1,0 +1,40 @@
+body {
+  font-family: sans-serif;
+  font-size: 20pt;
+  color: black;
+  width: 80%;
+  margin-left: 5%;
+  margin-top: 20px;
+}
+.gray {
+  color: gray;
+  font-size: 20pt;
+}
+.indented {
+  color: darkgray;
+  margin-left: 50px; 
+  font-size: 16pt;
+}
+svg {
+  vertical-align: -4px;
+}
+svg * {
+  stroke: black;
+  stroke-width: 2px;
+}
+svg#notdone line#backslash {
+  stroke-width: 0px;
+}
+svg#notdone line#forwardslash {
+  stroke-width: 0px;
+}
+
+svg#started line#backslash {
+  stroke-width: 0px;
+}
+svg#logo * {
+  stroke: gray;
+}
+svg#logo line#backslash {
+  stroke-width: 0px;
+}

@@ -89,8 +89,13 @@ def date_is_in_past(date):
 
 @app.route('/')
 def index():
-    return flask.render_template('index.html', content=""" is being tested right now. 
-  <p>If you've been invited, <a href="/callback/">go here to log in with Google</a>.</p><p>Tinytask uses your Google account for authentication purposes only. Your user information will remain private.""")
+    content = """
+        is being tested right now. 
+        <p>If you've been invited, <a href="/callback/">go here to log in with Google</a>.</p>
+        <p>Tinytask uses your Google account for authentication purposes only. 
+        Your user information will remain private.
+        <p><a href="/phil/">More info!</a>"""
+    return flask.render_template('index.html', content=content)
 
 @app.route('/get_client_date/')
 def get_local_time_page():

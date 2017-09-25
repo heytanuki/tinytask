@@ -1,7 +1,7 @@
 import datetime
 import time
 import pyrebase
-from secrets import FIREBASE_CONFIG, FIREBASE_AUTH_USER, FIREBASE_AUTH_PW
+from conf.secrets import FIREBASE_CONFIG, FIREBASE_AUTH_USER, FIREBASE_AUTH_PW
 
 
 class TaskError(Exception):
@@ -10,12 +10,11 @@ class TaskError(Exception):
 
 class TaskDB(object):
 
-    def __init__(self, tasks_database='tasks'):
+    def __init__(self):
         self.firebase = pyrebase.initialize_app(FIREBASE_CONFIG)
         self.auth = self.firebase.auth()
         self.do_auth()
-        self.db = self.firebase.database()
-        self.tasks_database = tasks_database
+        self.database = self.firebase.database()
 
     def do_auth(self):
         self.user = self.auth.sign_in_with_email_and_password(FIREBASE_AUTH_USER, FIREBASE_AUTH_PW)
@@ -36,19 +35,29 @@ class TaskDB(object):
         except KeyError:
             self.__init__()
 
+
+class UserTasks(object):
+
+    def __init__(self, username, db_connection, tasks_database='tasks'):
+        self.username = username
+        self.tasks_database = tasks_database
+        self.db_connection = db_connection
+        self.db = self.db_connection.database
+
     def insert_data(self, data):
         if 'timestamp' not in data:
             data['timestamp'] = {'.sv': 'timestamp'}
         result = self.db \
+                     .child(self.username) \
                      .child(self.tasks_database) \
                      .child(data['date_due']) \
-                     .push(data, self.get_token())
+                     .push(data, self.db_connection.get_token())
         self.set_last_updated_time(data['date_due'])
         return result
 
     def insert_task(self, description, date_due=None):
         if not date_due:
-            date_due = self.get_today()
+            date_due = datetime.date.today().isoformat().replace('-', '')
         data = {
             'description': description,
             'date_due': date_due,
@@ -60,18 +69,20 @@ class TaskDB(object):
     def set_last_updated_time(self, date):
         update_time = int(time.time())
         self.db \
+            .child(self.username) \
             .child(self.tasks_database) \
             .child(date) \
             .child('last_updated') \
-            .set(update_time, self.get_token())
+            .set(update_time, self.db_connection.get_token())
         return update_time
 
     def get_last_updated_time(self, date):
         updated_time = self.db \
+            .child(self.username) \
             .child(self.tasks_database) \
             .child(date) \
             .child('last_updated') \
-            .get(self.get_token()) \
+            .get(self.db_connection.get_token()) \
             .val()
         if updated_time is None:
             updated_time = self.set_last_updated_time(date)
@@ -80,23 +91,25 @@ class TaskDB(object):
     def get_task(self, date_due, task_key):
         try:
             task = self.db \
+                       .child(self.username) \
                        .child(self.tasks_database) \
                        .child(date_due) \
                        .order_by_child('$key') \
                        .equal_to(str(task_key)) \
-                       .get(self.get_token()) \
+                       .get(self.db_connection.get_token()) \
                        .val()
         except IndexError:
-            self.log_error('path:{}/{}'.format(date_due, task_key))
-            raise TaskError('Task {} {} was not found. This has been logged.'.format(date_due, task_key))
+            raise TaskError('Task {} {} could not be retrieved.'.format(date_due, task_key))
         for key in task:
             return (key, task[key])
 
     def update_task(self, date_due, task_key, update_data):
-        self.db.child(self.tasks_database) \
-               .child(date_due) \
-               .child(task_key) \
-               .update(update_data, self.get_token())
+        self.db \
+            .child(self.username) \
+            .child(self.tasks_database) \
+            .child(date_due) \
+            .child(task_key) \
+            .update(update_data, self.db_connection.get_token())
         self.set_last_updated_time(date_due)
         if 'date_due' in update_data:
             if update_data['date_due'] != date_due:
@@ -107,17 +120,20 @@ class TaskDB(object):
                 return (update_data['date_due'], new_key)
 
     def delete_task(self, date_due, task_key):
-        self.db.child(self.tasks_database) \
-               .child(date_due) \
-               .child(task_key) \
-               .remove(self.get_token())
+        self.db \
+            .child(self.username) \
+            .child(self.tasks_database) \
+            .child(date_due) \
+            .child(task_key) \
+            .remove(self.db_connection.get_token())
         self.set_last_updated_time(date_due)
 
     def delete_all_tasks_for_date(self, date):
-        self.db.child(self.tasks_database) \
-               .child(date) \
-               .remove(self.get_token())
-        self.set_last_updated_time(date)
+        self.db \
+            .child(self.username) \
+            .child(self.tasks_database) \
+            .child(date) \
+            .remove(self.db_connection.get_token())
 
     def tasks_to_list(self, tasks):
         tasks_as_list = []
@@ -127,20 +143,25 @@ class TaskDB(object):
             task_as_dict = tasks[item]
             task_as_dict['task_key'] = item
             tasks_as_list.append(task_as_dict)
-        return tasks_as_list
+        tasks_as_list_sorted = sorted(tasks_as_list, key=lambda k: k['timestamp']) 
+        return tasks_as_list_sorted
 
     def tasks_for_day(self, day):
-        tasks = self.db.child(self.tasks_database) \
-                       .child(day) \
-                       .get(self.get_token()) \
-                       .val()
+        tasks = self.db \
+                    .child(self.username) \
+                    .child(self.tasks_database) \
+                    .child(day) \
+                    .get(self.db_connection.get_token()) \
+                    .val()
         if tasks:
             return self.tasks_to_list(tasks)
         return []
 
     def test_database(self, fix_errors=False):
-        whole_db = self.db.child('tasks') \
-                          .get(self.get_token()).val()
+        whole_db = self.db \
+                       .child(self.username) \
+                       .child('tasks') \
+                       .get(self.db_connection.get_token()).val()
         error_task_paths = []
         for date in whole_db:
             for task in whole_db[date]:
@@ -164,28 +185,16 @@ class TaskDB(object):
             print 'Fixing task to proper due date {}: {}'.format(date_due_from_task, description_from_task)
             self.update_task(date, key, {'date_due': date_due_from_task})
 
-    def reload_demo(self):
-        date = '20170218'
-        self.delete_all_tasks_for_date(date)
-        tasks = [
-            ('empty for things to do', 'notdone'),
-            ('one slash for tasks in progress', 'started'),
-            ('two slashes for things done', 'done'),
-        ]
-        for t in tasks:
-            data = {'date_due': date}
-            data['description'], data['status'] = t
-            self.insert_data(data)
 
 class TaskItem(object):
 
-    def __init__(self, date_due, task_key=None, description=None):
-        self.task_database = TaskDB()
+    def __init__(self, username, task_db, date_due, task_key=None, description=None):
+        self.tasks_database = UserTasks(username, task_db)
         if task_key:
             self.date_due = date_due
             self.task_key = task_key
         elif description:
-            self.date_due, self.task_key = self.task_database.insert_task(description, date_due)
+            self.date_due, self.task_key = self.tasks_database.insert_task(description, date_due)
         elif not task_key and not description:
             raise TaskError('Must provide either task_key to retrieve task, or description to create task')
 
@@ -194,15 +203,15 @@ class TaskItem(object):
         return '{} {}: {}'.format(self.date_due, self.task_key, desc)
 
     def details(self):
-        key, task_data = self.task_database.get_task(self.date_due, self.task_key)
+        key, task_data = self.tasks_database.get_task(self.date_due, self.task_key)
         task_data['task_key'] = key
         return task_data
 
     def delete(self):
-        self.task_database.delete_task(self.date_due, self.task_key)
+        self.tasks_database.delete_task(self.date_due, self.task_key)
 
     def update(self, update_data):
-        result = self.task_database.update_task(self.date_due, self.task_key, update_data)
+        result = self.tasks_database.update_task(self.date_due, self.task_key, update_data)
         if result:
             self.date_due, self.task_key = result
 

@@ -144,8 +144,10 @@ def render_demo():
 
 @app.route('/insert/', methods=['POST'])
 def insert_from_form():
-    description = flask.request.form.get('description')
+    description = flask.request.form.get('description', None)
     date_due = flask.request.form.get('date_due', None)
+    if not description:
+        return flask.redirect(flask.url_for('render_tasklist', date=date_due))
     redir_date = date_due
     if not date_due:
         date_due = get_today()

@@ -1,0 +1,300 @@
+<head>
+<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"> -->
+<link rel="icon" type="image/png" href="/static/favicon.png" />
+<meta name="viewport" content="width=device-width, target-densityDpi=device-dpi, initial-scale=1.0">
+
+<style>
+body {
+  font-family: sans-serif;
+  font-weight: normal;
+  font-size: 18pt;
+}
+a {
+  text-decoration: none;
+}
+line {
+  stroke-linecap: round;
+  stroke-width: 2px;
+  stroke: black;
+}
+rect {
+  fill: white;
+}
+svg {
+  vertical-align: -3px;
+  stroke-width: 2px;
+  stroke: black;
+}
+div#hidden {
+  display: none;
+}
+
+/* Date nav styling */
+div#date_nav {
+  margin-bottom: 20px;
+  margin-top: 20px;
+  width: 250px;
+  font-size: 22pt;
+}
+span.past {
+  color: gray;
+}
+span.past line, span.past rect {
+  stroke: gray;
+}
+span.present line#backslash, span.future line#backslash, span.future line#forwardslash {
+  stroke-width: 0;
+}
+
+/* Task text and menu */
+div.task_container {
+  padding-bottom: 10px;
+}
+span.task_text {
+  padding-left: 5px;
+}
+div.taskmenu {
+  display: none;
+  border-width: 2px 0px 0px 0px;
+  border-style: solid;
+  border-color: darkgray;
+  background-color: rgb(245, 245, 245);
+  padding-left: 33px;
+  margin-top: 5px;
+  vertical-align: top;
+}
+
+/* Diamond styles */
+svg.notdone line, svg.started > line#backslash {
+  stroke-width: 0px;
+}
+svg.started > line#forwardslash {
+  stroke-width: 2px;
+}
+svg.done + span.task_text {
+  color: gray;
+}
+svg.done * {
+  stroke: gray;
+}
+
+/* Entry form style */
+input {
+  font-family: sans-serif;
+  font-weight: normal;
+  font-size: 18pt;
+  margin-top: 5px;
+}
+#entry_box {
+  width: 300px;
+}
+
+/* Bottom logo stuff */
+div.bottomlogo {
+  padding-top: 20px;
+  color: gray;
+}
+#logoslash {
+  stroke: gray;
+}
+</style>
+
+</head>
+
+{% macro date_nav() %}
+<span id="date_nav" class="present">
+  <svg id="da_left" width="15" height="28">
+    <line x1="14" y1="1" x2="1" y2="14" />
+    <line x1="14" y1="26" x2="1" y2="14" />
+  </svg>
+  <svg id="date_diamond" width="28" height="28" >
+    <g transform="translate(0) rotate(45 12 16)">
+      <rect x="3" y="4" rx="1" ry="1" width="18" height="18"   />
+    </g>
+    <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
+    <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
+  </svg>
+  tinytask 
+  <svg id="da_right" width="15" height="28">
+    <line x1="1" y1="1" x2="14" y2="14" />
+    <line x1="1" y1="26" x2="14" y2="14" />
+  </svg>
+</span>
+{% endmacro %}
+
+{% macro draw_task(description, status, container_id) %}
+<div class="task_container" id="{{ container_id }}">
+  <svg id="task_diamond" class="{{ status }}" width="28" height="28">
+    <g transform="translate(0) rotate(45 12 16)">
+      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" />
+    </g>
+    <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
+    <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
+  </svg>
+  <span class="task_text">{{ description }}</span>
+  <div class="taskmenu">
+    <span id="un-do">{{ draw_undo() }}un-do</span><br>
+    <span id="delete">{{ draw_delete() }}delete</span>
+    <span id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro draw_undo() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <g transform="translate(0) rotate(45 15 10)">
+    <rect x="6" y="6" rx="1" ry="1" width="14" height="14" stroke="black" stroke-width="2" fill-opacity="0.0" />
+  </g>
+</svg>
+{% endmacro %}
+
+{% macro draw_delete() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="3" y1="3" x2="19" y2="19" />
+  <line x1="19" y1="3" x2="3" y2="19" />
+</svg>
+{% endmacro %}
+
+{% macro draw_tomorrow() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="3" y1="10" x2="18" y2="10" />
+  <line x1="10" y1="3" x2="19" y2="10" />
+  <line x1="10" y1="18" x2="19" y2="10" />
+</svg>
+{% endmacro %}
+
+<body>
+<div id="date_nav">{{ date_nav() }}</div>
+
+<!-- task list -->
+{{ draw_task('This is not yet done', 'notdone', 'demo_notdone') }}
+{{ draw_task('This has been started', 'started', 'demo_started') }}
+{{ draw_task('This task is done', 'done', 'demo_done') }}
+{{ draw_task('Click the text to open a submenu', 'notdone', 'demo_submenu') }}
+{{ draw_task('This is hiding', 'notdone', 'hidden') }}
+
+<div id="input_form" date="{{ date }}">
+<form action="#" method="post" autocomplete="off">
+    <input id="entry_box" type="text" name="description" autofocus="autofocus" placeholder="enter a task + press enter">
+    <input hidden="hidden" type="submit" value="Submit">
+</form>
+</div>
+
+<!-- <div class="bottomlogo" align="right">
+  <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
+    <g transform="translate(0) rotate(45 16 16)">
+      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2" />
+    </g>
+    <line id="logoslash" x1="27" y1="5" x2="5" y2="27" />
+  </svg><span> tinytask</span>
+  <p><span id="username"></span>
+</div> -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+
+// Helpers
+function set_task(task, container) {
+  console.log("Task " + task["task_key"] + " set to: " + task["status"]);
+  container.attr("class", task["status"]);
+};
+
+function update_menu_undo(container) {
+  undo_span = container.parent().find($("span#un-do"));
+  if (container.attr("class")==="notdone") {
+      undo_span.hide();
+      undo_span.next().hide();
+  } else {
+      undo_span.show();
+      undo_span.next().show();
+  };
+};
+
+function update_menu_tomorrow(container) {
+  tomorrow_span = container.parent().find($("span#move-tomorrow"));
+  if (container.attr("class")==="done") {
+    tomorrow_span.hide();
+  } else {
+    tomorrow_span.show();
+  };
+};
+
+// jQuery magic
+$(document).ready(function() {
+
+  $("svg#task_diamond").each(function(i) {
+    update_menu_tomorrow($(this));
+    update_menu_undo($(this));
+  });
+
+// Open/close task menu
+  $("span.task_text").click(function() {
+    if ($(this).next().is(":visible")) {
+      $(this).next().hide(200);
+    } else {
+      $("div.taskmenu").hide(200);
+      $(this).next().show(200);
+    }
+  });
+
+// Advance task status
+  $("svg#task_diamond").click(function() {
+    if ($(this).attr("class")==="done") {
+      return;
+    };
+    if ($(this).attr("class")==="started") {
+      $(this).attr("class", "done");
+      update_menu_tomorrow($(this));
+    };
+    if ($(this).attr("class")==="notdone") {
+      $(this).attr("class", "started");
+      update_menu_undo($(this));
+    };
+  });
+
+// Un-do task, reset to "notdone" status
+  $("span#un-do").click(function() {
+    diamond = $(this).parent().parent().children().first();
+    $(this).parent().hide(200);
+    data = {
+      "date_due": $(this).parent().parent().attr("date"),
+      "task_key": $(this).parent().parent().attr("key"),
+      "status": "notdone"
+    };
+    set_task(data, diamond);
+    $(this).parent().hide(200);
+    update_menu_undo(diamond);
+    update_menu_tomorrow(diamond);
+  });
+
+// Delete task
+  $("span#delete").click(function() {
+    data = {
+      "date_due": $(this).parent().parent().attr("date"),
+      "task_key": $(this).parent().parent().attr("key")
+    };
+    $(this).parent().parent().hide(200);
+  });
+
+// Move it to tomorrow
+  $("span#move-tomorrow").click(function() {
+    $(this).parent().parent().hide(200);
+  });
+});
+
+$(document).keyup(function(e) {
+  inputting_status = true;
+  if (!$("#entry_box").is(':focus')) {
+    inputting_status = false;
+  } else if ($("#entry_box").val()==="") {
+    inputting_status = false;
+  };
+  if (inputting_status) {
+    return;
+  }
+  if (e.keyCode===27) {
+    $("div.taskmenu").hide(200);
+  };
+});
+</script>
+</body>

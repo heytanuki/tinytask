@@ -140,7 +140,7 @@ def philosophy():
 
 @app.route('/demo/')
 def render_demo():
-    pass
+    return flask.render_template('demo.html')
 
 @app.route('/insert/', methods=['POST'])
 def insert_from_form():

@@ -127,7 +127,7 @@ div.bottomlogo {
 {% endmacro %}
 
 {% macro draw_task(task) %}
-<div class="task_container" date="{{ date }}"" key="{{ task['task_key'] }}">
+<div class="task_container" date="{{ date }}" key="{{ task['task_key'] }}">
   <svg id="task_diamond" class="{{ task['status'] }}" width="28" height="28">
     <g transform="translate(0) rotate(45 12 16)">
       <rect x="3" y="4" rx="1" ry="1" width="18" height="18" />
@@ -247,6 +247,16 @@ function set_logo_tense() {
   $("span#date_nav").attr("class", tense);
 }
 
+function user_is_typing() {
+  is_typing = true;
+  if (!$("#entry_box").is(':focus')) {
+    is_typing = false;
+  } else if ($("#entry_box").val()==="") {
+    is_typing = false;
+  };
+  return is_typing;
+}
+
 function check_if_refresh_needed(today, page_load_time) {
   data = {
     'date': today,
@@ -359,13 +369,8 @@ $(document).ready(function() {
 });
 
 $(document).keyup(function(e) {
-  inputting_status = true;
-  if (!$("#entry_box").is(':focus')) {
-    inputting_status = false;
-  } else if ($("#entry_box").val()==="") {
-    inputting_status = false;
-  };
-  if (inputting_status) {
+  
+  if (user_is_typing()) {
     return;
   }
   if (e.keyCode===27) {

@@ -97,7 +97,7 @@ def index():
         <p>If you've been invited, <a href="/callback/">go here to log in with Google</a>.</p>
         <p>Tinytask uses your Google account for authentication purposes only. 
         Your user information will remain private.
-        <p><a href="/phil/">More info!</a>"""
+        <p><a href="/info/">More info!</a>"""
     return flask.render_template('index.html', content=content)
 
 @app.route('/date/')
@@ -139,6 +139,10 @@ def render_past_tasklist(date):
     tasks = user_tasks.tasks_for_day(date)
     return flask.render_template('task_list_past.html', tasks=tasks, date=date, logged_in_as=username)
 
+@app.route('/info/')
+def show_info():
+    return flask.render_template('info.html')
+
 @app.route('/phil/')
 def philosophy():
     return flask.render_template('philosophy.html')
@@ -163,7 +167,6 @@ def insert_from_form():
 def not_authorized():
     flask.session.pop('tinytask_username', None)
     return flask.render_template('index.html', content=""" is not accessible, for now.""")
-
 
 @app.route('/icon/')
 def send_icon():

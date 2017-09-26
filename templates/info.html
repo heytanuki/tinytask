@@ -1,0 +1,56 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='info.css') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
+</head>
+
+<body>
+{% macro draw_diamond(kind) %}
+
+<svg id="{{ kind }}" class="diamond" width="28" height="28" >
+  <g transform="translate(0) rotate(45 12 16)">
+    <rect x="3" y="4" rx="1" ry="1" width="18" height="18" fill="white"  />
+  </g>
+  <line id="forwardslash" stroke-linecap="round" x1="27" y1="1" x2="1" y2="27" />
+  <line id="backslash" stroke-linecap="round" x1="1" y1="1" x2="27" y2="27" />
+</svg>
+
+{% endmacro %}
+
+{% macro draw_tomorrow() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="3" y1="10" x2="18" y2="10" />
+  <line x1="10" y1="3" x2="19" y2="10" />
+  <line x1="10" y1="18" x2="19" y2="10" />
+</svg>
+{% endmacro %}
+
+<p>{{ draw_diamond('logo') }} <span class="gray">Tinytask</span> was created as a minimal to-do list for my own brain. Check out the <a href="/phil/">philosophy</a> for how to use it.</p>
+<p>{{ draw_diamond('started') }} Tips
+  <ul>
+    <li>Use arrow keys to navigate between dates</li>
+    <li>The <a href="/date/">start page</a> defaults to the current date</li>
+    <li>On desktop, you can bookmark this page to always come to today's list</li>
+    <li>On mobile, you can <b>Add to Home screen</b> to make a handy shortcut</li>
+  </ul></p>
+<p>{{ draw_diamond('started') }} Development</p>
+<div class="small_text indented" style="margin-top: -20px;">
+<br>tinytask is a <a href="https://www.python.org/">Python</a> webapp
+<br>coded on <a href="https://www.sublimetext.com/">Sublime Text 3</a>
+<br>using <a href="http://flask.pocoo.org/">Flask</a>
+<br>data stored in <a href="https://firebase.google.com/">Firebase</a>
+<br>app hosted on <a href="https://www.pythonanywhere.com">PythonAnywhere</a>
+<br>source available on <a href="https://github.com/heytanuki/tinytask">GitHub</a>
+<br>frontend debugged with <a href="https://www.google.com/chrome/">Chrome</a>
+<br>unironically organized with <a href="https://trello.com/">Trello</a>
+<br>
+<br>All of these tools are free to get started with!
+</div>
+<br>{{ draw_diamond('started') }} Tinytask is in an invite-only pre-release, but every effort will be made to preserve and secure data.
+<p class="indented">Note that we're not using https. Yet. </p>
+<br>
+<p style="margin-top: -20px;">{{ draw_diamond('notdone') }} Bugs, requests, and questions can be sent to <a href="mailto:tinytask@googlegroups.com">tinytask@googlegroups.com</a>.</p>
+
+</body>
+
+</html>

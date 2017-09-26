@@ -1,6 +1,6 @@
 <head>
 <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"> -->
-<link rel="icon" type="image/png" href="/static/favicon.png" />
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
 <meta name="viewport" content="width=device-width, target-densityDpi=device-dpi, initial-scale=1.0">
 
 <style>
@@ -365,6 +365,11 @@ $(document).ready(function() {
     if (date=={{ date }}) { return; };
     date_url = "/date/" + date + "/";
     window.location.href = date_url;
+  });
+
+// About
+  $("div.bottomlogo").click(function() {
+    window.location.href = '/info/';
   });
 });
 

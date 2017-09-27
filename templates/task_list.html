@@ -28,6 +28,10 @@ svg {
 }
 
 /* Date nav styling */
+div#top_bar {
+  width: 384px;
+  height: 20px;
+}
 div#date_nav {
   margin-bottom: 22px;
   height: 35px;
@@ -121,6 +125,7 @@ div.tt_logo {
 </head>
 
 {% macro date_nav() %}
+<div id="top_bar"></div>
 <div id="date_nav_arrows" class="future">
   <svg id="da_left" width="15" height="28">
     <line x1="14" y1="1" x2="1" y2="14" />

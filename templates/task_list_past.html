@@ -156,6 +156,15 @@ $(document).ready(function() {
     date_url = "/date/" + year + month + day + "/";
     window.location.href = date_url;
   });
+
+  // Date navigation
+  $("svg#da_left").click(function() {
+    go_yesterday();
+  });
+
+  $("svg#da_right").click(function() {
+    go_tomorrow();
+  });
 });
 
 $(document).keyup(function(e) {

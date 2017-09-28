@@ -12,6 +12,7 @@ body {
 }
 a {
   text-decoration: none;
+  color: black;
 }
 line {
   stroke-linecap: round;
@@ -25,6 +26,22 @@ svg {
   vertical-align: -3px;
   stroke-width: 2px;
   stroke: black;
+}
+svg:active {
+  animation: darken .3s;
+}
+@keyframes darken {
+  0% {
+    background-color: white;
+    color: white;
+  }
+  100% {
+    background-color: gray;
+    color: black;
+  }
+}
+:active {
+  animation: darken .3s;
 }
 
 /* Date nav styling */
@@ -81,6 +98,15 @@ div.taskmenu {
   margin-top: 5px;
   vertical-align: top;
 }
+span#un-do:active {
+  animation: darken .3s;
+}
+span#delete:active {
+  animation: darken .3s;
+}
+span#move-tomorrow:active {
+  animation: darken .3s;
+}
 
 /* Diamond styles */
 svg.notdone line, svg.started > line#backslash {
@@ -114,12 +140,27 @@ input {
 
 /* Logo stuff */
 div.tt_logo {
-  width: 400px;
+  width: 120px;
   color: gray;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  margin-left: 280px;
 }
 #logoslash {
   stroke: gray;
+}
+div.logomenu {
+  display: none;
+  text-align: right;
+  width: 180px;
+  border-width: 2px 0px 0px 0px;
+  border-style: solid;
+  border-color: darkgray;
+  background-color: rgb(245, 245, 245);
+  margin-right: 33px;
+  margin-left: 220px;
+  padding-right: 20px;
+
+  vertical-align: top;
 }
 </style>
 
@@ -219,7 +260,9 @@ div.tt_logo {
     </g>
     <line id="logoslash" x1="27" y1="5" x2="5" y2="27" />
   </svg><span> tinytask</span>
-  <span id="username"></span>
+</div>
+<div class="logomenu">
+<a href="/info/">about</a><br><a href="/updates/">updates</a><br><a href="/log out/">log out</a>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -313,9 +356,6 @@ $(document).ready(function() {
   set_logo_tense();
   check_if_refresh_needed({{ date }}, {{ time_loaded }})
 
-  $("span#username").text("{{ logged_in_as }}");
-  $("span#username").hide();
-
   $("svg#task_diamond").each(function(i) {
     update_menu_tomorrow($(this));
     update_menu_undo($(this));
@@ -327,6 +367,15 @@ $(document).ready(function() {
       $(this).next().hide(200);
     } else {
       $("div.taskmenu").hide(200);
+      $(this).next().show(200);
+    }
+  });
+
+  // Open/close logo menu
+  $("div.tt_logo").click(function() {
+    if ($(this).next().is(":visible")) {
+      $(this).next().hide(200);
+    } else {
       $(this).next().show(200);
     }
   });
@@ -392,16 +441,6 @@ $(document).ready(function() {
     $.post("/tasklist/moveto/", data, function() {
       window.location.href = "/date/" + data["date_due"] + "/";
     });
-  });
-
-  // Home
-  $("div#date_nav").click(function() {
-    window.location.href = "/date/";
-  });
-
-  // About
-  $("div.tt_logo").click(function() {
-    window.location.href = '/info/';
   });
 
   // Date navigation

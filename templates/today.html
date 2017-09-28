@@ -15,7 +15,7 @@
     </g>
     <line id="forwardslash" stroke-width="2" stroke="black" x1="27" y1="5" x2="5" y2="27" />
   </svg>
-</div>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
     today = new Date();
@@ -25,8 +25,9 @@
     date_url = "/date/" + year + month + day + "/";
     console.log(date_url);
     $.get(date_url, function(r) {
-      $("html").replaceWith(r);
+      $("div.tinylogo").replaceWith(r);
     });
 </script>
+</div>
 </body>
 </html>

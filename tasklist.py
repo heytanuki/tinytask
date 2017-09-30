@@ -57,7 +57,8 @@ class UserTasks(object):
 
     def insert_task(self, description, date_due=None):
         if not date_due:
-            date_due = datetime.date.today().isoformat().replace('-', '')
+            # date_due = datetime.date.today().isoformat().replace('-', '')
+            raise TaskError('Task was submitted without a date.')
         data = {
             'description': description,
             'date_due': date_due,

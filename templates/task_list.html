@@ -101,15 +101,6 @@ div.taskmenu {
   margin-top: 5px;
   vertical-align: top;
 }
-span#un-do:active {
-  animation: darken .3s;
-}
-span#delete:active {
-  animation: darken .3s;
-}
-span#move-tomorrow:active {
-  animation: darken .3s;
-}
 
 /* Diamond styles */
 svg.notdone line, svg.started > line#backslash {
@@ -223,9 +214,9 @@ div.logomenu {
   </svg>
   <span class="task_text touchable">{{ task['description'] }}</span>
   <div class="taskmenu">
-    <span id="un-do">{{ draw_undo() }}un-do</span><br>
-    <span id="delete">{{ draw_delete() }}delete</span>
-    <span id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
+    <span class="touchable" id="un-do">{{ draw_undo() }}un-do</span><br>
+    <span class="touchable" id="delete">{{ draw_delete() }}delete</span>
+    <span class="touchable" id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
   </div>
 </div>
 {% endmacro %}

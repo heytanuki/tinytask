@@ -53,9 +53,13 @@ div#date_nav {
   margin-top: 22px;
   height: 35px;
   width: 384px; 
-  font-size: 22pt;
-  text-align: center;
   display: none;
+}
+div#date_nav_placeholder {
+  margin-bottom: 22px;
+  margin-top: 22px;
+  height: 35px;
+  width: 384px; 
 }
 g.future > line#date_backslash, g.future > line#date_forwardslash {
   stroke-width: 0px;
@@ -252,6 +256,9 @@ div.logomenu {
 <body>
 
 {{ date_nav() }}
+<div id="date_nav_placeholder">
+
+</div>
 
 <div id="list_container" width="400">
 {% for task in tasks %}
@@ -356,6 +363,7 @@ function set_date_position() {
   position = 180 - (date_width / 2);
   console.log("Calculated position = " + position)
   $("g#date_display").attr("transform", "translate(" + position + ", 0)");
+  $("div#date_nav_placeholder").hide()
   $("div#date_nav").show();
 };
 

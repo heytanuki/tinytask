@@ -28,8 +28,11 @@ svg {
   vertical-align: -3px;
   stroke: black;
 }
+div#list_container {
+  margin-left: 20px;
+}
 .touchable:active {
-  animation: darken .2s;
+  animation: darken .3s;
 }
 @keyframes darken {
   0% {
@@ -125,6 +128,9 @@ input {
   font-size: 18pt;
   /*margin-top: 5px;*/
 }
+#input_form {
+  margin-left: 20px;
+}
 #entry_box {
   width: 300px;
   border: 0;
@@ -162,7 +168,7 @@ div.logomenu {
 
 </head>
 
-{% macro date_nav_test() %}
+{% macro date_nav() %}
 <div id="date_nav">
   <svg width="400" height="30">
     <g transform="translate(55,0)"> 
@@ -206,12 +212,12 @@ div.logomenu {
 <div class="task_container" date="{{ date }}" key="{{ task['task_key'] }}">
   <svg id="task_diamond" class="{{ task['status'] }}" width="28" height="28">
     <g transform="translate(0) rotate(45 12 16)">
-      <rect x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2px" />
+      <rect class="touchable" x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2px" />
     </g>
     <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
     <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
   </svg>
-  <span class="task_text">{{ task['description'] }}</span>
+  <span class="task_text touchable">{{ task['description'] }}</span>
   <div class="taskmenu">
     <span id="un-do">{{ draw_undo() }}un-do</span><br>
     <span id="delete">{{ draw_delete() }}delete</span>
@@ -245,7 +251,8 @@ div.logomenu {
 
 <body>
 
-{{ date_nav_test() }}
+{{ date_nav() }}
+
 <div id="list_container" width="400">
 {% for task in tasks %}
 {{ draw_task(task) }}
@@ -254,9 +261,9 @@ div.logomenu {
 
 <div id="input_form">
   <form autocomplete="off">
-    <svg id="new_task_diamond" width="28" height="28">
+    <svg id="new_task_diamond" class="touchable" width="28" height="28">
       <g transform="translate(0) rotate(45 12 16)">
-        <rect x="3" y="4" rx="1" ry="1" stroke-width="2px" width="18" height="18"   />
+        <rect class="touchable" x="3" y="4" rx="1" ry="1" stroke-width="2px" width="18" height="18"   />
       </g>
     </svg>
     <input id="entry_box" type="text" name="description" autofocus="autofocus" value="{{ entered_text }}">

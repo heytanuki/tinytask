@@ -320,24 +320,24 @@ div.logomenu {
 // Debug
 function get_doc_width() {
   $("p#scr_width").text($(document).width());
-};
+}
 
 // Helpers
 function insert_task() {
-  entered_text = $("#entry_box").val()
+  entered_text = $("#entry_box").val();
   if (entered_text !== "") {
     data = {"description": entered_text,
     "date_due": $("#date_due_box").val()};
     $.post("/tasklist/insert/", data, function() {
       location.reload();
     });
-  };
-};
+  }
+}
 
 function set_task(task, container) {
-  console.log("Task " + task["task_key"] + " set to: " + task["status"]);
-  container.attr("class", task["status"]);
-};
+  console.log("Task " + task.task_key + " set to: " + task.status);
+  container.attr("class", task.status);
+}
 
 function update_menu_undo(container) {
   undo_span = container.parent().find($("span#un-do"));
@@ -347,8 +347,8 @@ function update_menu_undo(container) {
   } else {
       undo_span.show();
       undo_span.next().show();
-  };
-};
+  }
+}
 
 function update_menu_tomorrow(container) {
   tomorrow_span = container.parent().find($("span#move-tomorrow"));
@@ -356,16 +356,16 @@ function update_menu_tomorrow(container) {
     tomorrow_span.hide();
   } else {
     tomorrow_span.show();
-  };
-};
+  }
+}
 
 function go_tomorrow() {
   window.location.href = "/date/{{ get_days(date, 1) }}/";
-};
+}
 
 function go_yesterday() {
   window.location.href = "/date/{{ get_days(date, -1) }}/";
-};
+}
 
 function get_todays_date() {
   today = new Date();
@@ -373,7 +373,7 @@ function get_todays_date() {
   month = today.toLocaleDateString("en-US", {month: "2-digit"});
   day = today.toLocaleDateString("en-US", {day: "2-digit"});
   return year + month + day;
-};
+}
 
 function set_logo_tense() {
   list_date = "{{ date }}";
@@ -382,38 +382,38 @@ function set_logo_tense() {
   if (list_date > today) { tense = "future"; }
   if (list_date < today) { tense = "past"; }
   $("g#date_diamond").attr("class", tense);
-};
+}
 
 function set_date_position() {
   date_width = $("div#date_test_width").width() + 33;
   position = 190 - (date_width / 2);
   $("g#date_display").attr("transform", "translate(" + position + ", 0)");
-  $("div#date_nav_placeholder").hide()
+  $("div#date_nav_placeholder").hide();
   $("div#date_nav").show();
-};
+}
 
 function user_is_typing() {
   is_typing = true;
-  entry_box = $("#entry_box")
+  entry_box = $("#entry_box");
   if (!entry_box.is(":focus")) {
     is_typing = false;
   } else if (entry_box.val()==="") {
     is_typing = false;
-  };
+  }
   return is_typing;
-};
+}
 
 function check_if_refresh_needed(today, page_load_time) {
   data = {
     "date": today,
-    "page_load_time": page_load_time,
+    "page_load_time": page_load_time
   };
   $.get("/tasklist/need_to_refresh", data, function(result) {
-    if (result==="true"){
+    if (result==="true") {
       window.location.href = "/date/" + {{ date }} + "/";
-    };
+    }
   });
-};
+}
 
 // jQuery magic
 $(document).ready(function() {
@@ -421,7 +421,7 @@ $(document).ready(function() {
   get_doc_width();
   set_date_position();
   set_logo_tense();
-  check_if_refresh_needed({{ date }}, {{ time_loaded }})
+  check_if_refresh_needed({{ date }}, {{ time_loaded }});
 
   $("svg#task_diamond").each(function(i) {
     update_menu_tomorrow($(this));
@@ -454,15 +454,15 @@ $(document).ready(function() {
     diamond = $(this);
     if (diamond.hasClass("done")) {
       return;
-    };
+    }
     if (diamond.hasClass("started")) {
       diamond.attr("class", "done");
       update_menu_tomorrow(diamond);
-    };
+    }
     if (diamond.hasClass("notdone")) {
       diamond.attr("class", "started");
       update_menu_undo(diamond);
-    };
+    }
     data = {
       "date_due": diamond.parent().attr("date"),
       "task_key": diamond.parent().attr("key")
@@ -525,7 +525,7 @@ $(document).ready(function() {
     go_tomorrow();
   });
 
-  $("#new_task_diamond").click(function (){
+  $("#new_task_diamond").click(function() {
     insert_task();
   });
 });
@@ -535,19 +535,19 @@ $(document).keyup(function(e) {
     if (e.keyCode === 13) {
       insert_task();
     }
-  };
+  }
   if (user_is_typing()) {
     return;
   }
   if (e.keyCode === 27) {
     $("div.taskmenu").hide(200);
-  };
+  }
   if (e.keyCode === 37) {
     go_yesterday();
-  };
+  }
   if (e.keyCode === 39) {
     go_tomorrow();
-  };
+  }
 });
 
 window.onfocus = function() {

@@ -34,6 +34,19 @@ div#list_container {
 .touchable:active {
   animation: darken .3s;
 }
+.twirling {
+  animation: twirl 1s infinite;
+}
+@keyframes twirl {
+  0% {
+    transform: rotate(0deg);
+    transform-origin: center center;
+  }
+  100% {
+    transform: rotate(360deg);
+    transform-origin: center center;
+  }
+}
 @keyframes darken {
   0% {
     background-color: white;
@@ -309,8 +322,9 @@ function get_doc_width() {
 
 // Helpers
 function insert_task() {
-  if ($('#entry_box').val()!=='') {
-    data = {'description': $('#entry_box').val(),
+  entered_text = $('#entry_box').val()
+  if (entered_text !== '') {
+    data = {'description': entered_text,
     'date_due': $("#date_due_box").val()};
     $.post('/tasklist/insert/', data, function() {
       location.reload();
@@ -378,9 +392,10 @@ function set_date_position() {
 
 function user_is_typing() {
   is_typing = true;
-  if (!$("#entry_box").is(':focus')) {
+  entry_box = $("#entry_box")
+  if (!entry_box.is(':focus')) {
     is_typing = false;
-  } else if ($("#entry_box").val()==="") {
+  } else if (entry_box.val()==="") {
     is_typing = false;
   };
   return is_typing;
@@ -413,56 +428,60 @@ $(document).ready(function() {
 
   // Open/close task menu
   $("span.task_text").click(function() {
-    if ($(this).next().is(":visible")) {
-      $(this).next().hide(200);
+    task_menu = $(this).next();
+    if (task_menu.is(":visible")) {
+      task_menu.hide(200);
     } else {
       $("div.taskmenu").hide(200);
-      $(this).next().show(200);
+      task_menu.show(200);
     }
   });
 
   // Open/close logo menu
   $("div.tt_logo").click(function() {
-    if ($(this).next().is(":visible")) {
-      $(this).next().hide(200);
+    logo_menu = $(this).next();
+    if (logo_menu.is(":visible")) {
+      logo_menu.hide(200);
     } else {
-      $(this).next().show(200);
+      logo_menu.show(200);
     }
   });
 
   // Advance task status
   $("svg#task_diamond").click(function() {
-    if ($(this).attr("class")==="done") {
+    diamond = $(this);
+    if (diamond.hasClass("done")) {
       return;
     };
-    if ($(this).attr("class")==="started") {
-      $(this).attr("class", "done");
-      update_menu_tomorrow($(this));
+    if (diamond.hasClass("started")) {
+      diamond.attr("class", "done");
+      update_menu_tomorrow(diamond);
     };
-    if ($(this).attr("class")==="notdone") {
-      $(this).attr("class", "started");
-      update_menu_undo($(this));
+    if (diamond.hasClass("notdone")) {
+      diamond.attr("class", "started");
+      update_menu_undo(diamond);
     };
     data = {
-      "date_due": $(this).parent().attr("date"),
-      "task_key": $(this).parent().attr("key")
+      "date_due": diamond.parent().attr("date"),
+      "task_key": diamond.parent().attr("key")
     };
     $.post("/tasklist/advance/", data, function(response) {
-      set_task(response, $(this));
+      set_task(response, diamond);
     }, "json");
   });
 
   // Un-do task, reset to "notdone" status
   $("span#un-do").click(function() {
-    diamond = $(this).parent().parent().children().first();
-    $(this).parent().hide(200);
+    un_do_span = $(this);
+    diamond = un_do_span.parent().parent().children().first();
+    un_do_span.parent().hide(200);
     data = {
-      "date_due": $(this).parent().parent().attr("date"),
-      "task_key": $(this).parent().parent().attr("key"),
+      "date_due": un_do_span.parent().parent().attr("date"),
+      "task_key": un_do_span.parent().parent().attr("key"),
       "status": "notdone"
     };
     set_task(data, diamond);
-    $(this).parent().hide(200);
+    un_do_span.parent().hide(200);
     $.post("/tasklist/undo/", data);
     update_menu_undo(diamond);
     update_menu_tomorrow(diamond);
@@ -470,11 +489,12 @@ $(document).ready(function() {
 
   // Delete task
   $("span#delete").click(function() {
+    delete_span = $(this);
     data = {
-      "date_due": $(this).parent().parent().attr("date"),
-      "task_key": $(this).parent().parent().attr("key")
+      "date_due": delete_span.parent().parent().attr("date"),
+      "task_key": delete_span.parent().parent().attr("key")
     };
-    $(this).parent().parent().hide(200);
+    delete_span.parent().parent().hide(200);
     $.post("/tasklist/delete/", data, function() {
       window.location.href = "/date/" + data["date_due"] + "/";
     });
@@ -482,12 +502,13 @@ $(document).ready(function() {
 
   // Move it to tomorrow
   $("span#move-tomorrow").click(function() {
+    move_span = $(this);
     data = {
-      "date_due": $(this).parent().parent().attr("date"),
-      "task_key": $(this).parent().parent().attr("key"),
+      "date_due": move_span.parent().parent().attr("date"),
+      "task_key": move_span.parent().parent().attr("key"),
       "x_days": 1
     };
-    $(this).parent().parent().hide(200);
+    move_span.parent().parent().hide(200);
     $.post("/tasklist/moveto/", data, function() {
       window.location.href = "/date/" + data["date_due"] + "/";
     });

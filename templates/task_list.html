@@ -35,7 +35,9 @@ div#list_container {
   animation: darken .3s;
 }
 .twirling {
-  animation: twirl 1s infinite;
+  animation-name: twirl;
+  animation-duration: 0.8s;
+  animation-iteration-count: 1;
 }
 @keyframes twirl {
   0% {
@@ -98,7 +100,7 @@ div.present line#backslash, div.future line#backslash, div.future line#forwardsl
 /* Task text and menu */
 div.task_container {
   padding-bottom: 10px;
-  width: 400px;
+  margin-right: 20px;
 }
 span.task_text {
   padding-left: 5px;
@@ -110,7 +112,8 @@ div.taskmenu {
   border-style: solid;
   border-color: darkgray;
   background-color: rgb(245, 245, 245);
-  padding-left: 33px;
+  padding-left: 65px;
+  margin-left: -28px;
   margin-top: 5px;
   vertical-align: top;
 }
@@ -134,7 +137,6 @@ input {
   font-family: sans-serif;
   font-weight: normal;
   font-size: 18pt;
-  /*margin-top: 5px;*/
 }
 #input_form {
   margin-left: 20px;
@@ -322,11 +324,11 @@ function get_doc_width() {
 
 // Helpers
 function insert_task() {
-  entered_text = $('#entry_box').val()
-  if (entered_text !== '') {
-    data = {'description': entered_text,
-    'date_due': $("#date_due_box").val()};
-    $.post('/tasklist/insert/', data, function() {
+  entered_text = $("#entry_box").val()
+  if (entered_text !== "") {
+    data = {"description": entered_text,
+    "date_due": $("#date_due_box").val()};
+    $.post("/tasklist/insert/", data, function() {
       location.reload();
     });
   };
@@ -369,16 +371,16 @@ function get_todays_date() {
   today = new Date();
   year = today.toLocaleDateString("en-US", {year: "numeric"});
   month = today.toLocaleDateString("en-US", {month: "2-digit"});
-  day = today.toLocaleDateString("en-US", {day: "2-digit"}); 
+  day = today.toLocaleDateString("en-US", {day: "2-digit"});
   return year + month + day;
 };
 
 function set_logo_tense() {
   list_date = "{{ date }}";
   today = get_todays_date();
-  tense = 'present';
-  if (list_date > today) { tense = 'future'; }
-  if (list_date < today) { tense = 'past'; }
+  tense = "present";
+  if (list_date > today) { tense = "future"; }
+  if (list_date < today) { tense = "past"; }
   $("g#date_diamond").attr("class", tense);
 };
 
@@ -393,7 +395,7 @@ function set_date_position() {
 function user_is_typing() {
   is_typing = true;
   entry_box = $("#entry_box")
-  if (!entry_box.is(':focus')) {
+  if (!entry_box.is(":focus")) {
     is_typing = false;
   } else if (entry_box.val()==="") {
     is_typing = false;
@@ -403,10 +405,10 @@ function user_is_typing() {
 
 function check_if_refresh_needed(today, page_load_time) {
   data = {
-    'date': today,
-    'page_load_time': page_load_time,
+    "date": today,
+    "page_load_time": page_load_time,
   };
-  $.get('/tasklist/need_to_refresh', data, function(result) {
+  $.get("/tasklist/need_to_refresh", data, function(result) {
     if (result==="true"){
       window.location.href = "/date/" + {{ date }} + "/";
     };
@@ -529,7 +531,7 @@ $(document).ready(function() {
 });
 
 $(document).keyup(function(e) {
-  if ($("#entry_box").is(':focus')) {
+  if ($("#entry_box").is(":focus")) {
     if (e.keyCode === 13) {
       insert_task();
     }
@@ -548,8 +550,8 @@ $(document).keyup(function(e) {
   };
 });
 
-window.onfocus = function() { 
-  check_if_refresh_needed({{ date }}, {{ time_loaded }}); 
+window.onfocus = function() {
+  check_if_refresh_needed({{ date }}, {{ time_loaded }});
 };
 </script>
 </body>

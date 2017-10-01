@@ -1,13 +1,14 @@
 {
     "name": "Tinytask",
+    "short_name": "Tinytask",
     "icons": [
         {
             "src": "static/tinytask_logo.png",
-            "sizes": "300x300",
-            "type": "img/png"
+            "sizes": "192x192",
+            "type": "image/png"
         }
     ],
     "start_url": "/date/",
-    "display": "portrait",
-    "orientation": "landscape"
+    "display": "standalone",
+    "orientation": "portrait"
 }

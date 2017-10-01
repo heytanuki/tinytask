@@ -28,9 +28,6 @@ svg {
   vertical-align: -3px;
   stroke: black;
 }
-div#list_container {
-  margin-left: 20px;
-}
 .touchable:active {
   animation: darken .3s;
 }
@@ -65,10 +62,12 @@ div#list_container {
 /* Date nav styling */
 div#date_nav {
   margin-bottom: 22px;
-  margin-top: 22px;
+  margin-top: -58px;
   height: 35px;
   width: 384px; 
   display: none;
+  background: white;
+  position: fixed;
 }
 div#date_nav_placeholder {
   margin-bottom: 22px;
@@ -98,6 +97,10 @@ div.present line#backslash, div.future line#backslash, div.future line#forwardsl
 }
 
 /* Task text and menu */
+div#list_container {
+  margin-left: 20px;
+  margin-top: 80px;
+}
 div.task_container {
   padding-bottom: 10px;
   margin-right: 20px;
@@ -214,7 +217,6 @@ div.logomenu {
   ">
   {{ get_readable_date(date) }}
 </div>
-
 {% endmacro %}
 
 {% macro draw_task(task) %}
@@ -279,9 +281,7 @@ div.logomenu {
 <body>
 
 {{ date_nav() }}
-<div id="date_nav_placeholder">
-
-</div>
+<div id="date_nav_placeholder"></div>
 
 <div id="list_container" width="400">
 {% for task in tasks %}

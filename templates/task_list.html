@@ -31,9 +31,9 @@ svg {
 div#list_container {
   margin-left: 20px;
 }
-/*.touchable:active {
+.touchable:active {
   animation: darken .3s;
-}*/
+}
 @keyframes darken {
   0% {
     background-color: white;
@@ -311,9 +311,10 @@ function get_doc_width() {
 function insert_task() {
   if ($('#entry_box').val()!=='') {
     data = {'description': $('#entry_box').val(),
-    'date_due': $("#date_due_box").val()}
-    $.post('/tasklist/insert/', data);
-    location.reload();
+    'date_due': $("#date_due_box").val()};
+    $.post('/tasklist/insert/', data, function() {
+      location.reload();
+    });
   };
 };
 

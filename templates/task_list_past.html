@@ -38,7 +38,6 @@ div#date_nav {
   margin-bottom: 22px;
   margin-top: 22px;
   height: 35px;
-  width: 384px; 
   display: none;
 }
 div#date_nav_placeholder {
@@ -188,7 +187,7 @@ function set_logo_tense() {
 
 function set_date_position() {
   date_width = $("div#date_test_width").width() + 33;
-  position = 180 - (date_width / 2);
+  position = 190 - (date_width / 2);
   $("g#date_display").attr("transform", "translate(" + position + ", 0)");
   $("div#date_nav_placeholder").hide()
   $("div#date_nav").show();
@@ -218,11 +217,11 @@ $(document).ready(function() {
   });
 
   // Date navigation
-  $("svg#da_left").click(function() {
+  $("rect#yesterday_button").click(function() {
     go_yesterday();
   });
 
-  $("svg#da_right").click(function() {
+  $("rect#tomorrow_button").click(function() {
     go_tomorrow();
   });
 });

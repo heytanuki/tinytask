@@ -63,19 +63,46 @@ svg {
 div#date_nav {
   margin-bottom: 22px;
   margin-top: -80px;
+  margin-left: -10px;
   padding-top: 22px;
   padding-bottom: 22px;
+  padding-right: 10px;
   height: 35px;
-  width: 384px; 
   display: none;
   background-color: white;
   position: fixed;
 }
-div#date_nav_placeholder {
+div#shadow_div {
+  width: 500px;
   margin-bottom: 22px;
-  margin-top: 22px;
+  margin-top: -80px;
+  margin-left: -10px;
+  padding-top: 22px;
+  padding-bottom: 22px;
+  padding-right: 10px;
   height: 35px;
-  width: 384px; 
+  background-color: white;
+  position: fixed;
+  box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.25);
+}
+div.shadow {
+  animation-name: fade_in_shadow;
+  animation-duration: 0.1s;
+  opacity: 1;
+}
+div.noshadow {
+  animation-name: fade_in_shadow;
+  animation-duration: 0.1s;
+  animation-direction: reverse;
+  opacity: 0;
+}
+@keyframes fade_in_shadow {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 g.future > line#date_backslash, g.future > line#date_forwardslash {
   stroke-width: 0px;
@@ -281,9 +308,8 @@ div.logomenu {
 {% endmacro %}
 
 <body>
-
+<div id="shadow_div" class="noshadow"></div>
 {{ date_nav() }}
-<div id="date_nav_placeholder"></div>
 
 <div id="list_container" width="400">
 {% for task in tasks %}
@@ -325,6 +351,7 @@ function get_doc_width() {
 
 // Helpers
 function insert_task() {
+  $("svg#new_task_diamond").addClass("twirling")
   entered_text = $("#entry_box").val();
   if (entered_text !== "") {
     data = {"description": entered_text,
@@ -389,7 +416,6 @@ function set_date_position() {
   date_width = $("div#date_test_width").width() + 33;
   position = 190 - (date_width / 2);
   $("g#date_display").attr("transform", "translate(" + position + ", 0)");
-  $("div#date_nav_placeholder").hide();
   $("div#date_nav").show();
 }
 
@@ -419,6 +445,10 @@ function check_if_refresh_needed(today, page_load_time) {
 // jQuery magic
 $(document).ready(function() {
 
+  distance = $(window).scrollTop();
+  if (distance > 0) {
+    $("div#shadow_div").attr("class", "shadow");
+  }
   get_doc_width();
   set_date_position();
   set_logo_tense();
@@ -548,6 +578,27 @@ $(document).keyup(function(e) {
   }
   if (e.keyCode === 39) {
     go_tomorrow();
+  }
+});
+
+function restart_animation(elem) {
+  new_element = elem.clone(true);
+  elem.before(new_element);
+  elem.remove();
+  return new_element;
+}
+
+$(window).scroll(function() {
+  shadow_box = $("div#shadow_div");
+  distance = $(this).scrollTop();
+  if (distance > 0 && !shadow_box.hasClass("shadow")) {
+    shadow_box = restart_animation(shadow_box);
+    shadow_box.attr("class", "shadow");
+  } else {
+    if (distance <= 0 && !shadow_box.hasClass("noshadow")) {
+      shadow_box = restart_animation(shadow_box);
+      shadow_box.attr("class", "noshadow");
+    }
   }
 });
 

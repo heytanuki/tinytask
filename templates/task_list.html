@@ -22,11 +22,14 @@ line {
   stroke: black;
 }
 rect {
-  fill: white;
+  fill: transparent;
 }
 svg {
   vertical-align: -3px;
   stroke: black;
+}
+.touchable {
+  cursor: pointer;
 }
 .touchable:active {
   animation: darken .3s;
@@ -34,7 +37,7 @@ svg {
 .twirling {
   animation-name: twirl;
   animation-duration: 0.8s;
-  animation-iteration-count: 1;
+  animation-iteration-count: infinite;
 }
 @keyframes twirl {
   0% {
@@ -60,74 +63,47 @@ svg {
 }
 
 /* Date nav styling */
+div#header {
+  background-color: white;
+  height: 50px;
+  width: 400px;
+  margin-top: -100px;
+  margin-left: -50px;
+  padding-top: 20px;
+  padding-left: 50px;
+  padding-right: 1024px;
+  padding-bottom: 6px;
+  box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
+  position: fixed;
+}
 div#date_nav {
-  margin-bottom: 22px;
-  margin-top: -80px;
-  padding-top: 22px;
-  padding-bottom: 22px;
-  padding-right: 10px;
-  height: 35px;
-  display: none;
-  background-color: white;
+  width: inherit;
   position: fixed;
+  text-align: center;
 }
-div#shadow_div {
-  width: 1024px;
-  margin-bottom: 22px;
-  margin-top: -80px;
-  margin-left: -10px;
-  padding-top: 22px;
-  padding-bottom: 22px;
-  padding-right: 10px;
-  height: 35px;
-  background-color: white;
-  position: fixed;
-  box-shadow: -30px 4px 5px rgba(0, 0, 0, 0.25);
+div#date_center {
+  text-align: center;
 }
-div.shadow {
-  animation-name: fade_in_shadow;
-  animation-duration: 0.1s;
-  opacity: 1;
+span#date_text {
+  font-family: sans-serif;
+  font-weight: normal;
+  font-size: 22pt;
 }
-div.noshadow {
-  animation-name: fade_in_shadow;
-  animation-duration: 0.1s;
-  animation-direction: reverse;
-  opacity: 0;
-}
-@keyframes fade_in_shadow {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-g.future > line#date_backslash, g.future > line#date_forwardslash {
-  stroke-width: 0px;
-}
-g.present > line#date_backslash {
-  stroke-width: 0px;
-}
-g.past > line#date_backlash, g.past > line#date_forwardslash {
-  stroke-width: 2px;
-}
-
 /* Date nav SVGs */
-div.past {
+svg.past {
   color: black;
 }
-div.past line, div.past rect {
+svg.past line, svg.past rect {
   stroke: black;
 }
-div.present line#backslash, div.future line#backslash, div.future line#forwardslash {
+svg.present line#backslash, svg.future line#backslash, svg.future line#forwardslash {
   stroke-width: 0;
 }
 
 /* Task text and menu */
 div#list_container {
   margin-left: 20px;
-  margin-top: 80px;
+  margin-top: 100px;
 }
 div.task_container {
   padding-bottom: 10px;
@@ -209,63 +185,37 @@ div.logomenu {
 </head>
 
 {% macro date_nav() %}
-<div id="date_nav">
-  <svg width="400" height="30">
-    <g transform="translate(55,0)"> 
-      <rect id="yesterday_button" class="touchable" width="70" height="30" x="-25" y="0" stroke="white" />
-      <line x1="15" y1="1" x2="1" y2="15" />
-      <line x1="15" y1="29" x2="1" y2="15" />
-    </g>
-    <g transform="translate(297,0)"> 
-      <rect id="tomorrow_button" class="touchable" width="70" height="30" x="-15" y="0" stroke="white" />
-      <line x1="15" y1="1" x2="29" y2="15" />
-      <line x1="29" y1="15" x2="15" y2="29" />
-    </g>
-    <g id="date_display" transform="translate(125, 0)">
-      <g id="date_diamond" class="future" transform="translate(0, 0)">
-        <rect x="6" y="6" rx="1" ry="1" stroke-width="2px" width="18" height="18" transform="rotate(45 15 15)" />  
-        <line id="date_forwardslash" x1="27" y1="3" x2="3" y2="27" />
-        <line id="date_backslash" x1="3" y1="3" x2="27" y2="27" />
+<div id="header">
+  <div id="date_nav">
+    <svg width="12%" height="30" class="touchable"> 
+      <rect id="yesterday_button" stroke="transparent" width="50" height="30" x="0" y="0" />
+      <g transform="translate(18, 0)">
+        <line x1="15" y1="1" x2="1" y2="15" />
+        <line x1="15" y1="29" x2="1" y2="15" />
       </g>
-      <text x="0" y="26" style="
-        font-family: sans-serif;
-        font-weight: normal;
-        font-size: 22pt;
-        stroke-width: 0px;
-      " transform="translate(35,0)">{{ get_readable_date(date) }}</text>
-    </g>
-  </svg>
-</div>
-
-<div id="date_test_width" style="
-    display: none; 
-    font-family: sans-serif;
-    font-weight: normal;
-    font-size: 22pt;
-  ">
-  {{ get_readable_date(date) }}
-</div>
-{% endmacro %}
-
-{% macro draw_task(task) %}
-<div class="task_container" date="{{ date }}" key="{{ task['task_key'] }}">
-  <svg id="task_diamond" class="{{ task['status'] }}" width="28" height="28">
-    <g transform="translate(0) rotate(45 12 16)">
-      <rect class="touchable" x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2px" />
-    </g>
-    <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
-    <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
-  </svg>
-  <span class="task_text touchable">{{ task['description'] }}</span>
-  <div class="taskmenu">
-    <span class="touchable" id="un-do">{{ draw_undo() }}un-do</span><br>
-    <span class="touchable" id="delete">{{ draw_delete() }}delete</span>
-    <span class="touchable" id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
+    </svg>
+    <svg width="50%" height="30" class="touchable">
+    </svg>
+    <svg width="12%" height="30" class="touchable"> 
+      <rect id="tomorrow_button" stroke="transparent" width="50" height="30" x="0" y="0" />
+      <g transform="translate(18, 0)">
+        <line x1="1" y1="1" x2="15" y2="15" />
+        <line x1="15" y1="15" x2="1" y2="29" />
+      </g>
+    </svg>        
+  </div>
+  <div id="date_center">
+    <svg class="past" id="date_disp" height="30" width="30">
+      <rect x="6" y="6" rx="1" ry="1" stroke-width="2px" width="18" height="18" transform="rotate(45 15 15)" />  
+      <line id="date_forwardslash" x1="27" y1="3" x2="3" y2="27" />
+      <line id="date_backslash" x1="3" y1="3" x2="27" y2="27" />
+    </svg>
+    <span id="date_text">{{ get_readable_date(date) }}</span>
   </div>
 </div>
 {% endmacro %}
 
-{% macro draw_task_test(task) %}
+{% macro draw_task(task) %}
 <div class="task_container" date="{{ date }}" key="{{ task['task_key'] }}">
   <svg id="task_diamond" class="{{ task['status'] }}" width="28" height="28">
     <g transform="translate(0) rotate(45 12 16)">
@@ -307,7 +257,6 @@ div.logomenu {
 {% endmacro %}
 
 <body>
-<div id="shadow_div" class="noshadow"></div>
 {{ date_nav() }}
 
 <div id="list_container" width="400">
@@ -411,13 +360,6 @@ function set_logo_tense() {
   $("g#date_diamond").attr("class", tense);
 }
 
-function set_date_position() {
-  date_width = $("div#date_test_width").width() + 33;
-  position = 190 - (date_width / 2);
-  $("g#date_display").attr("transform", "translate(" + position + ", 0)");
-  $("div#date_nav").show();
-}
-
 function user_is_typing() {
   is_typing = true;
   entry_box = $("#entry_box");
@@ -444,12 +386,7 @@ function check_if_refresh_needed(today, page_load_time) {
 // jQuery magic
 $(document).ready(function() {
 
-  distance = $(window).scrollTop();
-  if (distance > 0) {
-    $("div#shadow_div").attr("class", "shadow");
-  }
   get_doc_width();
-  set_date_position();
   set_logo_tense();
   check_if_refresh_needed({{ date }}, {{ time_loaded }});
 
@@ -470,14 +407,14 @@ $(document).ready(function() {
   });
 
   // Open/close logo menu
-  $("div.tt_logo").click(function() {
-    logo_menu = $(this).next();
-    if (logo_menu.is(":visible")) {
-      logo_menu.hide(200);
-    } else {
-      logo_menu.show(200);
-    }
-  });
+  // $("div.tt_logo").click(function() {
+  //   logo_menu = $(this).next();
+  //   if (logo_menu.is(":visible")) {
+  //     logo_menu.hide(200);
+  //   } else {
+  //     logo_menu.show(200);
+  //   }
+  // });
 
   // Advance task status
   $("svg#task_diamond").click(function() {
@@ -577,27 +514,6 @@ $(document).keyup(function(e) {
   }
   if (e.keyCode === 39) {
     go_tomorrow();
-  }
-});
-
-function restart_animation(elem) {
-  new_element = elem.clone(true);
-  elem.before(new_element);
-  elem.remove();
-  return new_element;
-}
-
-$(window).scroll(function() {
-  shadow_box = $("div#shadow_div");
-  distance = $(this).scrollTop();
-  if (distance > 0 && !shadow_box.hasClass("shadow")) {
-    shadow_box = restart_animation(shadow_box);
-    shadow_box.attr("class", "shadow");
-  } else {
-    if (distance <= 0 && !shadow_box.hasClass("noshadow")) {
-      shadow_box = restart_animation(shadow_box);
-      shadow_box.attr("class", "noshadow");
-    }
   }
 });
 

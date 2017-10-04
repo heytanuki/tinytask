@@ -36,7 +36,7 @@ svg {
 }
 .twirling {
   animation-name: twirl;
-  animation-duration: 0.8s;
+  animation-duration: 1s;
   animation-iteration-count: infinite;
 }
 @keyframes twirl {
@@ -66,29 +66,35 @@ svg {
 div#header {
   background-color: white;
   height: 50px;
-  width: 400px;
+  width: 95vw;
+  max-width: 420px;
   margin-top: -100px;
-  margin-left: -50px;
-  padding-top: 20px;
-  padding-left: 50px;
+  padding-top: 25px;
+  margin-left: -10px;
+  padding-left: 10px;
   padding-right: 1024px;
+  margin-right: -10px;
   padding-bottom: 6px;
   box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
   position: fixed;
 }
 div#date_nav {
   width: inherit;
+  max-width: inherit;
   position: fixed;
   text-align: center;
 }
 div#date_center {
   text-align: center;
+  width: inherit;
+  max-width: inherit;
 }
 span#date_text {
   font-family: sans-serif;
   font-weight: normal;
   font-size: 22pt;
 }
+
 /* Date nav SVGs */
 svg.past {
   color: black;
@@ -96,7 +102,9 @@ svg.past {
 svg.past line, svg.past rect {
   stroke: black;
 }
-svg.present line#backslash, svg.future line#backslash, svg.future line#forwardslash {
+svg.present line#date_backslash, 
+svg.future line#date_backslash, 
+svg.future line#date_forwardslash {
   stroke-width: 0;
 }
 
@@ -104,25 +112,27 @@ svg.present line#backslash, svg.future line#backslash, svg.future line#forwardsl
 div#list_container {
   margin-left: 20px;
   margin-top: 100px;
+  max-width: 400px;
 }
 div.task_container {
   padding-bottom: 10px;
   margin-right: 20px;
+  max-width: 400px;
 }
 span.task_text {
   padding-left: 5px;
   line-height: 130%;
 }
-div.taskmenu {
+div.task_menu {
   display: none;
-  border-width: 2px 0px 0px 0px;
-  border-style: solid;
-  border-color: darkgray;
   background-color: rgb(245, 245, 245);
+  padding-top: 5px;
   padding-left: 65px;
   margin-left: -28px;
+  margin-right: -1024px;
   margin-top: 5px;
   vertical-align: top;
+  box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
 }
 
 /* Diamond styles */
@@ -163,22 +173,10 @@ div.tt_logo {
   color: gray;
   margin-bottom: 10px;
   margin-left: 240px;
+  align-self: right;
 }
 #logoslash {
   stroke: gray;
-}
-div.logomenu {
-  display: none;
-  text-align: right;
-  width: 180px;
-  border-width: 2px 0px 0px 0px;
-  border-style: solid;
-  border-color: darkgray;
-  background-color: rgb(245, 245, 245);
-  margin-right: 33px;
-  margin-left: 220px;
-  padding-right: 20px;
-  vertical-align: top;
 }
 </style>
 
@@ -194,7 +192,7 @@ div.logomenu {
         <line x1="15" y1="29" x2="1" y2="15" />
       </g>
     </svg>
-    <svg width="50%" height="30" class="touchable">
+    <svg id="header_menu_button" width="50%" height="30" class="touchable">
     </svg>
     <svg width="12%" height="30" class="touchable"> 
       <rect id="tomorrow_button" stroke="transparent" width="50" height="30" x="0" y="0" />
@@ -205,13 +203,16 @@ div.logomenu {
     </svg>        
   </div>
   <div id="date_center">
-    <svg class="past" id="date_disp" height="30" width="30">
+    <svg class="future" id="date_diamond" height="30" width="30">
       <rect x="6" y="6" rx="1" ry="1" stroke-width="2px" width="18" height="18" transform="rotate(45 15 15)" />  
       <line id="date_forwardslash" x1="27" y1="3" x2="3" y2="27" />
       <line id="date_backslash" x1="3" y1="3" x2="27" y2="27" />
     </svg>
     <span id="date_text">{{ get_readable_date(date) }}</span>
   </div>
+  <!-- <div id="header_menu">
+    <span class="touchable" id="go_today">today</span>
+  </div> -->
 </div>
 {% endmacro %}
 
@@ -225,7 +226,7 @@ div.logomenu {
     <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
   </svg>
   <span class="task_text touchable">{{ task['description'] }}</span>
-  <div class="taskmenu">
+  <div class="task_menu">
     <span class="touchable" id="un-do">{{ draw_undo() }}un-do</span><br>
     <span class="touchable" id="delete">{{ draw_delete() }}delete</span>
     <span class="touchable" id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
@@ -259,7 +260,7 @@ div.logomenu {
 <body>
 {{ date_nav() }}
 
-<div id="list_container" width="400">
+<div id="list_container">
 {% for task in tasks %}
 {{ draw_task(task) }}
 {% endfor %}
@@ -277,7 +278,7 @@ div.logomenu {
   </form>
 </div>
 
-<div class="tt_logo" align="right">
+<div class="tt_logo">
   <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
     <g transform="translate(0) rotate(45 16 16)">
       <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2px" />
@@ -285,9 +286,9 @@ div.logomenu {
     <line id="logoslash" x1="27" y1="5" x2="5" y2="27" />
   </svg><span> tinytask</span>
 </div>
-<div class="logomenu">
+<!-- <div class="logomenu">
 <a href="/info/">about</a><br><a href="/updates/">updates</a><br><a href="/log out/">log out</a><p id="scr_width">0</p><br><a id="import_yesterday" href="#">import yesterday</a>
-</div>
+</div> -->
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
@@ -357,7 +358,7 @@ function set_logo_tense() {
   tense = "present";
   if (list_date > today) { tense = "future"; }
   if (list_date < today) { tense = "past"; }
-  $("g#date_diamond").attr("class", tense);
+  $("svg#date_diamond").attr("class", tense);
 }
 
 function user_is_typing() {
@@ -390,6 +391,10 @@ $(document).ready(function() {
   set_logo_tense();
   check_if_refresh_needed({{ date }}, {{ time_loaded }});
 
+  $("svg#header_menu_button").click(function() {
+    $("div#header_menu").toggle();
+  });
+
   $("svg#task_diamond").each(function(i) {
     update_menu_tomorrow($(this));
     update_menu_undo($(this));
@@ -401,20 +406,10 @@ $(document).ready(function() {
     if (task_menu.is(":visible")) {
       task_menu.hide(200);
     } else {
-      $("div.taskmenu").hide(200);
+      $("div.task_menu").hide(200);
       task_menu.show(200);
     }
   });
-
-  // Open/close logo menu
-  // $("div.tt_logo").click(function() {
-  //   logo_menu = $(this).next();
-  //   if (logo_menu.is(":visible")) {
-  //     logo_menu.hide(200);
-  //   } else {
-  //     logo_menu.show(200);
-  //   }
-  // });
 
   // Advance task status
   $("svg#task_diamond").click(function() {
@@ -507,7 +502,7 @@ $(document).keyup(function(e) {
     return;
   }
   if (e.keyCode === 27) {
-    $("div.taskmenu").hide(200);
+    $("div.task_menu").hide(200);
   }
   if (e.keyCode === 37) {
     go_yesterday();

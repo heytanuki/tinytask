@@ -51,6 +51,8 @@ def get_google_oauth():
         id = oauth2_service.userinfo().get().execute()
         email = id['email']
         if email not in AUTHORIZED_EMAILS:
+            with open('tried_to_oauth.txt', 'a+') as f:
+                f.write(email + '\n')
             return flask.redirect(flask.url_for('not_authorized'))
         user_id = email.replace('.', '')
         flask.session['tinytask_username'] = user_id
@@ -246,6 +248,10 @@ def parse_task(current_request):
         task_key = current_request.args.get('task_key')
     task = TaskItem(username, task_db, date, task_key)
     return task
+
+@app.route('/test/')
+def render_test():
+    return flask.render_template('task-item_test.html')
 
 if __name__ == '__main__':
     app.secret_key = APP_SECRET_KEY

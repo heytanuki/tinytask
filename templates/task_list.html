@@ -170,7 +170,7 @@ input {
 }
 
 /* Logo stuff */
-div.tt_logo {
+div#tt_logo {
   width: 120px;
   color: gray;
   margin-top: 8px;
@@ -281,7 +281,7 @@ div.tt_logo {
   </form>
 </div>
 
-<div class="tt_logo">
+<div id="tt_logo" class="touchable">
   <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
     <g transform="translate(0) rotate(45 16 16)">
       <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2px" />
@@ -492,6 +492,10 @@ $(document).ready(function() {
 
   $("#new_task_diamond").click(function() {
     insert_task();
+  });
+
+  $("#tt_logo").click(function() {
+    window.location.href = "/status/";
   });
 });
 

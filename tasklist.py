@@ -35,6 +35,13 @@ class TaskDB(object):
         except KeyError:
             self.__init__()
 
+    def get_users(self):
+        users_db = self.database \
+                    .get(self.get_token()) \
+                    .val()
+        users = [u for u in users_db]
+        return users
+
 
 class UserTasks(object):
 
@@ -157,6 +164,41 @@ class UserTasks(object):
         if tasks:
             return self.tasks_to_list(tasks)
         return []
+
+    def get_all_tasks(self):
+        whole_db = self.db \
+                       .child(self.username) \
+                       .child('tasks') \
+                       .get(self.db_connection.get_token()).val()
+        tasks = []
+        for date in whole_db:
+            for task in whole_db[date]:
+                tasks.append(whole_db[date][task])
+        return tasks
+
+    def get_user_settings(self, key=None):
+        if key is None:
+            settings = self.db \
+                           .child(self.username) \
+                           .child('settings') \
+                           .get(self.db_connection.get_token()) \
+                           .val()
+            return settings
+        else:
+            setting = self.db \
+                          .child(self.username) \
+                          .child('settings') \
+                          .child(key) \
+                          .get(self.db_connection.get_token()) \
+                          .val()
+            return setting
+
+    def set_user_setting(self, key, value):
+        self.db \
+            .child(self.username) \
+            .child('settings') \
+            .child(key) \
+            .set(value, self.db_connection.get_token())
 
     def test_database(self, fix_errors=False):
         whole_db = self.db \

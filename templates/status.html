@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tinystats</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
+    <link rel="apple-touch-icon" ref="{{ url_for('static', filename='tinytask_logo.png') }}" />
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}" />
+    <meta name="viewport" content="width=device-width, target-densityDpi=device-dpi, initial-scale=1.0">
+    <link rel="import" href="{{ url_for('static', filename='task-diamond.html') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='info.css') }}">
+<style>
+    body {
+        width: 400px;
+    }
+</style>
+
+</head>
+
+<body>
+    <h2>{{ all_time_count }} <span style="font-size: 22pt;">total tasks</span></h2>
+    <p>The past week:</p>
+    <div>
+        {% for task in tasks %}
+            <span title="{{ get_readable_date(task['date_due']) }}: {{ task['description'] }}">
+                <task-diamond status="{{ task['status'] }}">
+                </task-diamond>
+            </span>
+        {% endfor %}
+    </div>
+    <p>Tasks: {{ stats['total'] }}
+    <br>Done: {{ stats['statuses']['done'] }}
+    <br>Completed: {{ stats['complete']|round(2) }}%</p>
+    <span style="margin-left: 75%; font-size: 18pt;">
+        <a href="/date">
+            <svg width="20" height="20" class="touchable" style="vertical-align: -1px;"> 
+                <line x1="10" y1="1" x2="1" y2="10" />
+                <line x1="10" y1="19" x2="1" y2="10" />
+            </svg>today
+        </a>
+    </span>
+</body>
+
+
+</html>

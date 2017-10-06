@@ -55,6 +55,7 @@ def get_google_oauth():
                 f.write(email + '\n')
             return flask.redirect(flask.url_for('not_authorized'))
         user_id = email.replace('.', '')
+        check_user_initialization(user_id, email)
         flask.session['tinytask_username'] = user_id
         return flask.redirect(flask.url_for('render_today'))
 
@@ -84,6 +85,33 @@ def date_is_in_past(date):
     if delta.days > 1:
         return True
     return False
+
+def get_stats_on(task_list):
+    statuses = {
+        'notdone': 0,
+        'started': 0,
+        'done': 0,
+    }
+    total = 0
+    for task in task_list:
+        try:
+            statuses[task['status']] += 1
+        except KeyError:
+            continue
+        except TypeError:
+            continue
+        total += 1
+    complete = float(statuses['done']) / float(total) * 100
+    return {
+        'total': total,
+        'statuses': statuses,
+        'complete': complete,
+    }
+
+def check_user_initialization(username, email):
+    user_db = UserTasks(username, task_db)
+    if not user_db.get_user_settings('email'):
+        user_db.set_user_setting('email', email)
 
 ##########
 # Routes #
@@ -252,6 +280,27 @@ def parse_task(current_request):
 @app.route('/test/')
 def render_test():
     return flask.render_template('task-item_test.html')
+
+@app.route('/status/')
+def render_statuses():
+    username = flask.session.get('tinytask_username', None)
+    if not username:
+        return flask.redirect(flask.url_for('get_google_oauth'))
+    today = get_today()
+    past_7_days = [get_x_days_difference(today, x) for x in range(-6,1)]
+    user_tasks = UserTasks(username, task_db)
+    tasks = []
+    for day in past_7_days:
+        tasks += user_tasks.tasks_for_day(day)
+    all_tasks = user_tasks.get_all_tasks()
+    stats = get_stats_on(tasks)
+    all_time_count = get_stats_on(all_tasks)['total']
+    return flask.render_template(
+        'status.html',
+        tasks=tasks,
+        stats=stats,
+        all_time_count=all_time_count,
+    )
 
 if __name__ == '__main__':
     app.secret_key = APP_SECRET_KEY

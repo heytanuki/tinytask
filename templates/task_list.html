@@ -303,7 +303,7 @@ function get_doc_width() {
 
 // Helpers
 function insert_task() {
-  $("svg#new_task_diamond").addClass("twirling")
+  $("svg#new_task_diamond").addClass("twirling");
   entered_text = $("#entry_box").val();
   if (entered_text !== "") {
     data = {"description": entered_text,
@@ -495,6 +495,7 @@ $(document).ready(function() {
   });
 
   $("#tt_logo").click(function() {
+    $("svg#logo").addClass("twirling");
     window.location.href = "/status/";
   });
 });

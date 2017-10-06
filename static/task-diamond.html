@@ -57,8 +57,9 @@
   var template = this_doc.querySelector('template').content;
 
   function random_in_range(top_value) {
-    number = Math.random() * top_value + 1;
-    return Math.floor(number);
+    number = Math.random() * top_value * 10 + 1;
+    decimal_number = number / 10 + 0.5;
+    return Math.round(decimal_number * 10) / 10;
   }
 
   class TaskDiamond extends HTMLElement {

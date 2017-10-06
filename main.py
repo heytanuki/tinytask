@@ -110,8 +110,11 @@ def get_stats_on(task_list):
 
 def check_user_initialization(username, email):
     user_db = UserTasks(username, task_db)
-    if not user_db.get_user_settings('email'):
+    settings = user_db.get_user_settings()
+    if 'email' not in settings:
         user_db.set_user_setting('email', email)
+    if 'secret' not in settings:
+        user_db.set_user_setting('secret', str(uuid.uuid4()))
 
 ##########
 # Routes #
@@ -289,6 +292,7 @@ def render_statuses():
     today = get_today()
     past_7_days = [get_x_days_difference(today, x) for x in range(-6,1)]
     user_tasks = UserTasks(username, task_db)
+    user_secret = user_tasks.get_user_settings('secret')
     tasks = []
     for day in past_7_days:
         tasks += user_tasks.tasks_for_day(day)
@@ -300,6 +304,7 @@ def render_statuses():
         tasks=tasks,
         stats=stats,
         all_time_count=all_time_count,
+        user_secret=user_secret,
     )
 
 if __name__ == '__main__':

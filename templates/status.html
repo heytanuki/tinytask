@@ -38,6 +38,13 @@
             </svg>today
         </a>
     </span>
+    {% if user_secret %}
+        <p style="font-size: 6pt; margin-top: 20px;">
+            Your user secret key is 
+            <span style="color: gray;">{{ user_secret }}</span>. 
+            This isn't useful right now. 
+        </p>
+    {% endif %}
 </body>
 
 

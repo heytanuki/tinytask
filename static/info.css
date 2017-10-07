@@ -9,6 +9,9 @@ body {
 a {
   text-decoration: none;
 }
+a.underlined {
+  text-decoration: underline black;
+}
 line {
   stroke-linecap: round;
   stroke-width: 2px;

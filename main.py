@@ -127,10 +127,10 @@ def index():
         return flask.redirect(flask.url_for('render_today'))
     content = """
         is being tested right now. 
-        <p>If you've been invited, <a href="/callback/">go here to log in with Google</a>.</p>
+        <p>If you've been invited, <a href="/callback/" class="underlined">go here to log in with Google</a>.</p>
         <p>Tinytask uses your Google account for authentication purposes only. 
         Your user information will remain private.
-        <p><a href="/info/">More info!</a>"""
+        <p><a href="/info/" class="underlined">More info!</a>"""
     return flask.render_template('index.html', content=content)
 
 @app.route('/date/')

@@ -3,14 +3,16 @@ import datetime
 import time
 import httplib2
 import uuid
+import flask
+from flask_sslify import SSLify
 from apiclient import discovery
 from oauth2client import client
-import flask
 from tasklist import TaskDB, UserTasks, TaskItem
 from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KEY, APP_SECRET_KEY_PROD, AUTHORIZED_EMAILS
 
 app = flask.Flask(__name__)
 app.secret_key = APP_SECRET_KEY_PROD
+sslify = SSLify(app, permanent=True)
 task_db = TaskDB()
 
 @app.context_processor

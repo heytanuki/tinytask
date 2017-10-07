@@ -1,6 +1,10 @@
 import flask
 from conf.secrets import APP_SECRET_KEY
 
+app = flask.Flask(__name__)
+app.secret_key = APP_SECRET_KEY_PROD
+task_db = TaskDB()
+
 ##########
 # Routes #
 ##########

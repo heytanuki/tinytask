@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Settings</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
+<link rel="apple-touch-icon" ref="{{ url_for('static', filename='tinytask_logo.png') }}" />
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}" />
+<meta name="viewport" content="width=device-width, target-densityDpi=device-dpi, initial-scale=1.0">
+
+{% macro draw_diamond(setting_for, setting_name) %}
+    <div id="{{ setting_for }}" class="single_option">
+        <svg id="setting_diamond" class="set_off" width="28" height="28">
+            <g transform="translate(0) rotate(45 12 16)">
+                <rect class="touchable" x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2px" />
+            </g>
+        </svg>
+        <span class="task_text">
+            {{ setting_name }}
+        </span>
+    </div>
+{% endmacro %}
+
+
+</head>
+
+<body>
+
+<div id="header">
+    Settings
+</div>      
+
+<div id="list_container">
+    {{ draw_diamond('test1', 'Test1') }} 
+    {{ draw_diamond('test2', 'Test2') }}
+</div>
+
+<script>
+function add_listeners() {
+    setting_items = document.querySelectorAll(".single_option");
+    setting_items.forEach(function(element) {
+        element.addEventListener("click", function() {
+            toggle_setting(element);
+        });
+    });
+}
+
+function toggle_setting(setting_item) {
+    diamond = setting_item.querySelector("#setting_diamond");
+    if (diamond.classList.contains("set_off")) {
+        diamond.setAttribute("class", "set_on");
+        console.log(diamond.parentElement.getAttribute("id") + ": on");
+    } else {
+        diamond.setAttribute("class", "set_off");
+        console.log(diamond.parentElement.getAttribute("id") + ": off");
+    }
+}
+
+add_listeners();
+</script>

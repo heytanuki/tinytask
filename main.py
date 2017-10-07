@@ -20,3 +20,4 @@ def index(path):
 if __name__ == '__main__':
     app.secret_key = APP_SECRET_KEY
     app.run(host='0.0.0.0', port=8080, debug=True)
+

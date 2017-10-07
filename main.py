@@ -113,9 +113,9 @@ def get_stats_on(task_list):
 def check_user_initialization(username, email):
     user_db = UserTasks(username, task_db)
     settings = user_db.get_user_settings()
-    if 'email' not in settings:
+    if settings is None or 'email' not in settings:
         user_db.set_user_setting('email', email)
-    if 'secret' not in settings:
+    if settings is None or 'secret' not in settings:
         user_db.set_user_setting('secret', str(uuid.uuid4()))
 
 ##########

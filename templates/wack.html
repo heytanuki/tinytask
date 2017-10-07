@@ -1,0 +1,137 @@
+<style>
+svg {
+    fill: transparent;
+    stroke: black;
+    margin: 50 50 auto;
+    /*position: fixed;*/
+    background-color: transparent;
+}
+
+.anim1 {
+    animation: anim1 1s linear infinite;
+    animation-iteration-count: 4;
+}
+@keyframes anim1 {
+    0% {
+        r: 35px;
+        stroke-width: 15px;
+        transform: rotate(0deg); 
+        transform-origin: center center;
+        /*stroke-dasharray: 0 10;*/
+    }
+    50% {
+        r: 35px;
+        stroke-width: 32px;
+        transform: rotate(90deg);
+        transform-origin: center center;
+        /*stroke-dasharray: 10 5;*/
+    }
+    100% {
+        r: 35px;
+        stroke-width: 15px;
+        transform: rotate(180deg);
+        transform-origin: center center;
+        /*stroke-dasharray: 0 10;*/
+    }
+}
+.anim2 {
+    animation: anim2 1s linear infinite;
+    animation-delay: 4s;
+    animation-iteration-count: 4;
+}
+@keyframes anim2 {
+    0% {
+        r: 35px;
+        stroke-width: 15px;
+        transform: rotate(0deg); 
+        transform-origin: center center;
+        stroke-dasharray: 0 10;
+    }
+    50% {
+        r: 15px;
+        stroke-width: 32px;
+        transform: rotate(180deg);
+        transform-origin: center center;
+        stroke-dasharray: 10 5;
+    }
+    100% {
+        r: 35px;
+        stroke-width: 15px;
+        transform: rotate(360deg);
+        transform-origin: center center;
+        stroke-dasharray: 0 10;
+    }
+}
+.anim3 {
+    animation: anim3 2s infinite;
+    animation-delay: 8s;
+    animation-iteration-count: 2;
+}
+@keyframes anim3 {
+    0% {
+        r: 35px;
+        stroke-width: 15px;
+        transform: rotate(0deg); 
+        transform-origin: center center;
+        stroke-dasharray: 0 10;
+    }
+    10% {
+        r: 15px;
+        stroke-width: 31px;
+        transform: rotate(180deg);
+        transform-origin: center center;
+        stroke-dasharray: 250 0;
+    }
+    100% {
+        r: 35px;
+        stroke-width: 15px;
+        transform: rotate(360deg);
+        transform-origin: center center;
+        stroke-dasharray: 0 10;
+    }
+}
+.anim4 {
+    animation: anim4 1s  infinite;
+    animation-delay: 12s;
+    animation-iteration-count: 4;
+}
+@keyframes anim4 {
+    0% {
+        r: 35px;
+        stroke-width: 0px;
+        transform: rotate(0deg); 
+        transform-origin: center center;
+        stroke-dasharray: 5 10;
+    }
+    50% {
+        r: 15px;
+        stroke-width: 185px;
+        transform: rotate(180deg);
+        transform-origin: center center;
+        stroke-dasharray: 25 0;
+    }
+    100% {
+        r: 35px;
+        stroke-width: 15px;
+        transform: rotate(360deg);
+        transform-origin: center center;
+        stroke-dasharray: 5 10;
+    }
+}
+
+</style>
+
+<svg width="100" height="100">
+    <circle cx="50" cy="50"  fill="transparent" stroke-dasharray="5, 5" stroke-width="5px" class="anim1" />
+</svg>
+
+<svg width="100" height="100">
+    <circle cx="50" cy="50"  fill="transparent" stroke-dasharray="26, 6" stroke-width="5px" class="anim2" />
+</svg>
+<svg width="100" height="100">
+    <circle cx="50" cy="50"  fill="transparent" stroke-dasharray="2, 26" stroke-width="5px" class="anim3" />
+</svg>
+
+<svg width="100" height="100">
+    <circle cx="50" cy="50"  fill="transparent" stroke-dasharray="26, 6" stroke-width="5px" class="anim4" />
+</svg>

@@ -172,6 +172,15 @@ def render_past_tasklist(date):
     tasks = user_tasks.tasks_for_day(date)
     return flask.render_template('task_list_past.html', tasks=tasks, date=date, logged_in_as=username)
 
+@app.route('/settings/')
+def render_settings():
+    username = flask.session.get('tinytask_username', None)
+    if not username:
+        return flask.redirect(flask.url_for('get_google_oauth'))
+    user_tasks = UserTasks(username, task_db)
+    settings = user_tasks.get_user_settings()
+    return flask.render_template('settings.html', settings=settings)
+
 @app.route('/info/')
 def show_info():
     return flask.render_template('info.html')
@@ -183,6 +192,10 @@ def philosophy():
 @app.route('/demo/')
 def render_demo():
     return flask.render_template('demo.html')
+
+@app.route('/wack/')
+def render_wack():
+    return flask.render_template('wack.html')
 
 @app.route('/insert/', methods=['POST'])
 def insert_from_form():

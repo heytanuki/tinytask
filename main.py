@@ -282,7 +282,7 @@ def parse_task(current_request):
 
 @app.route('/test/')
 def render_test():
-    return flask.render_template('task-item_test.html')
+    return flask.render_template('webctest_task-item.html')
 
 @app.route('/status/')
 def render_statuses():

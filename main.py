@@ -169,12 +169,13 @@ def render_tasklist(date):
     if not username:
         return flask.redirect(flask.url_for('get_google_oauth'))
     user_tasks = UserTasks(username, task_db)
+    user_settings = user_tasks.get_user_settings()
 
     tasks = user_tasks.tasks_for_day(date)
-    sort_option = user_tasks.get_user_settings('sorting')
-    if sort_option is None or sort_option == 'started_first':
+    sort_option = user_settings.get('Sorting', None)
+    if sort_option is None or sort_option == 'Started first':
         tasks_ordered = sort_started_first(tasks)
-    if sort_option == 'chronological':
+    if sort_option == 'Chronological':
         tasks_ordered = tasks
     return flask.render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()), logged_in_as=username)
 

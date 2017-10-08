@@ -71,9 +71,9 @@ def get_x_days_difference(day, x):
     return diff.strftime('%Y%m%d')
 
 def date_is_valid(date):
-    if int(date[0:4]) < 1900:
-        return False
     try:
+        if int(date[0:4]) < 1900:
+            return False
         date_parsed = datetime.datetime.strptime(date, '%Y%m%d')
         return True
     except ValueError:
@@ -160,20 +160,22 @@ def render_today():
 
 @app.route('/date/<date>/')
 def render_tasklist(date):
+    if not date_is_valid(date):
+        return flask.redirect(flask.url_for('render_today'))
+    if date_is_in_past(date):
+        return render_past_tasklist(date)
+
     username = flask.session.get('tinytask_username', None)
     if not username:
         return flask.redirect(flask.url_for('get_google_oauth'))
-    if not date_is_valid(date):
-        return flask.redirect(flask.url_for('render_today'))
     user_tasks = UserTasks(username, task_db)
-    if date_is_in_past(date):
-        return render_past_tasklist(date)
+
     tasks = user_tasks.tasks_for_day(date)
     sort_option = user_tasks.get_user_settings('sorting')
     if sort_option is None or sort_option == 'started_first':
         tasks_ordered = sort_started_first(tasks)
     if sort_option == 'chronological':
-        tasks_ordered = tasks        
+        tasks_ordered = tasks
     return flask.render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()), logged_in_as=username)
 
 def render_past_tasklist(date):
@@ -193,6 +195,15 @@ def render_settings():
     settings = user_tasks.get_user_settings()
     return flask.render_template('settings.html', settings=settings)
 
+@app.route('/noauth/')
+def not_authorized():
+    flask.session.pop('tinytask_username', None)
+    return flask.render_template('index.html', content=""" is not accessible or you've been logged out. <a href="/date/" class="underlined">Log in</a> if you're authorized.""")
+
+################
+# Simple pages #
+################
+
 @app.route('/info/')
 def show_info():
     return flask.render_template('info.html')
@@ -205,9 +216,17 @@ def philosophy():
 def render_demo():
     return flask.render_template('demo.html')
 
+@app.route('/icon/')
+def send_icon():
+    return flask.send_file('static/tinytask_icon_logo.png', mimetype='image/png')
+
 @app.route('/wack/')
 def render_wack():
     return flask.render_template('wack.html')
+
+###############
+# API METHODS #
+###############
 
 @app.route('/insert/', methods=['POST'])
 def insert_from_form():
@@ -220,19 +239,6 @@ def insert_from_form():
         date_due = get_today()
     insert_from_api(description, date_due)
     return flask.redirect(flask.url_for('render_tasklist', date=redir_date))
-
-@app.route('/noauth/')
-def not_authorized():
-    flask.session.pop('tinytask_username', None)
-    return flask.render_template('index.html', content=""" is not accessible, for now.""")
-
-@app.route('/icon/')
-def send_icon():
-    return flask.send_file('static/tinytask_icon_logo.png', mimetype='image/png')
-
-###############
-# API METHODS #
-###############
 
 @app.route('/tasklist/need_to_refresh/', methods=['GET'])
 def need_to_refresh():

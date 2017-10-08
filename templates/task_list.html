@@ -204,7 +204,7 @@ function check_if_refresh_needed(today, page_load_time) {
     "date": today,
     "page_load_time": page_load_time
   };
-  $.get("/tasklist/need_to_refresh", data, function(result) {
+  $.get("/tasklist/need_to_refresh/", data, function(result) {
     if (result==="true") {
       window.location.href = "/date/" + {{ date }} + "/";
     }

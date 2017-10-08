@@ -49,7 +49,7 @@ def get_google_oauth():
         auth_code = flask.request.args.get('code')
         credentials = flow.step2_exchange(auth_code)
         http_auth = credentials.authorize(httplib2.Http())
-        oauth2_service = discovery.build('oauth2', 'v2', http_auth)
+        oauth2_service = discovery.build('oauth2', 'v2', http=http_auth)
         id = oauth2_service.userinfo().get().execute()
         email = id['email']
         if email not in AUTHORIZED_EMAILS:
@@ -71,6 +71,8 @@ def get_x_days_difference(day, x):
     return diff.strftime('%Y%m%d')
 
 def date_is_valid(date):
+    if int(date[0:4]) < 1900:
+        return False
     try:
         date_parsed = datetime.datetime.strptime(date, '%Y%m%d')
         return True
@@ -153,6 +155,7 @@ def render_tasklist(date):
     if date_is_in_past(date):
         return render_past_tasklist(date)
     tasks = user_tasks.tasks_for_day(date)
+    
     tasks_by_type = {
         'started': [],
         'notdone': [],

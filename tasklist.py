@@ -3,8 +3,17 @@ import time
 import pyrebase
 from conf.secrets import FIREBASE_CONFIG, FIREBASE_AUTH_USER, FIREBASE_AUTH_PW
 
+ALL_USER_SETTINGS_OPTIONS = {
+    'Sorting': ['Started first', 'Chronological'],
+    "Offer to forward yesterday's tasks": ['Yes', 'No'],
+    'Hide done': ['Yes', 'No'],
+}
+
 
 class TaskError(Exception):
+    pass
+
+class SettingsError(Exception):
     pass
 
 
@@ -193,12 +202,24 @@ class UserTasks(object):
                           .val()
             return setting
 
+    @staticmethod
+    def settings_are_valid(key, value):
+        if key not in ALL_USER_SETTINGS_OPTIONS:
+            return False
+        if value not in ALL_USER_SETTINGS_OPTIONS[key]:
+            return False
+        return True
+
+
     def set_user_setting(self, key, value):
-        self.db \
-            .child(self.username) \
-            .child('settings') \
-            .child(key) \
-            .set(value, self.db_connection.get_token())
+        if self.settings_are_valid(key, value):
+            self.db \
+                .child(self.username) \
+                .child('settings') \
+                .child(key) \
+                .set(value, self.db_connection.get_token())
+            return
+        raise SettingsError("'{}' cannot be set to '{}'.".format(key, value))
 
     def test_database(self, fix_errors=False):
         whole_db = self.db \
@@ -272,8 +293,5 @@ class TaskItem(object):
             self.update({'status': 'started'})
             return
         self.update({'status': 'notdone'})
-
-
-
 
 

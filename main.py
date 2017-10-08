@@ -120,6 +120,20 @@ def check_user_initialization(username, email):
     if settings is None or 'secret' not in settings:
         user_db.set_user_setting('secret', str(uuid.uuid4()))
 
+def sort_started_first(tasklist):
+    tasks_by_type = {
+        'started': [],
+        'notdone': [],
+        'done': []
+    }
+    for task in tasklist:
+        try:
+            tasks_by_type[task['status']].append(task)
+        except KeyError:
+            continue
+    tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
+    return tasks_ordered
+
 ##########
 # Routes #
 ##########
@@ -155,18 +169,11 @@ def render_tasklist(date):
     if date_is_in_past(date):
         return render_past_tasklist(date)
     tasks = user_tasks.tasks_for_day(date)
-    
-    tasks_by_type = {
-        'started': [],
-        'notdone': [],
-        'done': []
-    }
-    for task in tasks:
-        try:
-            tasks_by_type[task['status']].append(task)
-        except KeyError:
-            continue
-    tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
+    sort_option = user_tasks.get_user_settings('sorting')
+    if sort_option is None or sort_option == 'started_first':
+        tasks_ordered = sort_started_first(tasks)
+    if sort_option == 'chronological':
+        tasks_ordered = tasks        
     return flask.render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()), logged_in_as=username)
 
 def render_past_tasklist(date):

@@ -2,12 +2,192 @@
 <html>
 <head>
 <title>Tinytask</title>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" /> -->
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
 <link rel="apple-touch-icon" ref="{{ url_for('static', filename='tinytask_logo.png') }}" />
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}" />
 <meta name="viewport" content="width=device-width, target-densityDpi=device-dpi, initial-scale=1.0">
 </head>
+<style>
+  body {
+    font-family: sans-serif;
+    font-weight: normal;
+    font-size: 18pt;
+  }
+  a {
+    text-decoration: none;
+    color: black;
+  }
+  line {
+    stroke-linecap: round;
+    stroke-width: 2px;
+    stroke: black;
+  }
+  rect {
+    fill: transparent;
+  }
+  svg {
+    vertical-align: -3px;
+    stroke: black;
+  }
+  .touchable {
+    cursor: pointer;
+  }
+  .touchable:active {
+    animation: darken .3s;
+  }
+  .twirling {
+    animation-name: twirl;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+  }
+  @keyframes twirl {
+    0% {
+      transform: rotate(0deg);
+      transform-origin: center center;
+    }
+    100% {
+      transform: rotate(360deg);
+      transform-origin: center center;
+    }
+  }
+  @keyframes darken {
+    0% {
+      background-color: white;
+      color: white;
+      fill: white;
+    }
+    100% {
+      background-color: lightsteelblue;
+      color: lightsteelblue;
+      fill: lightsteelblue;
+    }
+  }
+
+  /* Date nav styling */
+  div#header {
+    background-color: white;
+    height: 50px;
+    width: 95vw;
+    max-width: 420px;
+    margin-top: -100px;
+    padding-top: 25px;
+    margin-left: -10px;
+    padding-left: 10px;
+    padding-right: 1024px;
+    margin-right: -10px;
+    padding-bottom: 6px;
+    box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
+    position: fixed;
+  }
+  div#date_nav {
+    width: inherit;
+    max-width: inherit;
+    position: fixed;
+    text-align: center;
+  }
+  div#date_center {
+    text-align: center;
+    width: inherit;
+    max-width: inherit;
+  }
+  span#date_text {
+    font-family: sans-serif;
+    font-weight: normal;
+    font-size: 22pt;
+  }
+
+  /* Date nav SVGs */
+  svg.past {
+    color: black;
+  }
+  svg.past line, svg.past rect {
+    stroke: black;
+  }
+  svg.present line#date_backslash, 
+  svg.future line#date_backslash, 
+  svg.future line#date_forwardslash {
+    stroke-width: 0;
+  }
+
+  /* Task text and menu */
+  div#list_container {
+    margin-left: 20px;
+    margin-top: 100px;
+    max-width: 400px;
+  }
+  div#task_container {
+    padding-bottom: 10px;
+    margin-right: 20px;
+    max-width: 400px;
+  }
+  span.task_text {
+    padding-left: 5px;
+    line-height: 130%;
+  }
+  div.task_menu {
+    display: none;
+    background-color: rgb(245, 245, 245);
+    padding-top: 5px;
+    padding-left: 65px;
+    margin-left: -28px;
+    margin-right: -1024px;
+    margin-top: 5px;
+    vertical-align: top;
+    box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Diamond styles */
+  svg.notdone line, svg.started > line#backslash {
+    stroke-width: 0px;
+  }
+  svg.started > line#forwardslash {
+    stroke-width: 2px;
+  }
+  svg.done + span.task_text {
+    color: gray;
+  }
+  svg.done * {
+    stroke: gray;
+  }
+  svg.set_on rect {
+    fill: black;
+  }
+  svg.set_off rect {
+    fill: white;
+  }
+
+  /* Entry form style */
+  input {
+    font-family: sans-serif;
+    font-weight: normal;
+    font-size: 18pt;
+  }
+  #input_form {
+    margin-left: 20px;
+  }
+  #entry_box {
+    width: 300px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    border-bottom: 2px solid black;
+    margin-left: 4px;
+  }
+
+  /* Logo stuff */
+  div#tt_logo {
+    width: 120px;
+    color: gray;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    margin-left: 240px;
+    align-self: right;
+  }
+  #logoslash {
+    stroke: gray;
+  }
+</style>
 
 {% macro date_nav() %}
 <div id="header">
@@ -19,7 +199,8 @@
         <line x1="15" y1="29" x2="1" y2="15" />
       </g>
     </svg>
-    <svg id="header_menu_button" width="50%" height="30" class="touchable">
+    <svg id="refresh_button" width="50%" height="30" class="touchable">
+      <circle id="update_indicator" cx="187" cy="5" r="4" stroke-width="0" fill="transparent" />
     </svg>
     <svg width="12%" height="30" class="touchable"> 
       <rect id="tomorrow_button" stroke="transparent" width="50" height="30" x="0" y="0" />
@@ -37,9 +218,6 @@
     </svg>
     <span id="date_text">{{ get_readable_date(date) }}</span>
   </div>
-  <!-- <div id="header_menu">
-    <span class="touchable" id="go_today">today</span>
-  </div> -->
 </div>
 {% endmacro %}
 
@@ -100,7 +278,7 @@
         <rect class="touchable" x="3" y="4" rx="1" ry="1" stroke-width="2px" width="18" height="18"   />
       </g>
     </svg>
-    <input id="entry_box" type="text" name="description" autofocus="autofocus" value="{{ entered_text }}">
+    <input id="entry_box" type="text" name="description" autofocus="autofocus">
     <input id="date_due_box" hidden="hidden" type="text" name="date_due" value="{{ date }}">
   </form>
 </div>
@@ -113,17 +291,16 @@
     <line id="logoslash" x1="27" y1="5" x2="5" y2="27" />
   </svg><span> tinytask</span>
 </div>
-<!-- <div class="logomenu">
-<a href="/info/">about</a><br><a href="/updates/">updates</a><br><a href="/log out/">log out</a><p id="scr_width">0</p><br><a id="import_yesterday" href="#">import yesterday</a>
-</div> -->
+
+<div id="data_cache" hidden="hidden">
+  {% for item in cached_data %}
+    <input type="text" id="{{ item }}" value="{{ cached_data[item] }}">
+  {% endfor %}
+</div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
 
-// Debug
-function get_doc_width() {
-  $("p#scr_width").text($(document).width());
-}
 
 // Helpers
 function insert_task() {
@@ -200,7 +377,7 @@ function user_is_typing() {
 }
 
 function check_if_refresh_needed(today, page_load_time) {
-  data = {
+  var data = {
     "date": today,
     "page_load_time": page_load_time
   };
@@ -214,13 +391,7 @@ function check_if_refresh_needed(today, page_load_time) {
 // jQuery magic
 $(document).ready(function() {
 
-  get_doc_width();
   set_logo_tense();
-  check_if_refresh_needed({{ date }}, {{ time_loaded }});
-
-  $("svg#header_menu_button").click(function() {
-    $("div#header_menu").toggle();
-  });
 
   $("svg#task_diamond").each(function(i) {
     update_menu_tomorrow($(this));

@@ -25,13 +25,13 @@
 </svg>
 {% endmacro %}
 
-<p>{{ draw_diamond('logo') }} <span class="gray">Tinytask</span> was created as a minimal to-do list for my own brain. Check out the <a href="/phil/">philosophy</a> for how to use it.</p>
+<p>{{ draw_diamond('logo') }} <span class="gray">tinytask</span> was created as a minimal to-do list for my own brain. Check out the <a href="/phil/" class="underlined">philosophy</a> for how to use it.</p>
 <p>{{ draw_diamond('notdone') }} Look at the <a href="/demo/">demo</a> to see how it works firsthand. 
 <p>{{ draw_diamond('started') }} Tips
   <ul>
     <li>Use arrow keys to navigate between dates</li>
-    <li>The <a href="/date/">start page</a> defaults to the current date</li>
-    <li>On desktop, you can bookmark this page to always come to today's list</li>
+    <li>The <a href="/date/" class="underlined">start page</a> defaults to the current date</li>
+    <li>On desktop, you can bookmark the start page to always go to today's list</li>
     <li>On mobile, you can <b>Add to Home screen</b> to make a handy shortcut</li>
   </ul></p>
 <p>{{ draw_diamond('started') }} Development</p>
@@ -48,7 +48,7 @@
 <br>All of these tools are free to get started with!
 </div>
 <br>{{ draw_diamond('started') }} Tinytask is in an invite-only pre-release, but every effort will be made to preserve and secure data.
-<p class="indented">Note that we're not using https. Yet. But traffic from the app to the database is over SSL. The database is secured by Firebase and can be read only by the authenticated serviceuser.</p>
+<p class="indented">SSL is used to secure data in transit from you to the app, and from the app to the database.</p>
 <br>
 <p style="margin-top: -20px;">{{ draw_diamond('notdone') }} Bugs, requests, and questions can be sent to <a href="mailto:tinytask@googlegroups.com">tinytask@googlegroups.com</a>.</p>
 

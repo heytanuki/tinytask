@@ -1,0 +1,49 @@
+{% extends "generic.html" %}
+{% block head_tags %}
+    <title>tinytask</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
+    <link rel="apple-touch-icon" ref="{{ url_for('static', filename='tinytask_logo.png') }}" />
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <meta name="google-signin-client_id" content="43120564129-9qjrpeglffq5k7hvcrldlilh2qrm6ff5.apps.googleusercontent.comf">
+{% endblock %}
+{% block header %}
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <g transform="translate(0) rotate(45 16 16)">
+          <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="black" stroke-width="2px" />
+        </g>
+        <line stroke="black" stroke-width="2px" x1="27" y1="5" x2="5" y2="27" />
+      </svg><span> tinytask</span>
+{% endblock %}
+{% block content %}
+    <style>
+    svg {
+        stroke-width: 0px;
+    }
+    </style>
+    <p>Tinytask is in testing. </p>
+    <p>Authorized user login:</p>
+    <div id="my-signin2"></div>
+{% endblock %}
+{% block footer %}
+<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+<script>
+function renderButton() {
+  gapi.signin2.render('my-signin2', {
+    'scope': 'profile email',
+    'width': 240,
+    'height': 50,
+    'longtitle': true,
+    'theme': 'dark',
+    'onsuccess': function(){ window.location.href = "/date/"; },
+    'onfailure': function(){ window.location.href = "/login/"; }
+  });
+}
+</script>
+{% endblock %}
+</body>
+</html>
+
+

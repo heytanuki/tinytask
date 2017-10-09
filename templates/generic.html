@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% block head_tags %}
+    <title>tinytask</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+    <link rel="icon" type="image/png" href="/static/favicon.png" />
+    <link rel="apple-touch-icon" ref="/static/tinytask_logo.png" />
+    <link rel="manifest" href="static/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% endblock %}
+</head>
+<style>
+</style>
+<body>
+<div id="header" style="text-align: center;">
+    {% block header %}
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <g transform="translate(0) rotate(45 16 16)">
+          <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="black" stroke-width="2px" />
+        </g>
+        <line stroke="black" stroke-width="2px" x1="27" y1="5" x2="5" y2="27" />
+      </svg><span> generic page for stuff</span>
+
+      <!-- PAGE HEADER TITLE -->
+    {% endblock %}
+</div>      
+<div id="list_container">
+    {% block content %}
+        <p>Here is some CONTENT!</p>
+        <!-- PAGE CONTENT -->
+    {% endblock %}
+</div>
+
+{% block footer %}
+<!-- put scripts or whatever here -->
+{% endblock %}
+</body>
+</html>
+
+

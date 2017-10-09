@@ -151,6 +151,10 @@ def index():
         <p><a href="/info/" class="underlined">More info!</a>"""
     return flask.render_template('index.html', content=content)
 
+@app.route('/login/')
+def render_login():
+    return flask.render_template('login.html')
+
 @app.route('/date/')
 def render_today():
     username = flask.session.get('tinytask_username', None)

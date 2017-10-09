@@ -163,6 +163,19 @@ input {
   border-bottom: 2px solid black;
   margin-left: 4px;
 }
+#task_edit_box {
+  width: 300px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  border-bottom: 2px dashed black;
+  margin-left: 2px;
+  margin-bottom: 2px;
+  color: gray;
+}
+#task_edit_box:focus {
+  color: black;
+}
 
 /* Logo stuff */
 div#tt_logo {

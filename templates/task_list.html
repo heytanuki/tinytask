@@ -52,11 +52,22 @@
   </svg>
   <span class="task_text touchable">{{ task['description'] }}</span>
   <div class="task_menu">
+<!--     <div id="close_button" class="touchable" style="position: absolute; margin-left: -35px; padding-left: 0px; padding-top: 2px; padding-bottom: 20px;">
+      {{ draw_close() }}
+    </div> -->
     <span class="touchable" id="un-do">{{ draw_undo() }}un-do</span><br>
-    <span class="touchable" id="delete">{{ draw_delete() }}delete</span>
-    <span class="touchable" id="move-tomorrow"><br>{{ draw_tomorrow() }}tomorrow</span>
+    <span class="touchable" id="delete">{{ draw_delete() }}delete</span><br>
+    <span class="touchable" id="move-tomorrow">{{ draw_tomorrow() }}tomorrow</span>
   </div>
 </div>
+{% endmacro %}
+
+{% macro draw_close() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="8" y1="8" x2="14" y2="14" />
+  <line x1="14" y1="8" x2="8" y2="14" />
+  <circle cx="11" cy="11" r="9" stroke-width="2" fill="transparent" />
+</svg>
 {% endmacro %}
 
 {% macro draw_undo() %}
@@ -132,7 +143,35 @@ function insert_task() {
     $.post("/tasklist/insert/", data, function() {
       location.reload();
     });
+  } else {
+    $("svg#new_task_diamond").removeClass("twirling");
   }
+}
+
+function edit_task(task_date, task_key, new_description) {
+  console.log(task_date + task_key);
+  task_container = $("input#" + task_key);
+  console.log(task_container.attr("value"));
+  return false;
+}
+
+function edit_task_name(description) {
+  console.log(description);
+  return false;
+}
+
+function make_task_editable(container, description) {
+  var task_div = container.parent();
+  var status = task_div.children().first().attr("class");
+  if (status === "done") { return; }
+  var date = task_div.attr("date");
+  var key = task_div.attr("key");
+  container.replaceWith('<form autocomplete="off" onsubmit="edit_task_name()"><input id="task_edit_box" type="text" name="description" value="' + description + '"></form>');
+
+}
+
+function make_task_static(container) {
+
 }
 
 function set_task(task, container) {
@@ -193,6 +232,9 @@ function user_is_typing() {
   } else if (entry_box.val()==="") {
     is_typing = false;
   }
+  if (document.activeElement.getAttribute("id") === "task_edit_box") {
+    is_typing = true;
+  }
   return is_typing;
 }
 
@@ -220,12 +262,15 @@ $(document).ready(function() {
 
   // Open/close task menu
   $("span.task_text").click(function() {
-    task_menu = $(this).next();
+    var task_span = $(this);
+    var task_menu = task_span.next();
+    var description = this.textContent;
     if (task_menu.is(":visible")) {
       task_menu.hide(200);
     } else {
       $("div.task_menu").hide(200);
       task_menu.show(200);
+      // make_task_editable(task_span, description);
     }
   });
 
@@ -316,8 +361,8 @@ $(document).ready(function() {
 });
 
 $(document).keyup(function(e) {
-  if ($("#entry_box").is(":focus")) {
-    if (e.keyCode === 13) {
+  if (e.keyCode === 13) {
+    if ($("#entry_box").is(":focus")) {
       insert_task();
     }
   }

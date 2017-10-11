@@ -70,7 +70,7 @@
       if (this.hasAttribute("duration")) {
         this.anim_duration = this.getAttribute("duration");
       } else {
-        this.anim_duration = random_in_range(3);
+        this.anim_duration = random_in_range(300);
       }
     }
 
@@ -80,7 +80,7 @@
       shadow_root.appendChild(clone);
 
       var diamond = shadow_root.querySelector("#task_diamond");
-      diamond.classList.add(this.status);
+      diamond.setAttribute("class", this.status);
       diamond.setAttribute("style", "animation-duration: " + this.anim_duration + "s;")
     }
   }

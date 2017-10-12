@@ -4,6 +4,7 @@ import time
 import httplib2
 import uuid
 import flask
+import re
 from flask_sslify import SSLify
 from apiclient import discovery
 from oauth2client import client
@@ -26,9 +27,20 @@ def context_proc():
         date_parsed = datetime.datetime.strptime(date, '%Y%m%d')
         return date_parsed.strftime('%a %-m/%-d')
 
+    def parse_links(description):
+        matches = re.findall("(?P<url>https?://[^\s]+)", description)
+        if not matches:
+            return description
+        else:
+            desc_with_links = description
+            for m in matches:
+                desc_with_links = desc_with_links.replace(m, '<a target="_blank" href="' + m + '">@</a>')
+            return desc_with_links
+
     return dict(
         get_days=goto_x_days_difference,
         get_readable_date=get_readable_date,
+        parse_links=parse_links,
     )
 
 ##################

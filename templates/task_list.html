@@ -50,7 +50,7 @@
     <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
     <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
   </svg>
-  <span class="task_text touchable">{{ task['description'] }}</span>
+  <span class="task_text touchable">{{ parse_links(task['description'])|safe }}</span>
   <div class="task_menu">
 <!--     <div id="close_button" class="touchable" style="position: absolute; margin-left: -35px; padding-left: 0px; padding-top: 2px; padding-bottom: 20px;">
       {{ draw_close() }}

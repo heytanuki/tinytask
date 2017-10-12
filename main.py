@@ -15,6 +15,8 @@ app.secret_key = APP_SECRET_KEY_PROD
 sslify = SSLify(app, permanent=True)
 task_db = TaskDB()
 
+SUCCESS_RESPONSE = (json.dumps({'success':True}), 200, {'ContentType':'application/json'})
+
 @app.context_processor
 def context_proc():
     def goto_x_days_difference(day, x):
@@ -261,6 +263,8 @@ def need_to_refresh():
 
 @app.route('/tasklist/insert/', methods=['POST'])
 def insert_from_api(description=None, date_due=None):
+    print flask.request.form
+    print "ok????????????"
     username = flask.session.get('tinytask_username', None)
     if not username:
         return flask.redirect(flask.url_for('get_google_oauth'))
@@ -268,7 +272,7 @@ def insert_from_api(description=None, date_due=None):
         date_due = flask.request.form.get('date_due', None)
         description = flask.request.form.get('description')
     new_task = TaskItem(username, task_db, date_due=date_due, description=description)
-    return "ok"
+    return SUCCESS_RESPONSE
 
 @app.route('/tasklist/advance/', methods=['POST'])
 def advance_from_api():
@@ -301,7 +305,7 @@ def details_from_api():
 def delete_from_api():
     task = parse_task(flask.request)
     task.delete()
-    return 'ok'
+    return SUCCESS_RESPONSE
 
 def parse_task(current_request):
     username = flask.session.get('tinytask_username', None)

@@ -3,6 +3,9 @@ body {
   font-weight: normal;
   font-size: 18pt;
 }
+.no-fouc {
+  display: none;
+}
 a {
   text-decoration: none;
   color: black;

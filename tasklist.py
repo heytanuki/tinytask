@@ -9,6 +9,11 @@ ALL_USER_SETTINGS_OPTIONS = {
     'Hide done': ['Yes', 'No'],
 }
 
+DATA_SETTINGS = [
+    'email',
+    'secret',
+]
+
 
 class TaskError(Exception):
     pass
@@ -204,6 +209,8 @@ class UserTasks(object):
 
     @staticmethod
     def settings_are_valid(key, value):
+        if key in DATA_SETTINGS:
+            return True # Accept any values for these
         if key not in ALL_USER_SETTINGS_OPTIONS:
             return False
         if value not in ALL_USER_SETTINGS_OPTIONS[key]:

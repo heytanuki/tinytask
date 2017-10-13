@@ -131,7 +131,7 @@ def get_stats_on(task_list):
 def check_user_initialization(username, email):
     user_db = UserTasks(username, task_db)
     settings = user_db.get_user_settings()
-    if 'email' in settings:
+    if settings is not None and 'email' in settings:
         if email != settings['email']:
             return False
     if settings is None or 'email' not in settings:

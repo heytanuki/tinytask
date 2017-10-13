@@ -71,7 +71,9 @@ def get_google_oauth():
                 f.write(email + '\n')
             return flask.redirect(flask.url_for('not_authorized'))
         user_id = email.replace('.', '')
-        check_user_initialization(user_id, email)
+        init_result = check_user_initialization(user_id, email)
+        if init_result == False:
+            return flask.redirect(flask.url_for('not_authorized'))
         flask.session['tinytask_username'] = user_id
         return flask.redirect(flask.url_for('render_today'))
 
@@ -131,11 +133,12 @@ def check_user_initialization(username, email):
     settings = user_db.get_user_settings()
     if 'email' in settings:
         if email != settings['email']:
-            return flask.redirect(flask.url_for('not_authorized'))
+            return False
     if settings is None or 'email' not in settings:
         user_db.set_user_setting('email', email)
     if settings is None or 'secret' not in settings:
         user_db.set_user_setting('secret', str(uuid.uuid4()))
+    return True
 
 def sort_started_first(tasklist):
     tasks_by_type = {

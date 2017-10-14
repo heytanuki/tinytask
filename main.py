@@ -66,16 +66,34 @@ def get_google_oauth():
         oauth2_service = discovery.build('oauth2', 'v2', http=http_auth)
         id = oauth2_service.userinfo().get().execute()
         email = id['email']
-        if email not in AUTHORIZED_EMAILS:
-            with open('tried_to_oauth.txt', 'a+') as f:
-                f.write(email + '\n')
-            return flask.redirect(flask.url_for('not_authorized'))
-        user_id = email.replace('.', '')
-        init_result = check_user_initialization(user_id, email)
-        if init_result == False:
+        user_id = get_user_id(email)
+        if not user_id:
             return flask.redirect(flask.url_for('not_authorized'))
         flask.session['tinytask_username'] = user_id
         return flask.redirect(flask.url_for('render_today'))
+
+def get_user_id(email):
+    if email not in AUTHORIZED_EMAILS:
+        with open('tried_to_oauth.txt', 'a+') as f:
+            f.write(email + '\n')
+        return False
+    user_id = email.replace('.', '')
+    user_db = UserTasks(user_id, task_db)
+    settings = user_db.get_user_settings()
+    if settings is None:
+        user_db.set_user_setting('email', email)
+        user_db.set_user_setting('secret', str(uuid.uuid4()))
+        return user_id
+    if 'email' in settings:
+        if email != settings['email']:
+            return False
+    else:
+        user_db.set_user_setting('email', email)
+    return user_id
+
+def initialize_user(email, user_db):
+    user_db.set_user_setting('email', email)
+    user_db.set_user_setting('secret', str(uuid.uuid4()))
 
 ###########
 # Helpers #
@@ -128,18 +146,6 @@ def get_stats_on(task_list):
         'complete': complete,
     }
 
-def check_user_initialization(username, email):
-    user_db = UserTasks(username, task_db)
-    settings = user_db.get_user_settings()
-    if settings is not None and 'email' in settings:
-        if email != settings['email']:
-            return False
-    if settings is None or 'email' not in settings:
-        user_db.set_user_setting('email', email)
-    if settings is None or 'secret' not in settings:
-        user_db.set_user_setting('secret', str(uuid.uuid4()))
-    return True
-
 def sort_started_first(tasklist):
     tasks_by_type = {
         'started': [],
@@ -162,7 +168,7 @@ def sort_started_first(tasklist):
 def index():
     username = flask.session.get('tinytask_username', None)
     if username:
-        return flask.redirect(flask.url_for('render_today'))
+        return flask.redirect(flask.url_for('get_google_oauth'))
     content = """
         is being tested right now. 
         <p>If you've been invited, <a href="/callback/" class="underlined">go here to log in with Google</a>.</p>

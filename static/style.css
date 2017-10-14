@@ -58,6 +58,38 @@ svg {
     fill: lightsteelblue;
   }
 }
+div#task_menu.show {
+      transition-property: height;
+      transition: .2s ease-in-out;
+      height: 84px;
+      overflow: hidden;
+      background-color: rgb(245, 245, 245);
+      padding-top: 8px;
+      padding-left: 65px;
+      margin-left: -28px;
+      margin-right: -1024px;
+      margin-top: 5px;
+      box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
+    }
+div#task_menu.hide {
+      transition-property: height;
+      transition: .2s ease-in-out;
+      height: 0px;
+      overflow: hidden;
+    }
+
+.show {
+      transition-property: height;
+      transition: .2s ease-in-out;
+      overflow: hidden;
+    }
+
+.hide {
+      transition-property: height;
+      transition: .2s ease-in-out;
+      height: 0px;
+      overflow: hidden;
+    }
 
 /* Date nav styling */
 div#header {

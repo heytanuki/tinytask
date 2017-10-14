@@ -51,7 +51,7 @@
     <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
   </svg>
   <span class="task_text touchable">{{ parse_links(task['description'])|safe }}</span>
-  <div class="task_menu">
+  <div id="task_menu" class="hide">
 <!--     <div id="close_button" class="touchable" style="position: absolute; margin-left: -35px; padding-left: 0px; padding-top: 2px; padding-bottom: 20px;">
       {{ draw_close() }}
     </div> -->
@@ -134,23 +134,25 @@
 
 // Helpers
 
-function ajax_get(url, callback) {
-    var request = new requestRequest();
-    request.onreadystatechange = function() {
-        if (request.readyState == 4 && request.status == 200) {
-            // console.log('responseText:' + request.responseText);
-            try {
-                var data = JSON.parse(request.responseText);
-            } catch(err) {
-                console.log(err.message + " in " + request.responseText);
-                return false;
-            }
-            callback(data);
-        }
-    };
- 
-    request.open("GET", url, true);
-    request.send();
+function ajax_get(url, data_in, callback) {
+  var request = new XMLHttpRequest();
+  request.onreadystatechange = function() {
+    if (request.readyState == 4 && request.status == 200) {
+      try {
+        var data = JSON.parse(request.responseText);
+      } catch(err) {
+        console.log(err.message + " in " + request.responseText);
+        return false;
+      }
+      callback(data);
+    }
+  };
+  var url_params = Object.keys(data_in).map(function(prop) {
+    return [prop, data_in[prop]].map(encodeURIComponent).join("=");
+  }).join("&");
+  url_full = url + "?" + url_params
+  request.open("GET", url_full, true);
+  request.send();
 }
 
 function ajax_post(url, data_in, callback) {
@@ -166,7 +168,6 @@ function ajax_post(url, data_in, callback) {
       callback(data);
     }
   };
-
   request.open('POST', url, true);
   request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
   var url_params = Object.keys(data_in).map(function(prop) {
@@ -221,28 +222,34 @@ function insert_task() {
 // }
 
 function set_task(task, container) {
+  // var task_container = container[0] // TEMP
   console.log("Task " + task.task_key + " set to: " + task.status);
-  container.attr("class", task.status);
+  container.setAttribute("class", task.status);
 }
 
 function update_menu_undo(container) {
-  undo_span = container.parent().find($("span#un-do"));
-  if (container.attr("class")==="notdone") {
-      undo_span.hide();
-      undo_span.next().hide();
+  // var task_container = container[0]; // TEMP
+  var undo_span = container.parentNode.querySelector("span#un-do");
+  if (container.classList.contains("notdone")) {
+      undo_span.classList.add("hide");
+      undo_span.nextElementSibling.classList.add("hide");
   } else {
-      undo_span.show();
-      undo_span.next().show();
+      undo_span.classList.add("show");
+      undo_span.nextElementSibling.classList.add("show");
   }
 }
 
 function update_menu_tomorrow(container) {
-  tomorrow_span = container.parent().find($("span#move-tomorrow"));
-  if (container.attr("class")==="done") {
-    tomorrow_span.hide();
+  var tomorrow_span = container.parentNode.querySelector("span#move-tomorrow");
+  if (container.classList.contains("done")) {
+    tomorrow_span.classList.add("hide");
   } else {
-    tomorrow_span.show();
+    tomorrow_span.classList.add("show");
   }
+}
+
+function update_menu_edit(container) {
+
 }
 
 function go_tomorrow() {
@@ -267,20 +274,20 @@ function set_logo_tense() {
   tense = "present";
   if (list_date > today) { tense = "future"; }
   if (list_date < today) { tense = "past"; }
-  $("svg#date_diamond").attr("class", tense);
+  document.querySelector("svg#date_diamond").setAttribute("class", tense);
 }
 
 function user_is_typing() {
-  is_typing = true;
-  entry_box = $("#entry_box");
-  if (!entry_box.is(":focus")) {
+  var is_typing = true;
+  if (document.activeElement.getAttribute("id") !== "entry_box") {
     is_typing = false;
-  } else if (entry_box.val()==="") {
+  } else if (document.activeElement.value === "") {
     is_typing = false;
   }
   if (document.activeElement.getAttribute("id") === "task_edit_box") {
     is_typing = true;
   }
+  console.log(is_typing);
   return is_typing;
 }
 
@@ -289,132 +296,173 @@ function check_if_refresh_needed(today, page_load_time) {
     "date": today,
     "page_load_time": page_load_time
   };
-  $.get("/tasklist/need_to_refresh/", data, function(result) {
-    if (result==="true") {
+  ajax_get("/tasklist/need_to_refresh/", data, function(result) {
+    if (result === "true") {
       window.location.href = "/date/" + {{ date }} + "/";
     }
   });
 }
 
+function set_task_menus() { // NOT WORKING?!?
+  var all_diamonds = document.querySelectorAll("svg#task_diamond")
+  all_diamonds.forEach(function(i) {
+    update_menu_tomorrow(i);
+    update_menu_undo(i);
+  });
+}
 
+function toggle_task_menu(task) {
+  var task_menu = task.nextElementSibling;
+  if (task_menu.classList.contains("show")) {
+    task_menu.classList.remove("show");
+    task_menu.classList.add("hide");
+  } else {
+    var task_menus = document.querySelectorAll("div#task_menu");
+    task_menus.forEach(function(e) {
+      e.classList.remove("show");
+      e.classList.add("hide");
+    });
+    task_menu.classList.remove("hide");
+    task_menu.classList.add("show");
+  }
+}
+
+function advance_task_status(diamond) {
+  if (diamond.classList.contains("done")) {
+    return;
+  }
+  if (diamond.classList.contains("started")) {
+    diamond.setAttribute("class", "done");
+    update_menu_tomorrow(diamond);
+  }
+  if (diamond.classList.contains("notdone")) {
+    diamond.setAttribute("class", "started");
+    update_menu_undo(diamond);
+  }
+  data = {
+    "date_due": diamond.parentNode.getAttribute("date"),
+    "task_key": diamond.parentNode.getAttribute("key")
+  };
+  ajax_post("/tasklist/advance/", data, function(response) {
+    set_task(response, diamond);
+  });
+}
+
+function un_do_task(un_do_span) {
+  diamond = un_do_span.parentNode.parentNode.children[0];
+  un_do_span.parentNode.classList.add("hide");
+  data = {
+    "date_due": un_do_span.parentNode.parentNode.getAttribute("date"),
+    "task_key": un_do_span.parentNode.parentNode.getAttribute("key"),
+    "status": "notdone"
+  };
+  set_task(data, diamond);
+  un_do_span.parentNode.classList.remove("show");
+  un_do_span.parentNode.classList.add("hide");
+  ajax_post("/tasklist/undo/", data);
+  update_menu_undo(diamond);
+  update_menu_tomorrow(diamond);
+}
+
+function delete_task(delete_span) {
+  data = {
+      "date_due": delete_span.parentNode.parentNode.getAttribute("date"),
+      "task_key": delete_span.parentNode.parentNode.getAttribute("key")
+    };
+    delete_span.parentNode.parentNode.classList.remove("show");
+    delete_span.parentNode.parentNode.classList.add("hide");
+    ajax_post("/tasklist/delete/", data, function() {
+      window.location.href = "/date/" + data["date_due"] + "/";
+    });
+}
+
+function move_to_tomorrow(move_span) {
+    data = {
+      "date_due": move_span.parentNode.parentNode.getAttribute("date"),
+      "task_key": move_span.parentNode.parentNode.getAttribute("key"),
+      "x_days": 1
+    };
+    move_span.parentNode.parentNode.classList.remove("show");
+    move_span.parentNode.parentNode.classList.add("hide");
+    ajax_post("/tasklist/moveto/", data, function() {
+      window.location.href = "/date/" + data["date_due"] + "/";
+    });
+}
 
 // querySelector listeners
-document.addEventListener("DOMContentLoaded", function(event) { 
-  document.documentElement.className = "";
-});
+function add_listeners() {
 
-document.querySelector("#today_button").addEventListener("click", function(){
-  window.location.href = "/date/";
-});
+  document.querySelector("#today_button").addEventListener("click", function(){
+    window.location.href = "/date/";
+  });
 
+  var task_menus = document.querySelectorAll("span.task_text");
+  task_menus.forEach(function(e) {
+    e.addEventListener("click", function() { toggle_task_menu(this); });
+  });
+
+  var task_diamonds = document.querySelectorAll("svg#task_diamond");
+  task_diamonds.forEach(function(e) {
+    e.addEventListener("click", function() { advance_task_status(this); });
+  });
+
+  var un_do_spans = document.querySelectorAll("span#un-do");
+  un_do_spans.forEach(function(e) {
+    e.addEventListener("click", function() { un_do_task(this); });
+  });
+
+  var delete_spans = document.querySelectorAll("span#delete");
+  delete_spans.forEach(function(e) {
+    e.addEventListener("click", function() { delete_task(this); });
+  });
+
+  var tomorrow_spans = document.querySelectorAll("span#move-tomorrow");
+  tomorrow_spans.forEach(function(e) {
+    e.addEventListener("click", function() { move_to_tomorrow(this); });
+  });
+
+  document.querySelector("rect#yesterday_button").addEventListener("click", function() {
+    go_yesterday();
+  });
+
+  document.querySelector("rect#tomorrow_button").addEventListener("click", function() {
+    go_tomorrow();
+  });
+
+  document.querySelector("#new_task_diamond").addEventListener("click", function() {
+    insert_task();
+  });
+
+  document.querySelector("#tt_logo").addEventListener("click", function() {
+    $("svg#logo").addClass("twirling");
+    window.location.href = "/status/";
+  });
+
+}
 // jQuery magic
 $(document).ready(function() {
 
   set_logo_tense();
+  set_task_menus();
+  add_listeners();
 
-  $("svg#task_diamond").each(function(i) {
-    update_menu_tomorrow($(this));
-    update_menu_undo($(this));
-  });
+  // // Date navigation
+  // document.querySelector("rect#yesterday_button").addEventListener("click", function() {
+  //   go_yesterday();
+  // });
 
-  // Open/close task menu
-  $("span.task_text").click(function() {
-    var task_span = $(this);
-    var task_menu = task_span.next();
-    var description = this.textContent;
-    if (task_menu.is(":visible")) {
-      task_menu.hide(200);
-    } else {
-      $("div.task_menu").hide(200);
-      task_menu.show(200);
-      // make_task_editable(task_span, description);
-    }
-  });
+  // document.querySelector("rect#tomorrow_button").addEventListener("click", function() {
+  //   go_tomorrow();
+  // });
 
-  // Advance task status
-  $("svg#task_diamond").click(function() {
-    diamond = $(this);
-    if (diamond.hasClass("done")) {
-      return;
-    }
-    if (diamond.hasClass("started")) {
-      diamond.attr("class", "done");
-      update_menu_tomorrow(diamond);
-    }
-    if (diamond.hasClass("notdone")) {
-      diamond.attr("class", "started");
-      update_menu_undo(diamond);
-    }
-    data = {
-      "date_due": diamond.parent().attr("date"),
-      "task_key": diamond.parent().attr("key")
-    };
-    $.post("/tasklist/advance/", data, function(response) {
-      set_task(response, diamond);
-    }, "json");
-  });
+  // document.querySelector("#new_task_diamond").addEventListener("click", function() {
+  //   insert_task();
+  // });
 
-  // Un-do task, reset to "notdone" status
-  $("span#un-do").click(function() {
-    un_do_span = $(this);
-    diamond = un_do_span.parent().parent().children().first();
-    un_do_span.parent().hide(200);
-    data = {
-      "date_due": un_do_span.parent().parent().attr("date"),
-      "task_key": un_do_span.parent().parent().attr("key"),
-      "status": "notdone"
-    };
-    set_task(data, diamond);
-    un_do_span.parent().hide(200);
-    $.post("/tasklist/undo/", data);
-    update_menu_undo(diamond);
-    update_menu_tomorrow(diamond);
-  });
-
-  // Delete task
-  $("span#delete").click(function() {
-    delete_span = $(this);
-    data = {
-      "date_due": delete_span.parent().parent().attr("date"),
-      "task_key": delete_span.parent().parent().attr("key")
-    };
-    delete_span.parent().parent().hide(200);
-    ajax_post("/tasklist/delete/", data, function() {
-      window.location.href = "/date/" + data["date_due"] + "/";
-    });
-  });
-
-  // Move it to tomorrow
-  $("span#move-tomorrow").click(function() {
-    move_span = $(this);
-    data = {
-      "date_due": move_span.parent().parent().attr("date"),
-      "task_key": move_span.parent().parent().attr("key"),
-      "x_days": 1
-    };
-    move_span.parent().parent().hide(200);
-    $.post("/tasklist/moveto/", data, function() {
-      window.location.href = "/date/" + data["date_due"] + "/";
-    });
-  });
-
-  // Date navigation
-  $("rect#yesterday_button").click(function() {
-    go_yesterday();
-  });
-
-  $("rect#tomorrow_button").click(function() {
-    go_tomorrow();
-  });
-
-  $("#new_task_diamond").click(function() {
-    insert_task();
-  });
-
-  $("#tt_logo").click(function() {
-    $("svg#logo").addClass("twirling");
-    window.location.href = "/status/";
-  });
+  // document.querySelector("#tt_logo").addEventListener("click", function() {
+  //   $("svg#logo").addClass("twirling");
+  //   window.location.href = "/status/";
+  // });
 });
 
 $(document).keyup(function(e) {

@@ -190,6 +190,21 @@ class UserTasks(object):
                 tasks.append(whole_db[date][task])
         return tasks
 
+    def get_projects(self):
+        projects_db = self.db \
+                       .child(self.username) \
+                       .child('projects') \
+                       .get(self.db_connection.get_token()).val()
+        projects = [p for p in projects_db]
+        return projects
+
+    def add_project(self, project_name):
+        self.db \
+            .child(self.username) \
+            .child('projects') \
+            .child(project_name) \
+            .push({'.sv': 'timestamp'}, self.db_connection.get_token())
+
     def get_user_settings(self, key=None):
         if key is None:
             settings = self.db \

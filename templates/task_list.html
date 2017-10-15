@@ -337,7 +337,7 @@ function move_to_tomorrow(move_span) {
       "task_key": move_span.parentNode.parentNode.getAttribute("key"),
       "x_days": 1
     };
-    move_span.parentNode.parentNode.classList.remove("show");
+    move_span.parentNode.parentNode.setAttribute("style", "display: none;");
     move_span.parentNode.parentNode.classList.add("hide");
     ajax_post("/tasklist/moveto/", data, function() {
       window.location.href = "/date/" + data["date_due"] + "/";

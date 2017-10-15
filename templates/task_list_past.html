@@ -196,32 +196,11 @@ div.logomenu {
     <line id="logoslash" x1="27" y1="5" x2="5" y2="27" />
   </svg><span> tinytask</span>
 </div>
-<div class="logomenu">
-<a href="/info/">about</a><br><a href="/updates/">updates</a><br><a href="/log out/">log out</a><p id="scr_width">0</p><br><a id="import_yesterday" href="#">import yesterday</a>
-</div>
 
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
-
-// Helpers
-
-function set_logo_tense() {
-  list_date = "{{ date }}";
-  today = get_todays_date();
-  tense = 'present';
-  if (list_date > today) { tense = 'future'; }
-  if (list_date < today) { tense = 'past'; }
-  $("g#date_diamond").attr("class", tense);
-};
-
-function set_date_position() {
-  date_width = $("div#date_test_width").width() + 33;
-  position = 190 - (date_width / 2);
-  $("g#date_display").attr("transform", "translate(" + position + ", 0)");
-  $("div#date_nav_placeholder").hide()
-  $("div#date_nav").show();
-};
+document.addEventListener("DOMContentLoaded", function() {
+  add_listeners();
+});
 
 function go_tomorrow() {
   window.location.href = "/date/{{ get_days(date, 1) }}/";
@@ -232,31 +211,29 @@ function go_yesterday() {
 }
 
 // querySelector listeners
-document.querySelector("#today_button").addEventListener("click", function(){
-  window.location.href = "/date/";
-});
+function add_listeners() {
+  document.querySelector("#today_button").addEventListener("click", function(){
+    window.location.href = "/date/";
+  });
 
-// jQuery magic
-$(document).ready(function() {
-
-  // Date navigation
-  $("rect#yesterday_button").click(function() {
+  document.querySelector("rect#yesterday_button").addEventListener("click", function() {
     go_yesterday();
   });
 
-  $("rect#tomorrow_button").click(function() {
+  document.querySelector("rect#tomorrow_button").addEventListener("click", function() {
     go_tomorrow();
   });
-});
 
-$(document).keyup(function(e) {
-  if (e.keyCode===37) {
-    go_yesterday();
-  };
-  if (e.keyCode===39) {
-    go_tomorrow();
-  };
-});
+  document.addEventListener("keyup", function(e) {
+    if (e.keyCode === 37) {
+      go_yesterday();
+    }
+    if (e.keyCode === 39) {
+      go_tomorrow();
+    }
+  });
+
+}
 
 </script>
 </body>

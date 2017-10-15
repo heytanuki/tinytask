@@ -129,51 +129,43 @@
   {% endfor %}
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
 <script>
 
-// Helpers
+document.addEventListener("DOMContentLoaded", function() {
+  set_logo_tense();
+  set_task_menus();
+  add_listeners();
+});
 
-function ajax_get(url, data_in, callback) {
-  var request = new XMLHttpRequest();
-  request.onreadystatechange = function() {
-    if (request.readyState == 4 && request.status == 200) {
-      try {
-        var data = JSON.parse(request.responseText);
-      } catch(err) {
-        console.log(err.message + " in " + request.responseText);
-        return false;
-      }
-      callback(data);
-    }
-  };
-  var url_params = Object.keys(data_in).map(function(prop) {
-    return [prop, data_in[prop]].map(encodeURIComponent).join("=");
-  }).join("&");
-  url_full = url + "?" + url_params
-  request.open("GET", url_full, true);
-  request.send();
+function set_logo_tense() {
+  list_date = "{{ date }}";
+  today = get_todays_date();
+  tense = "present";
+  if (list_date > today) { tense = "future"; }
+  if (list_date < today) { tense = "past"; }
+  document.querySelector("svg#date_diamond").setAttribute("class", tense);
 }
 
-function ajax_post(url, data_in, callback) {
-  var request = new XMLHttpRequest();
-  request.onreadystatechange = function() {
-    if (request.readyState == 4 && request.status == 200) {
-      try {
-        var data = JSON.parse(request.responseText);
-      } catch(err) {
-        console.log("error time: " + request.responseText);
-        return false;
-      }
-      callback(data);
-    }
-  };
-  request.open('POST', url, true);
-  request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-  var url_params = Object.keys(data_in).map(function(prop) {
-    return [prop, data_in[prop]].map(encodeURIComponent).join("=");
-  }).join("&");
-  request.send(url_params);
+function set_task_menus() { 
+  var all_diamonds = document.querySelectorAll("svg#task_diamond")
+  all_diamonds.forEach(function(e) {
+    update_menu_tomorrow(e);
+    update_menu_undo(e);
+  });
+}
+
+function user_is_typing() {
+  var is_typing = true;
+  if (document.activeElement.getAttribute("id") !== "entry_box") {
+    is_typing = false;
+  } else if (document.activeElement.value === "") {
+    is_typing = false;
+  }
+  if (document.activeElement.getAttribute("id") === "task_edit_box") {
+    is_typing = true;
+  }
+  return is_typing;
 }
 
 function insert_task() {
@@ -186,7 +178,6 @@ function insert_task() {
       "description": entered_text,
       "date_due": document.querySelector("#date_due_box").value
     };
-    console.log(data);
     ajax_post("/tasklist/insert/", data, function() {
       location.reload();
     });
@@ -217,39 +208,29 @@ function insert_task() {
 
 // }
 
-// function make_task_static(container) {
-
-// }
-
 function set_task(task, container) {
-  // var task_container = container[0] // TEMP
   console.log("Task " + task.task_key + " set to: " + task.status);
   container.setAttribute("class", task.status);
 }
 
 function update_menu_undo(container) {
-  // var task_container = container[0]; // TEMP
   var undo_span = container.parentNode.querySelector("span#un-do");
   if (container.classList.contains("notdone")) {
-      undo_span.classList.add("hide");
-      undo_span.nextElementSibling.classList.add("hide");
+      undo_span.setAttribute("style", "display: none;");
+      undo_span.nextElementSibling.setAttribute("style", "display: none;");
   } else {
-      undo_span.classList.add("show");
-      undo_span.nextElementSibling.classList.add("show");
+      undo_span.setAttribute("style", "");
+      undo_span.nextElementSibling.setAttribute("style", "");
   }
 }
 
 function update_menu_tomorrow(container) {
   var tomorrow_span = container.parentNode.querySelector("span#move-tomorrow");
   if (container.classList.contains("done")) {
-    tomorrow_span.classList.add("hide");
+    tomorrow_span.setAttribute("style", "display: none;");
   } else {
-    tomorrow_span.classList.add("show");
+    tomorrow_span.setAttribute("style", "");
   }
-}
-
-function update_menu_edit(container) {
-
 }
 
 function go_tomorrow() {
@@ -268,29 +249,6 @@ function get_todays_date() {
   return year + month + day;
 }
 
-function set_logo_tense() {
-  list_date = "{{ date }}";
-  today = get_todays_date();
-  tense = "present";
-  if (list_date > today) { tense = "future"; }
-  if (list_date < today) { tense = "past"; }
-  document.querySelector("svg#date_diamond").setAttribute("class", tense);
-}
-
-function user_is_typing() {
-  var is_typing = true;
-  if (document.activeElement.getAttribute("id") !== "entry_box") {
-    is_typing = false;
-  } else if (document.activeElement.value === "") {
-    is_typing = false;
-  }
-  if (document.activeElement.getAttribute("id") === "task_edit_box") {
-    is_typing = true;
-  }
-  console.log(is_typing);
-  return is_typing;
-}
-
 function check_if_refresh_needed(today, page_load_time) {
   var data = {
     "date": today,
@@ -300,14 +258,6 @@ function check_if_refresh_needed(today, page_load_time) {
     if (result === "true") {
       window.location.href = "/date/" + {{ date }} + "/";
     }
-  });
-}
-
-function set_task_menus() { // NOT WORKING?!?
-  var all_diamonds = document.querySelectorAll("svg#task_diamond")
-  all_diamonds.forEach(function(i) {
-    update_menu_tomorrow(i);
-    update_menu_undo(i);
   });
 }
 
@@ -369,8 +319,7 @@ function delete_task(delete_span) {
       "date_due": delete_span.parentNode.parentNode.getAttribute("date"),
       "task_key": delete_span.parentNode.parentNode.getAttribute("key")
     };
-    delete_span.parentNode.parentNode.classList.remove("show");
-    delete_span.parentNode.parentNode.classList.add("hide");
+    delete_span.parentNode.parentNode.setAttribute("style", "display: none;");
     ajax_post("/tasklist/delete/", data, function() {
       window.location.href = "/date/" + data["date_due"] + "/";
     });
@@ -387,6 +336,48 @@ function move_to_tomorrow(move_span) {
     ajax_post("/tasklist/moveto/", data, function() {
       window.location.href = "/date/" + data["date_due"] + "/";
     });
+}
+
+function ajax_get(url, data_in, callback) {
+  var request = new XMLHttpRequest();
+  request.onreadystatechange = function() {
+    if (request.readyState == 4 && request.status == 200) {
+      try {
+        var data = JSON.parse(request.responseText);
+      } catch(err) {
+        console.log(err.message + " in " + request.responseText);
+        return false;
+      }
+      callback(data);
+    }
+  };
+  var url_params = Object.keys(data_in).map(function(prop) {
+    return [prop, data_in[prop]].map(encodeURIComponent).join("=");
+  }).join("&");
+  url_full = url + "?" + url_params
+  request.open("GET", url_full, true);
+  request.send();
+}
+
+function ajax_post(url, data_in, callback) {
+  var request = new XMLHttpRequest();
+  request.onreadystatechange = function() {
+    if (request.readyState == 4 && request.status == 200) {
+      try {
+        var data = JSON.parse(request.responseText);
+      } catch(err) {
+        console.log("error time: " + request.responseText);
+        return false;
+      }
+      callback(data);
+    }
+  };
+  request.open('POST', url, true);
+  request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+  var url_params = Object.keys(data_in).map(function(prop) {
+    return [prop, data_in[prop]].map(encodeURIComponent).join("=");
+  }).join("&");
+  request.send(url_params);
 }
 
 // querySelector listeners
@@ -434,56 +425,35 @@ function add_listeners() {
   });
 
   document.querySelector("#tt_logo").addEventListener("click", function() {
-    $("svg#logo").addClass("twirling");
+    document.querySelector("svg#logo").classList.add("twirling");
     window.location.href = "/status/";
   });
 
-}
-// jQuery magic
-$(document).ready(function() {
-
-  set_logo_tense();
-  set_task_menus();
-  add_listeners();
-
-  // // Date navigation
-  // document.querySelector("rect#yesterday_button").addEventListener("click", function() {
-  //   go_yesterday();
-  // });
-
-  // document.querySelector("rect#tomorrow_button").addEventListener("click", function() {
-  //   go_tomorrow();
-  // });
-
-  // document.querySelector("#new_task_diamond").addEventListener("click", function() {
-  //   insert_task();
-  // });
-
-  // document.querySelector("#tt_logo").addEventListener("click", function() {
-  //   $("svg#logo").addClass("twirling");
-  //   window.location.href = "/status/";
-  // });
-});
-
-$(document).keyup(function(e) {
-  if (e.keyCode === 13) {
-    if ($("#entry_box").is(":focus")) {
-      insert_task();
+  document.addEventListener("keyup", function(e) {
+    if (e.keyCode === 13) {
+      if (document.activeElement.getAttribute("id") === "entry_box") {
+        insert_task();
+      }
     }
-  }
-  if (user_is_typing()) {
-    return;
-  }
-  if (e.keyCode === 27) {
-    $("div.task_menu").hide(200);
-  }
-  if (e.keyCode === 37) {
-    go_yesterday();
-  }
-  if (e.keyCode === 39) {
-    go_tomorrow();
-  }
-});
+    if (user_is_typing()) {
+      return;
+    }
+    if (e.keyCode === 27) {
+      var task_menus = document.querySelectorAll("div#task_menu.show");
+      task_menus.forEach(function(e) {
+        e.classList.remove("show");
+        e.classList.add("hide");
+      });
+    }
+    if (e.keyCode === 37) {
+      go_yesterday();
+    }
+    if (e.keyCode === 39) {
+      go_tomorrow();
+    }
+  });
+
+}
 
 window.onfocus = function() {
   check_if_refresh_needed({{ date }}, {{ time_loaded }});

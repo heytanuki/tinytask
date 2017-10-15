@@ -51,17 +51,20 @@ svg {
     background-color: white;
     color: white;
     fill: white;
+    stroke: white;
   }
   100% {
     background-color: lightsteelblue;
     color: lightsteelblue;
     fill: lightsteelblue;
+    stroke: black;
   }
 }
 div#task_menu.show {
-      transition-property: height;
+      transition-property: max-height;
       transition: .2s ease-in-out;
-      height: 84px;
+      max-height: 84px;
+      min-height: 0px;
       overflow: hidden;
       background-color: rgb(245, 245, 245);
       padding-top: 8px;
@@ -72,22 +75,9 @@ div#task_menu.show {
       box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
     }
 div#task_menu.hide {
-      transition-property: height;
+      transition-property: max-height;
       transition: .2s ease-in-out;
-      height: 0px;
-      overflow: hidden;
-    }
-
-.show {
-      transition-property: height;
-      transition: .2s ease-in-out;
-      overflow: hidden;
-    }
-
-.hide {
-      transition-property: height;
-      transition: .2s ease-in-out;
-      height: 0px;
+      max-height: 0px;
       overflow: hidden;
     }
 

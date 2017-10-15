@@ -52,9 +52,6 @@
   </svg>
   <span class="task_text touchable">{{ parse_links(task['description'])|safe }}</span>
   <div id="task_menu" class="hide">
-<!--     <div id="close_button" class="touchable" style="position: absolute; margin-left: -35px; padding-left: 0px; padding-top: 2px; padding-bottom: 20px;">
-      {{ draw_close() }}
-    </div> -->
     <span class="touchable" id="un-do">{{ draw_undo() }}un-do</span><br>
     <span class="touchable" id="delete">{{ draw_delete() }}delete</span><br>
     <span class="touchable" id="move-tomorrow">{{ draw_tomorrow() }}tomorrow</span>
@@ -98,7 +95,17 @@
 
 <div id="list_container">
 {% for task in tasks %}
-{{ draw_task(task) }}
+  {% if task['status'] != 'done' %}
+    {{ draw_task(task) }}
+  {% endif %}
+{% endfor %}
+</div>
+
+<div id="done_container">
+{% for task in tasks %}
+  {% if task['status'] == 'done' %}
+    {{ draw_task(task) }}
+  {% endif %}
 {% endfor %}
 </div>
 
@@ -412,9 +419,9 @@ function add_listeners() {
     e.addEventListener("click", function() { move_to_tomorrow(this); });
   });
 
-  document.querySelector("rect#yesterday_button").addEventListener("click", function() { go_yesterday(); });
+  document.querySelector("rect#yesterday_button").addEventListener("click", function() { console.log("yester"); go_yesterday(); });
 
-  document.querySelector("rect#tomorrow_button").addEventListener("click", function() { go_tomorrow(); });
+  document.querySelector("rect#tomorrow_button").addEventListener("click", function() { console.log("tomor"); go_tomorrow(); });
 
   document.querySelector("#new_task_diamond").addEventListener("click", function() { insert_task(); });
 

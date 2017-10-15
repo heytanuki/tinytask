@@ -261,7 +261,7 @@ function check_if_refresh_needed(today, page_load_time) {
     "page_load_time": page_load_time
   };
   ajax_get("/tasklist/need_to_refresh/", data, function(result) {
-    if (result === "true") {
+    if (result) {
       window.location.href = "/date/" + {{ date }} + "/";
     }
   });

@@ -138,9 +138,9 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function set_logo_tense() {
-  list_date = "{{ date }}";
-  today = get_todays_date();
-  tense = "present";
+  var list_date = "{{ date }}";
+  var today = get_todays_date();
+  var tense = "present";
   if (list_date > today) { tense = "future"; }
   if (list_date < today) { tense = "past"; }
   document.querySelector("svg#date_diamond").setAttribute("class", tense);
@@ -241,10 +241,10 @@ function go_yesterday() {
 }
 
 function get_todays_date() {
-  today = new Date();
-  year = today.toLocaleDateString("en-US", {year: "numeric"});
-  month = today.toLocaleDateString("en-US", {month: "2-digit"});
-  day = today.toLocaleDateString("en-US", {day: "2-digit"});
+  var today = new Date();
+  var year = today.toLocaleDateString("en-US", {year: "numeric"});
+  var month = today.toLocaleDateString("en-US", {month: "2-digit"});
+  var day = today.toLocaleDateString("en-US", {day: "2-digit"});
   return year + month + day;
 }
 
@@ -288,7 +288,7 @@ function advance_task_status(diamond) {
     diamond.setAttribute("class", "started");
     update_menu_undo(diamond);
   }
-  data = {
+  var data = {
     "date_due": diamond.parentNode.getAttribute("date"),
     "task_key": diamond.parentNode.getAttribute("key")
   };
@@ -298,9 +298,9 @@ function advance_task_status(diamond) {
 }
 
 function un_do_task(un_do_span) {
-  diamond = un_do_span.parentNode.parentNode.children[0];
+  var diamond = un_do_span.parentNode.parentNode.children[0];
   un_do_span.parentNode.classList.add("hide");
-  data = {
+  var data = {
     "date_due": un_do_span.parentNode.parentNode.getAttribute("date"),
     "task_key": un_do_span.parentNode.parentNode.getAttribute("key"),
     "status": "notdone"
@@ -314,7 +314,7 @@ function un_do_task(un_do_span) {
 }
 
 function delete_task(delete_span) {
-  data = {
+  var data = {
       "date_due": delete_span.parentNode.parentNode.getAttribute("date"),
       "task_key": delete_span.parentNode.parentNode.getAttribute("key")
     };
@@ -325,7 +325,7 @@ function delete_task(delete_span) {
 }
 
 function move_to_tomorrow(move_span) {
-    data = {
+    var data = {
       "date_due": move_span.parentNode.parentNode.getAttribute("date"),
       "task_key": move_span.parentNode.parentNode.getAttribute("key"),
       "x_days": 1
@@ -353,7 +353,7 @@ function ajax_get(url, data_in, callback) {
   var url_params = Object.keys(data_in).map(function(prop) {
     return [prop, data_in[prop]].map(encodeURIComponent).join("=");
   }).join("&");
-  url_full = url + "?" + url_params
+  var url_full = url + "?" + url_params
   request.open("GET", url_full, true);
   request.send();
 }
@@ -412,17 +412,11 @@ function add_listeners() {
     e.addEventListener("click", function() { move_to_tomorrow(this); });
   });
 
-  document.querySelector("rect#yesterday_button").addEventListener("click", function() {
-    go_yesterday();
-  });
+  document.querySelector("rect#yesterday_button").addEventListener("click", function() { go_yesterday(); });
 
-  document.querySelector("rect#tomorrow_button").addEventListener("click", function() {
-    go_tomorrow();
-  });
+  document.querySelector("rect#tomorrow_button").addEventListener("click", function() { go_tomorrow(); });
 
-  document.querySelector("#new_task_diamond").addEventListener("click", function() {
-    insert_task();
-  });
+  document.querySelector("#new_task_diamond").addEventListener("click", function() { insert_task(); });
 
   document.querySelector("#tt_logo").addEventListener("click", function() {
     document.querySelector("svg#logo").classList.add("twirling");

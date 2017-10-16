@@ -1,6 +1,7 @@
 {
     "name": "Tinytask",
     "short_name": "Tinytask",
+    "theme_color": "white",
     "icons": [
         {
             "src": "tinytask_logo.png",

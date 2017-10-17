@@ -309,7 +309,7 @@ def advance_from_api():
 def undo_from_api():
     task = parse_task(flask.request)
     task.advance(reset=True)
-    return 'ok'
+    return SUCCESS_RESPONSE
 
 @app.route('/tasklist/moveto/', methods=['POST'])
 def move_to_x_days():
@@ -317,7 +317,7 @@ def move_to_x_days():
     task = parse_task(flask.request)
     new_date = get_x_days_difference(task.date_due, int(x_days))
     task.update({'date_due': new_date})
-    return 'ok'
+    return SUCCESS_RESPONSE
 
 @app.route('/tasklist/details/', methods=['GET'])
 def details_from_api():

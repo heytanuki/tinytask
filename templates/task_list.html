@@ -344,7 +344,7 @@
         <rect class="touchable" x="3" y="4" rx="1" ry="1" stroke-width="2px" width="18" height="18"   />
       </g>
     </svg>
-    <!-- <label hidden="hidden">Enter a new task here and press enter.</label> -->
+    <label for="entry_box" hidden="hidden">Enter a new task here and press enter.</label>
     <input id="entry_box" type="text" name="description" autofocus="autofocus">
     <input id="date_due_box" hidden="hidden" type="text" name="date_due" value="{{ date }}">
   </form>
@@ -359,11 +359,11 @@
   </svg><span> tinytask</span>
 </div>
 
-<div id="data_cache" hidden="hidden">
+<!-- <div id="data_cache" hidden="hidden">
   {% for item in cached_data %}
     <input type="text" id="{{ item }}" value="{{ cached_data[item] }}">
   {% endfor %}
-</div>
+</div> -->
 
 <script>
 

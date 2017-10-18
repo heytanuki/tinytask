@@ -56,7 +56,7 @@ class UserTasksTest(unittest.TestCase):
     def test_update_task_with_new_date_moved_to_new_day(self):
         task = self.random_task()
         test_date, test_key = self.test_task_db.insert_task(task, self.day)
-        new_date, new_key = self.test_task_db.update_task(self.day, test_key, {'date_due': self.tomorrow})
+        new_date, new_key = self.test_task_db.update_task(self.day, test_key, {'date_or_project': self.tomorrow})
         read_key, read_obj = self.test_task_db.get_task(self.tomorrow, new_key)
         self.assertEquals(read_obj['description'], task)
 
@@ -64,7 +64,7 @@ class UserTasksTest(unittest.TestCase):
         task = self.random_task()
         test_date, test_key = self.test_task_db.insert_task(task, self.day)
         expected_error = 'Task {} {} could not be retrieved.'.format(self.day, test_key)
-        new_date, new_key = self.test_task_db.update_task(self.day, test_key, {'date_due': self.tomorrow})
+        new_date, new_key = self.test_task_db.update_task(self.day, test_key, {'date_or_project': self.tomorrow})
         with self.assertRaises(TaskError) as taskerror:
             read_key, read_obj = self.test_task_db.get_task(self.day, test_key)
         self.assertEquals(str(taskerror.exception), expected_error)

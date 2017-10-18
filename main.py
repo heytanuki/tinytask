@@ -160,9 +160,9 @@ def sort_started_first(tasklist):
     tasks_ordered = tasks_by_type['started'] + tasks_by_type['notdone'] + tasks_by_type['done']
     return tasks_ordered
 
-##########
-# Routes #
-##########
+#########
+# Views #
+#########
 
 @app.route('/')
 def index():
@@ -207,7 +207,12 @@ def render_tasklist(date):
         tasks_ordered = sort_started_first(tasks)
     if sort_option == 'Chronological':
         tasks_ordered = tasks
-    return flask.render_template('task_list.html', tasks=tasks_ordered, date=date, time_loaded=int(time.time()), logged_in_as=username)
+    return flask.render_template(
+        'task_list.html',
+        tasks=tasks_ordered,
+        date=date,
+        time_loaded=int(time.time()),
+    )
 
 def render_past_tasklist(date):
     username = flask.session.get('tinytask_username', None)
@@ -216,6 +221,32 @@ def render_past_tasklist(date):
     user_tasks = UserTasks(username, task_db)
     tasks = user_tasks.tasks_for_day(date)
     return flask.render_template('task_list_past.html', tasks=tasks, date=date, logged_in_as=username)
+
+@app.route('/project/')
+def render_projects_page():
+    username = flask.session.get('tinytask_username', None)
+    if not username:
+        return flask.redirect(flask.url_for('get_google_oauth'))
+    user_tasks = UserTasks(username, task_db, tasks_database='projects')
+    projects = user_tasks.get_all_dates_or_projects()
+    return flask.render_template('projects.html', projects=projects)
+    # TODO develop a projects list template
+
+@app.route(/project/<project_name>/)
+def render_project(project_name):
+    username = flask.session.get('tinytask_username', None)
+    if not username:
+        return flask.redirect(flask.url_for('get_google_oauth'))
+    user_tasks = UserTasks(username, task_db, tasks_database='projects')
+    tasks = user_tasks.get_task_group()
+    tasks_ordered = sort_started_first(tasks)
+    return flask.render_template(
+        'project_task_list.html',
+        tasks=tasks_ordered,
+        project=project_name,
+        time_loaded=int(time.time()),
+    )
+    # TODO develop a project view
 
 @app.route('/settings/')
 def render_settings():

@@ -15,9 +15,6 @@
     font-weight: normal;
     font-size: 18pt;
   }
-  .no-fouc {
-    display: none;
-  }
   a {
     text-decoration: none;
     color: black;
@@ -553,7 +550,7 @@ function un_do_task(un_do_span) {
   set_task(data, diamond);
   un_do_span.parentNode.classList.remove("show");
   un_do_span.parentNode.classList.add("hide");
-  ajax_post("/tasklist/undo/", data);
+  ajax_post("/tasklist/undo/", data, function() {return false;});
   update_menu_undo(diamond);
   update_menu_tomorrow(diamond);
 }

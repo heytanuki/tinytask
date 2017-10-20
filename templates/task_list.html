@@ -176,15 +176,24 @@
   /* Diamond styles */
   svg.notdone line, svg.started > line#backslash {
     stroke-width: 0px;
+    stroke-dasharray: 0 37;
   }
   svg.started > line#forwardslash {
     stroke-width: 2px;
+    transition-property: stroke-dasharray;
+    transition: 0.25s;
+    stroke-dasharray: 37 0;
   }
   svg.done + span.task_text {
     color: gray;
   }
   svg.done * {
     stroke: gray;
+  }
+  svg.done > line#backslash {
+    transition-property: stroke-dasharray;
+    transition: 0.25s;
+    stroke-dasharray: 37 0;    
   }
   svg.set_on rect {
     fill: black;

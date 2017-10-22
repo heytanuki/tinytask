@@ -92,7 +92,6 @@
         max-height: 0px;
         overflow: hidden;
       }
-
   /* Date nav styling */
   div#header {
     background-color: white;
@@ -125,7 +124,6 @@
     font-weight: normal;
     font-size: 22pt;
   }
-
   /* Date nav SVGs */
   svg.past {
     color: black;
@@ -138,7 +136,6 @@
   svg.future line#date_forwardslash {
     stroke-width: 0;
   }
-
   /* Task text and menu */
   div#list_container {
     margin-left: 20px;
@@ -170,7 +167,6 @@
     vertical-align: top;
     box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
   }
-
   /* Diamond styles */
   svg.notdone line, svg.started > line#backslash {
     stroke-width: 0px;
@@ -199,7 +195,6 @@
   svg.set_off rect {
     fill: white;
   }
-
   /* Entry form style */
   input {
     font-family: sans-serif;
@@ -230,7 +225,6 @@
   #task_edit_box:focus {
     color: black;
   }
-
   /* Logo stuff */
   div#tt_logo {
     color: gray;
@@ -244,9 +238,9 @@
   }
 </style>
 
-{% macro date_nav() %}
+{% macro project_nav() %}
 <div id="header">
-  <div id="date_nav">
+  <div id="project_nav">
     <svg width="12%" height="30" class="touchable"> 
       <rect id="yesterday_button" stroke="transparent" width="50" height="30" x="0" y="0" />
       <g transform="translate(18, 0)">
@@ -412,7 +406,7 @@ function insert_task() {
   if (entered_text !== "") {
     var data = {
       "description": entered_text,
-      "date_or_project": document.querySelector("#date_due_box").value
+      "date_due": document.querySelector("#date_due_box").value
     };
     ajax_post("/tasklist/insert/", data, function() {
       location.reload();
@@ -495,7 +489,7 @@ function advance_task_status(diamond) {
     update_menu_undo(diamond);
   }
   var data = {
-    "date_or_project": diamond.parentNode.getAttribute("date"),
+    "date_due": diamond.parentNode.getAttribute("date"),
     "task_key": diamond.parentNode.getAttribute("key")
   };
   ajax_post("/tasklist/advance/", data, function(response) {
@@ -506,7 +500,7 @@ function un_do_task(un_do_span) {
   var diamond = un_do_span.parentNode.parentNode.children[0];
   un_do_span.parentNode.classList.add("hide");
   var data = {
-    "date_or_project": un_do_span.parentNode.parentNode.getAttribute("date"),
+    "date_due": un_do_span.parentNode.parentNode.getAttribute("date"),
     "task_key": un_do_span.parentNode.parentNode.getAttribute("key"),
     "status": "notdone"
   };
@@ -519,24 +513,24 @@ function un_do_task(un_do_span) {
 }
 function delete_task(delete_span) {
   var data = {
-      "date_or_project": delete_span.parentNode.parentNode.getAttribute("date"),
+      "date_due": delete_span.parentNode.parentNode.getAttribute("date"),
       "task_key": delete_span.parentNode.parentNode.getAttribute("key")
     };
     delete_span.parentNode.parentNode.setAttribute("style", "display: none;");
     ajax_post("/tasklist/delete/", data, function() {
-      window.location.href = "/date/" + data["date_or_project"] + "/";
+      window.location.href = "/date/" + data["date_due"] + "/";
     });
 }
 function move_to_tomorrow(move_span) {
     var data = {
-      "date_or_project": move_span.parentNode.parentNode.getAttribute("date"),
+      "date_due": move_span.parentNode.parentNode.getAttribute("date"),
       "task_key": move_span.parentNode.parentNode.getAttribute("key"),
       "x_days": 1
     };
     move_span.parentNode.parentNode.classList.remove("show");
     move_span.parentNode.parentNode.classList.add("hide");
     ajax_post("/tasklist/moveto/", data, function() {
-      window.location.href = "/date/" + data["date_or_project"] + "/";
+      window.location.href = "/date/" + data["date_due"] + "/";
     });
 }
 function ajax_get(url, data_in, callback) {

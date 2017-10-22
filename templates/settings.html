@@ -1,13 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "generic.html" %}
+{% block head_tags %}
 <title>Settings</title>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
 <link rel="apple-touch-icon" ref="{{ url_for('static', filename='tinytask_logo.png') }}" />
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% endblock %}
 
+{% block header %}
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <g transform="translate(0) rotate(45 16 16)">
+          <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="black" stroke-width="2px" />
+        </g>
+        <line stroke="black" stroke-width="2px" x1="27" y1="5" x2="5" y2="27" />
+      </svg><span> settings</span>
+{% endblock %}
+
+{% block content %}
 {% macro draw_diamond(setting_for, setting_name) %}
     <div id="{{ setting_for }}" class="single_option">
         <svg id="setting_diamond" class="set_off" width="28" height="28">
@@ -20,21 +30,18 @@
         </span>
     </div>
 {% endmacro %}
+<p>Your secret key is AHSGF(*FH#@PH@#(FUHO)). click (here) to regenerate it.</p>
+
+<p>Projects:
+<br>list-of-projects from most done to least and with a partially filled diamond indicating doneness?</p>
+
+<p>log out!</p>
 
 
-</head>
 
-<body>
 
-<div id="header">
-    Settings
-</div>      
 
-<div id="list_container">
-    {{ draw_diamond('test1', 'Test1') }} 
-    {{ draw_diamond('test2', 'Test2') }}
-</div>
-
+{% endblock %}
 <script>
 function add_listeners() {
     setting_items = document.querySelectorAll(".single_option");

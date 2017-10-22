@@ -71,90 +71,89 @@ class UserTasks(object):
         result = self.db \
                      .child(self.username) \
                      .child(self.tasks_database) \
-                     .child(data['date_due']) \
+                     .child(data['date_or_project']) \
                      .push(data, self.db_connection.get_token())
-        self.set_last_updated_time(data['date_due'])
+        self.set_last_updated_time(data['date_or_project'])
         return result
 
-    def insert_task(self, description, date_due=None):
-        if not date_due:
-            # date_due = datetime.date.today().isoformat().replace('-', '')
-            raise TaskError('Task was submitted without a date.')
+    def insert_task(self, description, date_or_project=None):
+        if not date_or_project:
+            raise TaskError('Task was submitted without a date or project.')
         data = {
             'description': description,
-            'date_due': date_due,
+            'date_or_project': date_or_project,
             'status': 'notdone',
         }
         result = self.insert_data(data)
-        return (date_due, result['name'])
+        return (date_or_project, result['name'])
 
-    def set_last_updated_time(self, date):
+    def set_last_updated_time(self, date_or_project):
         update_time = int(time.time())
         self.db \
             .child(self.username) \
             .child(self.tasks_database) \
-            .child(date) \
+            .child(date_or_project) \
             .child('last_updated') \
             .set(update_time, self.db_connection.get_token())
         return update_time
 
-    def get_last_updated_time(self, date):
+    def get_last_updated_time(self, date_or_project):
         updated_time = self.db \
             .child(self.username) \
             .child(self.tasks_database) \
-            .child(date) \
+            .child(date_or_project) \
             .child('last_updated') \
             .get(self.db_connection.get_token()) \
             .val()
         if updated_time is None:
-            updated_time = self.set_last_updated_time(date)
+            updated_time = self.set_last_updated_time(date_or_project)
         return updated_time
 
-    def get_task(self, date_due, task_key):
+    def get_task(self, date_or_project, task_key):
         try:
             task = self.db \
                        .child(self.username) \
                        .child(self.tasks_database) \
-                       .child(date_due) \
+                       .child(date_or_project) \
                        .order_by_child('$key') \
                        .equal_to(str(task_key)) \
                        .get(self.db_connection.get_token()) \
                        .val()
         except IndexError:
-            raise TaskError('Task {} {} could not be retrieved.'.format(date_due, task_key))
+            raise TaskError('Task {} {} could not be retrieved.'.format(date_or_project, task_key))
         for key in task:
             return (key, task[key])
 
-    def update_task(self, date_due, task_key, update_data):
+    def update_task(self, date_or_project, task_key, update_data):
         self.db \
             .child(self.username) \
             .child(self.tasks_database) \
-            .child(date_due) \
+            .child(date_or_project) \
             .child(task_key) \
             .update(update_data, self.db_connection.get_token())
-        self.set_last_updated_time(date_due)
-        if 'date_due' in update_data:
-            if update_data['date_due'] != date_due:
-                old_key, task_data = self.get_task(date_due, task_key)
+        self.set_last_updated_time(date_or_project)
+        if 'date_or_project' in update_data:
+            if update_data['date_or_project'] != date_or_project:
+                old_key, task_data = self.get_task(date_or_project, task_key)
                 result = self.insert_data(task_data)
                 new_key = result['name']
-                self.delete_task(date_due, task_key)
-                return (update_data['date_due'], new_key)
+                self.delete_task(date_or_project, task_key)
+                return (update_data['date_or_project'], new_key)
 
-    def delete_task(self, date_due, task_key):
+    def delete_task(self, date_or_project, task_key):
         self.db \
             .child(self.username) \
             .child(self.tasks_database) \
-            .child(date_due) \
+            .child(date_or_project) \
             .child(task_key) \
             .remove(self.db_connection.get_token())
-        self.set_last_updated_time(date_due)
+        self.set_last_updated_time(date_or_project)
 
-    def delete_all_tasks_for_date(self, date):
+    def delete_all_tasks_for_date(self, date_or_project):
         self.db \
             .child(self.username) \
             .child(self.tasks_database) \
-            .child(date) \
+            .child(date_or_project) \
             .remove(self.db_connection.get_token())
 
     def tasks_to_list(self, tasks):
@@ -168,27 +167,24 @@ class UserTasks(object):
         tasks_as_list_sorted = sorted(tasks_as_list, key=lambda k: k['timestamp']) 
         return tasks_as_list_sorted
 
-    def tasks_for_day(self, day):
+    def get_task_group(self, date_or_project):
         tasks = self.db \
                     .child(self.username) \
                     .child(self.tasks_database) \
-                    .child(day) \
+                    .child(date_or_project) \
                     .get(self.db_connection.get_token()) \
                     .val()
         if tasks:
             return self.tasks_to_list(tasks)
         return []
 
-    def get_all_tasks(self):
-        whole_db = self.db \
+    def get_all_dates_or_projects(self):
+        task_group = self.db \
                        .child(self.username) \
-                       .child('tasks') \
+                       .child(self.tasks_database) \
                        .get(self.db_connection.get_token()).val()
-        tasks = []
-        for date in whole_db:
-            for task in whole_db[date]:
-                tasks.append(whole_db[date][task])
-        return tasks
+        all_tasks_in_group = [p for p in task_group]
+        return all_tasks_in_group
 
     def get_user_settings(self, key=None):
         if key is None:
@@ -228,63 +224,63 @@ class UserTasks(object):
             return
         raise SettingsError("'{}' cannot be set to '{}'.".format(key, value))
 
-    def test_database(self, fix_errors=False):
-        whole_db = self.db \
-                       .child(self.username) \
-                       .child('tasks') \
-                       .get(self.db_connection.get_token()).val()
-        error_task_paths = []
-        for date in whole_db:
-            for task in whole_db[date]:
-                if whole_db[date][task]['date_due'] != date:
-                    error_task = '{}/{}'.format(date, task)
-                    error_task_paths.append(error_task)
-        if len(error_task_paths) == 0:
-            print "Checked database, no errors found."
-            return
-        if fix_errors:
-            self.fix_errors(error_task_paths)
-        else:
-            return error_task_paths
+    # def test_database(self, fix_errors=False):
+    #     whole_db = self.db \
+    #                    .child(self.username) \
+    #                    .child('tasks') \
+    #                    .get(self.db_connection.get_token()).val()
+    #     error_task_paths = []
+    #     for date in whole_db:
+    #         for task in whole_db[date]:
+    #             if whole_db[date][task]['date_due'] != date:
+    #                 error_task = '{}/{}'.format(date, task)
+    #                 error_task_paths.append(error_task)
+    #     if len(error_task_paths) == 0:
+    #         print "Checked database, no errors found."
+    #         return
+    #     if fix_errors:
+    #         self.fix_errors(error_task_paths)
+    #     else:
+    #         return error_task_paths
 
-    def fix_errors(self, paths):
-        for path in paths:
-            date, key = path.split('/')
-            details = self.get_task(date, key)[1]
-            date_due_from_task = details['date_due']
-            description_from_task = details['description']
-            print 'Fixing task to proper due date {}: {}'.format(date_due_from_task, description_from_task)
-            self.update_task(date, key, {'date_due': date_due_from_task})
+    # def fix_errors(self, paths):
+    #     for path in paths:
+    #         date, key = path.split('/')
+    #         details = self.get_task(date, key)[1]
+    #         date_due_from_task = details['date_due']
+    #         description_from_task = details['description']
+    #         print 'Fixing task to proper due date {}: {}'.format(date_due_from_task, description_from_task)
+    #         self.update_task(date, key, {'date_due': date_due_from_task})
 
 
 class TaskItem(object):
 
-    def __init__(self, username, task_db, date_due, task_key=None, description=None):
-        self.tasks_database = UserTasks(username, task_db)
+    def __init__(self, user_tasks_db, date_or_project, task_key=None, description=None):
+        self.tasks_database = user_tasks_db
         if task_key:
-            self.date_due = date_due
+            self.date_or_project = date_or_project
             self.task_key = task_key
         elif description:
-            self.date_due, self.task_key = self.tasks_database.insert_task(description, date_due)
+            self.date_or_project, self.task_key = self.tasks_database.insert_task(description, date_or_project)
         elif not task_key and not description:
             raise TaskError('Must provide either task_key to retrieve task, or description to create task')
 
     def __str__(self):
         desc = self.details()['description']
-        return '{} {}: {}'.format(self.date_due, self.task_key, desc)
+        return '{} {}: {}'.format(self.date_or_project, self.task_key, desc)
 
     def details(self):
-        key, task_data = self.tasks_database.get_task(self.date_due, self.task_key)
+        key, task_data = self.tasks_database.get_task(self.date_or_project, self.task_key)
         task_data['task_key'] = key
         return task_data
 
     def delete(self):
-        self.tasks_database.delete_task(self.date_due, self.task_key)
+        self.tasks_database.delete_task(self.date_or_project, self.task_key)
 
     def update(self, update_data):
-        result = self.tasks_database.update_task(self.date_due, self.task_key, update_data)
+        result = self.tasks_database.update_task(self.date_or_project, self.task_key, update_data)
         if result:
-            self.date_due, self.task_key = result
+            self.date_or_project, self.task_key = result
 
     def advance(self, done=False, reset=False):
         if reset:

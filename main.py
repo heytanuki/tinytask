@@ -8,7 +8,7 @@ import re
 from flask_sslify import SSLify
 from apiclient import discovery
 from oauth2client import client
-from tasklist import TaskDB, UserTasks, TaskItem
+from tasklist import TaskDB, UserTasks, TaskItem, TaskError
 from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KEY, APP_SECRET_KEY_PROD, AUTHORIZED_EMAILS
 
 app = flask.Flask(__name__)
@@ -201,7 +201,7 @@ def render_tasklist(date):
     user_tasks = UserTasks(username, task_db)
     user_settings = user_tasks.get_user_settings()
 
-    tasks = user_tasks.tasks_for_day(date)
+    tasks = user_tasks.get_task_group(date)
     sort_option = user_settings.get('Sorting', None)
     if sort_option is None or sort_option == 'Started first':
         tasks_ordered = sort_started_first(tasks)
@@ -219,7 +219,7 @@ def render_past_tasklist(date):
     if not username:
         return flask.redirect(flask.url_for('get_google_oauth'))
     user_tasks = UserTasks(username, task_db)
-    tasks = user_tasks.tasks_for_day(date)
+    tasks = user_tasks.get_task_group(date)
     return flask.render_template('task_list_past.html', tasks=tasks, date=date, logged_in_as=username)
 
 @app.route('/project/')
@@ -290,17 +290,17 @@ def render_wack():
 # API METHODS #
 ###############
 
-@app.route('/insert/', methods=['POST'])
-def insert_from_form():
-    description = flask.request.form.get('description', None)
-    date_due = flask.request.form.get('date_due', None)
-    if not description:
-        return flask.redirect(flask.url_for('render_tasklist', date=date_due))
-    redir_date = date_due
-    if not date_due:
-        date_due = get_today()
-    insert_from_api(description, date_due)
-    return flask.redirect(flask.url_for('render_tasklist', date=redir_date))
+# # @app.route('/insert/', methods=['POST'])
+# def insert_from_form():
+#     description = flask.request.form.get('description', None)
+#     date_due = flask.request.form.get('date_due', None)
+#     if not description:
+#         return flask.redirect(flask.url_for('render_tasklist', date=date_due))
+#     redir_date = date_due
+#     if not date_due:
+#         date_due = get_today()
+#     insert_from_api(description, date_due)
+#     return flask.redirect(flask.url_for('render_tasklist', date=redir_date))
 
 @app.route('/tasklist/need_to_refresh/', methods=['GET'])
 def need_to_refresh():
@@ -308,25 +308,26 @@ def need_to_refresh():
     if not username:
         return flask.redirect(flask.url_for('get_google_oauth'))
     user_tasks = UserTasks(username, task_db)
-    date = flask.request.args.get('date')
+    date_or_project = flask.request.args.get('date_or_project')
     loaded_time = int(flask.request.args.get('page_load_time'))
-    last_updated = user_tasks.get_last_updated_time(date)
+    last_updated = user_tasks.get_last_updated_time(date_or_project)
     if last_updated > loaded_time:
         return "true"
     else:
         return "false"
 
 @app.route('/tasklist/insert/', methods=['POST'])
-def insert_from_api(description=None, date_due=None):
+def insert_from_api(description=None, date_or_project=None):
     print flask.request.form
     print "ok????????????"
     username = flask.session.get('tinytask_username', None)
     if not username:
         return flask.redirect(flask.url_for('get_google_oauth'))
-    if description is None and date_due is None:
-        date_due = flask.request.form.get('date_due', None)
+    if description is None and date_or_project is None:
+        date_or_project = flask.request.form.get('date_or_project', None)
         description = flask.request.form.get('description')
-    new_task = TaskItem(username, task_db, date_due=date_due, description=description)
+    user_db = UserTasks(username, task_db)
+    new_task = TaskItem(user_db, date_or_project=date_or_project, description=description)
     return SUCCESS_RESPONSE
 
 @app.route('/tasklist/advance/', methods=['POST'])
@@ -340,15 +341,17 @@ def advance_from_api():
 def undo_from_api():
     task = parse_task(flask.request)
     task.advance(reset=True)
-    return 'ok'
+    return SUCCESS_RESPONSE
 
 @app.route('/tasklist/moveto/', methods=['POST'])
 def move_to_x_days():
     x_days = flask.request.form.get('x_days', None)
     task = parse_task(flask.request)
-    new_date = get_x_days_difference(task.date_due, int(x_days))
-    task.update({'date_due': new_date})
-    return 'ok'
+    if not date_is_valid(task.date_or_project):
+        raise TaskError('Cannot move a project task x days.')
+    new_date = get_x_days_difference(task.date_or_project, int(x_days))
+    task.update({'date_or_project': new_date})
+    return SUCCESS_RESPONSE
 
 @app.route('/tasklist/details/', methods=['GET'])
 def details_from_api():
@@ -367,12 +370,13 @@ def parse_task(current_request):
     if not username:
         return flask.redirect(flask.url_for('get_google_oauth'))
     if current_request.method == 'POST':
-        date = current_request.form.get('date_due')
+        date_or_project = current_request.form.get('date_or_project')
         task_key = current_request.form.get('task_key')
     if current_request.method == 'GET':
-        date = current_request.args.get('date_due')
+        date_or_project = current_request.args.get('date_or_project')
         task_key = current_request.args.get('task_key')
-    task = TaskItem(username, task_db, date, task_key)
+    user_db = UserTasks(username, task_db)
+    task = TaskItem(user_db, date_or_project, task_key)
     return task
 
 @app.route('/test/')
@@ -390,7 +394,7 @@ def render_statuses():
     user_secret = user_tasks.get_user_settings('secret')
     tasks = []
     for day in past_7_days:
-        tasks += user_tasks.tasks_for_day(day)
+        tasks += user_tasks.get_task_group(day)
     all_tasks = user_tasks.get_all_tasks()
     stats = get_stats_on(tasks)
     all_time_count = get_stats_on(all_tasks)['total']

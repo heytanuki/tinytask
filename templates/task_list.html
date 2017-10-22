@@ -406,7 +406,7 @@ function insert_task() {
   if (entered_text !== "") {
     var data = {
       "description": entered_text,
-      "date_due": document.querySelector("#date_due_box").value
+      "date_or_project": document.querySelector("#date_due_box").value
     };
     ajax_post("/tasklist/insert/", data, function() {
       location.reload();
@@ -415,24 +415,6 @@ function insert_task() {
     new_task_diamond.classList.remove("twirling");
   }
 }
-// function edit_task(task_date, task_key, new_description) {
-//   console.log(task_date + task_key);
-//   task_container = $("input#" + task_key);
-//   console.log(task_container.attr("value"));
-//   return false;
-// }
-// function edit_task_name(description) {
-//   console.log(description);
-//   return false;
-// }
-// function make_task_editable(container, description) {
-//   var task_div = container.parent();
-//   var status = task_div.children().first().attr("class");
-//   if (status === "done") { return; }
-//   var date = task_div.attr("date");
-//   var key = task_div.attr("key");
-//   container.replaceWith('<form autocomplete="off" onsubmit="edit_task_name()"><input id="task_edit_box" type="text" name="description" value="' + description + '"></form>');
-// }
 function set_task(task, container) {
   console.log("Task " + task.task_key + " set to: " + task.status);
   container.setAttribute("class", task.status);
@@ -507,7 +489,7 @@ function advance_task_status(diamond) {
     update_menu_undo(diamond);
   }
   var data = {
-    "date_due": diamond.parentNode.getAttribute("date"),
+    "date_or_project": diamond.parentNode.getAttribute("date"),
     "task_key": diamond.parentNode.getAttribute("key")
   };
   ajax_post("/tasklist/advance/", data, function(response) {
@@ -518,7 +500,7 @@ function un_do_task(un_do_span) {
   var diamond = un_do_span.parentNode.parentNode.children[0];
   un_do_span.parentNode.classList.add("hide");
   var data = {
-    "date_due": un_do_span.parentNode.parentNode.getAttribute("date"),
+    "date_or_project": un_do_span.parentNode.parentNode.getAttribute("date"),
     "task_key": un_do_span.parentNode.parentNode.getAttribute("key"),
     "status": "notdone"
   };
@@ -531,24 +513,24 @@ function un_do_task(un_do_span) {
 }
 function delete_task(delete_span) {
   var data = {
-      "date_due": delete_span.parentNode.parentNode.getAttribute("date"),
+      "date_or_project": delete_span.parentNode.parentNode.getAttribute("date"),
       "task_key": delete_span.parentNode.parentNode.getAttribute("key")
     };
     delete_span.parentNode.parentNode.setAttribute("style", "display: none;");
     ajax_post("/tasklist/delete/", data, function() {
-      window.location.href = "/date/" + data["date_due"] + "/";
+      window.location.href = "/date/" + data["date_or_project"] + "/";
     });
 }
 function move_to_tomorrow(move_span) {
     var data = {
-      "date_due": move_span.parentNode.parentNode.getAttribute("date"),
+      "date_or_project": move_span.parentNode.parentNode.getAttribute("date"),
       "task_key": move_span.parentNode.parentNode.getAttribute("key"),
       "x_days": 1
     };
     move_span.parentNode.parentNode.classList.remove("show");
     move_span.parentNode.parentNode.classList.add("hide");
     ajax_post("/tasklist/moveto/", data, function() {
-      window.location.href = "/date/" + data["date_due"] + "/";
+      window.location.href = "/date/" + data["date_or_project"] + "/";
     });
 }
 function ajax_get(url, data_in, callback) {

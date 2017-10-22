@@ -17,6 +17,12 @@ sslify = SSLify(app, permanent=True)
 task_db = TaskDB()
 
 SUCCESS_RESPONSE = (json.dumps({'success':True}), 200, {'ContentType':'application/json'})
+SVG_LINK_ARROW = """
+<svg class="out_link" width="22" height="22">
+    <line x1="5" y1="20" x2="20" y2="5" />
+    <path stroke-width="2px" stroke-linecap="round" stroke-linejoin="round" fill="transparent" d="M 10 5 h 10 v 10" />
+</svg>
+"""
 
 @app.context_processor
 def context_proc():
@@ -34,7 +40,7 @@ def context_proc():
         else:
             desc_with_links = description
             for m in matches:
-                desc_with_links = desc_with_links.replace(m, '<a target="_blank" href="' + m + '">@</a>')
+                desc_with_links = desc_with_links.replace(m, '<a class="out_link" target="_blank" href="{0}">{1}</a>'.format(m, SVG_LINK_ARROW))
             return desc_with_links
 
     return dict(

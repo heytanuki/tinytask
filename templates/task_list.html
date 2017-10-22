@@ -34,6 +34,9 @@
     vertical-align: -3px;
     stroke: black;
   }
+  svg.out_link {
+    vertical-align: 0px;
+  }
   .touchable {
     cursor: pointer;
   }
@@ -631,7 +634,12 @@ function add_listeners() {
 
   var task_menus = document.querySelectorAll("span.task_text");
   task_menus.forEach(function(e) {
-    e.addEventListener("click", function() { toggle_task_menu(this); });
+    e.addEventListener("click", function() { 
+      if (document.activeElement.classList.contains("out_link")) {
+        return false;
+      }
+      toggle_task_menu(this); 
+    });
   });
 
   var task_diamonds = document.querySelectorAll("svg#task_diamond");

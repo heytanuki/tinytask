@@ -232,7 +232,7 @@ def render_projects_page():
     return flask.render_template('projects.html', projects=projects)
     # TODO develop a projects list template
 
-@app.route(/project/<project_name>/)
+@app.route('/project/<project_name>/')
 def render_project(project_name):
     username = flask.session.get('tinytask_username', None)
     if not username:

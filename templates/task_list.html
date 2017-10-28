@@ -19,13 +19,13 @@
     text-decoration: none;
     color: black;
   }
-  form {
-    display: inline;
-  }
   line {
     stroke-linecap: round;
     stroke-width: 2px;
     stroke: black;
+  }
+  path {
+    stroke-linejoin: round;
   }
   rect {
     fill: transparent;
@@ -41,7 +41,7 @@
     cursor: pointer;
   }
   .touchable:active {
-    animation: darken .3s;
+    animation: darken .1s;
   }
   .twirling {
     animation-name: twirl;
@@ -59,17 +59,8 @@
     }
   }
   @keyframes darken {
-    0% {
-      background-color: white;
-      color: white;
-      fill: white;
-      stroke: white;
-    }
     100% {
       background-color: lightsteelblue;
-      color: lightsteelblue;
-      fill: lightsteelblue;
-      stroke: black;
     }
   }
   div#task_menu.show {
@@ -247,8 +238,7 @@
 {% macro date_nav() %}
 <div id="header">
   <div id="date_nav">
-    <svg width="12%" height="30" class="touchable"> 
-      <rect id="yesterday_button" stroke="transparent" width="50" height="30" x="0" y="0" />
+    <svg width="12%" height="30" id="yesterday_button" class="touchable"> 
       <g transform="translate(18, 0)">
         <line x1="15" y1="1" x2="1" y2="15" />
         <line x1="15" y1="29" x2="1" y2="15" />
@@ -257,8 +247,7 @@
     <svg id="today_button" width="50%" height="30" class="touchable">
       <circle id="update_indicator" cx="187" cy="5" r="4" stroke-width="0" fill="transparent" />
     </svg>
-    <svg width="12%" height="30" class="touchable"> 
-      <rect id="tomorrow_button" stroke="transparent" width="50" height="30" x="0" y="0" />
+    <svg width="12%" height="30" id="tomorrow_button" class="touchable"> 
       <g transform="translate(18, 0)">
         <line x1="1" y1="1" x2="15" y2="15" />
         <line x1="15" y1="15" x2="1" y2="29" />
@@ -278,7 +267,7 @@
 
 {% macro draw_task(task) %}
 <div id="task_container" date="{{ date }}" key="{{ task['task_key'] }}">
-  <svg id="task_diamond" class="{{ task['status'] }}" width="28" height="28">
+  <svg id="task_diamond" class="{{ task['status'] }} touchable" width="28" height="28">
     <g transform="translate(0) rotate(45 12 16)">
       <rect class="touchable" x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2px" />
     </g>
@@ -423,7 +412,7 @@ function insert_task() {
 }
 function set_task(task, container) {
   console.log("Task " + task.task_key + " set to: " + task.status);
-  container.setAttribute("class", task.status);
+  container.setAttribute("class", task.status + " touchable" );
 }
 function update_menu_undo(container) {
   var undo_span = container.parentNode.querySelector("span#un-do");
@@ -487,11 +476,11 @@ function advance_task_status(diamond) {
     return;
   }
   if (diamond.classList.contains("started")) {
-    diamond.setAttribute("class", "done");
+    diamond.setAttribute("class", "done touchable");
     update_menu_tomorrow(diamond);
   }
   if (diamond.classList.contains("notdone")) {
-    diamond.setAttribute("class", "started");
+    diamond.setAttribute("class", "started touchable");
     update_menu_undo(diamond);
   }
   var data = {
@@ -609,8 +598,8 @@ function add_listeners() {
   tomorrow_spans.forEach(function(e) {
     e.addEventListener("click", function() { move_to_tomorrow(this); });
   });
-  document.querySelector("rect#yesterday_button").addEventListener("click", function() { console.log("yester"); go_yesterday(); });
-  document.querySelector("rect#tomorrow_button").addEventListener("click", function() { console.log("tomor"); go_tomorrow(); });
+  document.querySelector("#yesterday_button").addEventListener("click", function() { console.log("yester"); go_yesterday(); });
+  document.querySelector("#tomorrow_button").addEventListener("click", function() { console.log("tomor"); go_tomorrow(); });
   document.querySelector("#new_task_diamond").addEventListener("click", function() { insert_task(); });
   document.querySelector("#tt_logo").addEventListener("click", function() {
     document.querySelector("svg#logo").classList.add("twirling");

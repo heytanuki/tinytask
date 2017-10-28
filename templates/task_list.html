@@ -447,7 +447,7 @@ function get_todays_date() {
 }
 function check_if_refresh_needed(today, page_load_time) {
   var data = {
-    "date": today,
+    "date_or_project": today,
     "page_load_time": page_load_time
   };
   ajax_get("/tasklist/need_to_refresh/", data, function(result) {

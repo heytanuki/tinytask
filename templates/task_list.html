@@ -582,7 +582,6 @@ function ajax_post(url, data_in, callback) {
 // querySelector listeners
 function add_listeners() {
   document.querySelector("#today_button").addEventListener("click", function(){
-    if ({{ date }} == get_todays_date()) { return false; }
     window.location.href = "/date/";
   });
   var task_menus = document.querySelectorAll("span.task_text");

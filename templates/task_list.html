@@ -445,10 +445,10 @@ function get_todays_date() {
   var day = today.toLocaleDateString("en-US", {day: "2-digit"});
   return year + month + day;
 }
-function check_if_refresh_needed(today, page_load_time) {
+function check_if_refresh_needed() {
   var data = {
-    "date_or_project": today,
-    "page_load_time": page_load_time
+    "date_or_project": "{{ date }}",
+    "page_load_time": {{ time_loaded }}
   };
   ajax_get("/tasklist/need_to_refresh/", data, function(result) {
     if (result) {
@@ -571,7 +571,6 @@ function ajax_post(url, data_in, callback) {
 // querySelector listeners
 function add_listeners() {
   document.querySelector("#today_button").addEventListener("click", function(){
-    check_if_refresh_needed({{ date }}, {{ time_loaded }});
     window.location.href = "/date/";
   });
   var task_menus = document.querySelectorAll("span.task_text");
@@ -631,7 +630,7 @@ function add_listeners() {
   });
 }
 window.onfocus = function() {
-  check_if_refresh_needed({{ date }}, {{ time_loaded }});
+  check_if_refresh_needed();
 };
 </script>
 </body>

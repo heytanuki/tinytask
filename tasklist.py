@@ -109,6 +109,7 @@ class UserTasks(object):
             .val()
         if updated_time is None:
             return 0
+        return updated_time
 
     def get_task(self, date_or_project, task_key):
         try:
@@ -181,9 +182,9 @@ class UserTasks(object):
 
     def get_all_dates_or_projects(self):
         task_group = self.db \
-                       .child(self.username) \
-                       .child(self.tasks_database) \
-                       .get(self.db_connection.get_token()).val()
+                         .child(self.username) \
+                         .child(self.tasks_database) \
+                         .get(self.db_connection.get_token()).val()
         if task_group:
             all_tasks_in_group = [p for p in task_group]
             return all_tasks_in_group
@@ -250,6 +251,14 @@ class UserTasks(object):
             .child(self.tasks_database) \
             .child(date_or_project) \
             .remove(self.db_connection.get_token())
+
+    def get_archive(self):
+        archive = self.db \
+                      .child(self.username) \
+                      .child('archive') \
+                      .get(self.db_connection.get_token()) \
+                      .val()
+        return archive
 
 
 class TaskItem(object):

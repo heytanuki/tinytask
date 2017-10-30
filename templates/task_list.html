@@ -572,6 +572,7 @@ function ajax_post(url, data_in, callback) {
 function add_listeners() {
   document.querySelector("#today_button").addEventListener("click", function(){
     check_if_refresh_needed({{ date }}, {{ time_loaded }});
+    window.location.href = "/date/";
   });
   var task_menus = document.querySelectorAll("span.task_text");
   task_menus.forEach(function(e) {

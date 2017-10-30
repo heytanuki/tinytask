@@ -88,6 +88,8 @@ class UserTasks(object):
         return (date_or_project, result['name'])
 
     def set_last_updated_time(self, date_or_project):
+        if not date_or_project:
+            raise TaskError('Tried to update time for invalid date or project.')
         update_time = int(time.time())
         self.db \
             .child(self.username) \
@@ -106,8 +108,7 @@ class UserTasks(object):
             .get(self.db_connection.get_token()) \
             .val()
         if updated_time is None:
-            updated_time = self.set_last_updated_time(date_or_project)
-        return updated_time
+            return 0
 
     def get_task(self, date_or_project, task_key):
         try:
@@ -183,8 +184,11 @@ class UserTasks(object):
                        .child(self.username) \
                        .child(self.tasks_database) \
                        .get(self.db_connection.get_token()).val()
-        all_tasks_in_group = [p for p in task_group]
-        return all_tasks_in_group
+        if task_group:
+            all_tasks_in_group = [p for p in task_group]
+            return all_tasks_in_group
+        else:
+            return []
 
     def get_user_settings(self, key=None):
         if key is None:
@@ -213,7 +217,6 @@ class UserTasks(object):
             return False
         return True
 
-
     def set_user_setting(self, key, value):
         if self.settings_are_valid(key, value):
             self.db \
@@ -224,33 +227,29 @@ class UserTasks(object):
             return
         raise SettingsError("'{}' cannot be set to '{}'.".format(key, value))
 
-    # def test_database(self, fix_errors=False):
-    #     whole_db = self.db \
-    #                    .child(self.username) \
-    #                    .child('tasks') \
-    #                    .get(self.db_connection.get_token()).val()
-    #     error_task_paths = []
-    #     for date in whole_db:
-    #         for task in whole_db[date]:
-    #             if whole_db[date][task]['date_due'] != date:
-    #                 error_task = '{}/{}'.format(date, task)
-    #                 error_task_paths.append(error_task)
-    #     if len(error_task_paths) == 0:
-    #         print "Checked database, no errors found."
-    #         return
-    #     if fix_errors:
-    #         self.fix_errors(error_task_paths)
-    #     else:
-    #         return error_task_paths
+    def archive_group(self, date_or_project):
+        tasks = self.get_task_group(date_or_project)
+        for task in tasks:
+            self.move_task_to_archive(task)
+        self.delete_group(date_or_project)
 
-    # def fix_errors(self, paths):
-    #     for path in paths:
-    #         date, key = path.split('/')
-    #         details = self.get_task(date, key)[1]
-    #         date_due_from_task = details['date_due']
-    #         description_from_task = details['description']
-    #         print 'Fixing task to proper due date {}: {}'.format(date_due_from_task, description_from_task)
-    #         self.update_task(date, key, {'date_due': date_due_from_task})
+    def move_task_to_archive(self, task_dict):
+        task_key = task_dict.pop('task_key')
+        self.db \
+            .child(self.username) \
+            .child('archive') \
+            .push(task_dict, self.db_connection.get_token())
+        self.delete_task(task_dict['date_or_project'], task_key)
+
+    def delete_group(self, date_or_project):
+        tasks = self.get_task_group(date_or_project)
+        if len(tasks) > 0:
+            raise TaskError('Cannot delete group {}: it has tasks still in it.'.format(date_or_project))
+        self.db \
+            .child(self.username) \
+            .child(self.tasks_database) \
+            .child(date_or_project) \
+            .remove(self.db_connection.get_token())
 
 
 class TaskItem(object):
@@ -296,5 +295,10 @@ class TaskItem(object):
             self.update({'status': 'started'})
             return
         self.update({'status': 'notdone'})
+
+
+
+
+
 
 

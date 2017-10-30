@@ -9,6 +9,7 @@ from flask_sslify import SSLify
 from apiclient import discovery
 from oauth2client import client
 from tasklist import TaskDB, UserTasks, TaskItem, TaskError
+from tasklist_util import get_x_days_difference, date_is_valid, date_is_in_current_range, get_today
 from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KEY, APP_SECRET_KEY_PROD, AUTHORIZED_EMAILS
 
 app = flask.Flask(__name__)
@@ -105,23 +106,6 @@ def initialize_user(email, user_db):
 # Helpers #
 ###########
 
-def get_x_days_difference(day, x):
-    date = datetime.datetime.strptime(day, '%Y%m%d')
-    diff = date + datetime.timedelta(days=x)
-    return diff.strftime('%Y%m%d')
-
-def date_is_valid(date):
-    try:
-        if int(date[0:4]) < 1900:
-            return False
-        date_parsed = datetime.datetime.strptime(date, '%Y%m%d')
-        return True
-    except ValueError:
-        return False
-
-def get_today():
-    return datetime.date.today().isoformat().replace('-', '')
-
 def date_is_in_past(date):
     today_date = datetime.datetime.strptime(get_today(), '%Y%m%d')
     loaded_date = datetime.datetime.strptime(date, '%Y%m%d')
@@ -196,7 +180,7 @@ def render_today():
 
 @app.route('/date/<date>/')
 def render_tasklist(date):
-    if not date_is_valid(date):
+    if not date_is_valid(date) or not date_is_in_current_range(date):
         return flask.redirect(flask.url_for('render_today'))
     if date_is_in_past(date):
         return render_past_tasklist(date)

@@ -28,7 +28,7 @@
     stroke-linejoin: round;
   }
   rect {
-    fill: transparent;
+    fill: white;
   }
   svg {
     vertical-align: -3px;
@@ -142,9 +142,11 @@
     max-width: 400px;
   }
   div#task_container {
-    padding-bottom: 10px;
-    margin-right: 20px;
-    max-width: 400px;
+    padding-top: 5px;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    margin-left: -5px;
+    border-radius: 10px;
   }
   span.task_text {
     padding-left: 5px;
@@ -160,6 +162,31 @@
     margin-top: 5px;
     vertical-align: top;
     box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
+  }
+
+
+
+
+  /* Task labels */
+  .label1 {
+    background-color: rgb(242, 185, 181);
+    transition: 1s;
+  }
+  .label2 {
+    background-color: rgb(181, 255, 255);
+    transition: 1s;
+  }
+  .label3 {
+    background-color: rgb(252, 248, 204);
+    transition: 1s;
+  }
+  .label4 {
+    background-color: rgb(198, 255, 206);
+    transition: 1s;
+  }
+  .label5 {
+    background-color: rgb(219, 219, 219);
+    transition: 1s;
   }
 
   /* Diamond styles */
@@ -198,6 +225,7 @@
     font-size: 18pt;
   }
   #input_form {
+    padding-top: 5px;
     margin-left: 20px;
   }
   #entry_box {
@@ -266,7 +294,7 @@
 {% endmacro %}
 
 {% macro draw_task(task) %}
-<div id="task_container" date="{{ date }}" key="{{ task['task_key'] }}">
+<div id="task_container" class="{{ task['label'] }}" date="{{ date }}" key="{{ task['task_key'] }}">
   <svg id="task_diamond" class="{{ task['status'] }} touchable" width="28" height="28">
     <g transform="translate(0) rotate(45 12 16)">
       <rect class="touchable" x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2px" />
@@ -470,6 +498,17 @@ function toggle_task_menu(task) {
     task_menu.classList.remove("hide");
     task_menu.classList.add("show");
   }
+}
+function set_label(task_container, label) {
+  var data = {
+    date_or_project: task_container.getAttribute("date"),
+    task_key: task_container.getAttribute("key"),
+    field: "label",
+    value: label
+  }
+  ajax_post("/tasklist/update/", data, function() {
+    task_container.setAttribute("class", label)
+  });
 }
 function advance_task_status(diamond) {
   if (diamond.classList.contains("done")) {

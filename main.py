@@ -249,7 +249,7 @@ def render_settings():
 
 @app.route('/noauth/')
 def not_authorized():
-    flask.session.pop('tinytask_username', None)
+    flask.session.clear()
     return flask.render_template('index.html', content=""" is not accessible or you've been logged out. <a href="/date/" class="underlined">Log in</a> if you're authorized.""")
 
 ################
@@ -304,6 +304,18 @@ def insert_from_api(description=None, date_or_project=None):
         description = flask.request.form.get('description')
     user_db = UserTasks(username, task_db)
     new_task = TaskItem(user_db, date_or_project=date_or_project, description=description)
+    return SUCCESS_RESPONSE
+
+@app.route('/tasklist/update/', methods=['POST'])
+def update_from_api():
+    task = parse_task(flask.request)
+    field = flask.request.form.get('field', None)
+    value = flask.request.form.get('value', None)
+    if not field:
+        return (json.dumps({'success': False}), 400, {'ContentType':'application/json'})
+    if field and not value:
+        value = ''
+    task.update({field: value})
     return SUCCESS_RESPONSE
 
 @app.route('/tasklist/advance/', methods=['POST'])

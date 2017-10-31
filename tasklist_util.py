@@ -4,6 +4,7 @@ from tasklist import TaskDB, UserTasks
 db_connection = TaskDB()
 
 DATES_LIMIT = 50
+ERROR_LOG_FILE = 'error_log.txt'
 
 ##################
 # Database utils #
@@ -18,7 +19,20 @@ def run_daily_maintenance():
         result = check_user_database(user)
         if result:
             error_log[user] = result
-    return error_log
+    if error_log:
+        write_error_log(error_log)
+        
+def write_error_log(errors_dict):
+    filename = ERROR_LOG_FILE
+    output_lines = []
+    for header in errors_dict:
+        for statement in errors_dict[header]:
+            prefix = datetime.datetime.now().strftime('%Y/%m/%d %H:%M - ')
+            line = '{}{}'.format(prefix, statement)
+            output_lines.append(line)
+    with open(ERROR_LOG_FILE, 'a+') as f:
+        for line in output_lines:
+            f.write('{}{}'.format(line, '\n'))
 
 
 def move_old_entries_to_archive(username):

@@ -249,6 +249,10 @@
   #task_edit_box:focus {
     color: black;
   }
+  #char_count {
+    color: gray;
+    text-align: right;
+  }
 
   /* Logo stuff */
   div#tt_logo {
@@ -371,6 +375,7 @@
     <label for="entry_box" hidden="hidden">Enter a new task here and press enter.</label>
     <input id="entry_box" type="text" name="description" autofocus="autofocus">
     <input id="date_due_box" hidden="hidden" type="text" name="date_due" value="{{ date }}">
+    <span id="char_count"></span>
   </form>
 </div>
 
@@ -442,7 +447,7 @@ function set_logo_tense() {
   document.querySelector("svg#date_diamond").setAttribute("class", tense);
 }
 function set_task_menus() { 
-  var all_diamonds = document.querySelectorAll("svg#task_diamond")
+  var all_diamonds = document.querySelectorAll("svg#task_diamond");
   all_diamonds.forEach(function(e) {
     update_menu_tomorrow(e);
     update_menu_undo(e);
@@ -538,7 +543,7 @@ function toggle_task_menu(task) {
   }
 }
 function set_label(task_container, label) {
-  task_container.setAttribute("class", label)
+  task_container.setAttribute("class", label);
 }
 function advance_task_status(diamond) {
   if (diamond.classList.contains("done")) {
@@ -575,10 +580,19 @@ function move_to_tomorrow(move_span) {
     move_span.parentNode.parentNode.classList.remove("show");
     move_span.parentNode.parentNode.classList.add("hide");
 }
+function count_entered_chars() {
+  var entered_text = document.querySelector("#entry_box").value;
+  var count_span = document.querySelector("#char_count");
+  if (entered_text.length > 120) {
+    count_span.textContent = entered_text.length;
+  } else {
+    count_span.textContent = "";
+  }
+}
 // querySelector listeners
 function add_listeners() {
   document.querySelector("#today_button").addEventListener("click", function(){
-    return false;
+    window.location.reload();
   });
   var task_menus = document.querySelectorAll("span.task_text");
   task_menus.forEach(function(e) {
@@ -610,9 +624,9 @@ function add_listeners() {
   document.querySelector("#new_task_diamond").addEventListener("click", function() { insert_task(); });
   document.querySelector("#tt_logo").addEventListener("click", function() {
     document.querySelector("svg#logo").classList.add("twirling");
-    // window.location.href = "/status/";
   });
   document.addEventListener("keyup", function(e) {
+    count_entered_chars();
     if (e.keyCode === 13) {
       if (document.activeElement.getAttribute("id") === "entry_box") {
         insert_task();

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tinytask</title>
+<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" media="orientation:portrait" /> -->
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
+<link rel="apple-touch-icon" ref="{{ url_for('static', filename='tinytask_logo.png') }}" />
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<style>
+  body {
+    font-family: sans-serif;
+    font-weight: normal;
+    font-size: 18pt;
+  }
+  a {
+    text-decoration: none;
+    color: black;
+  }
+  line {
+    stroke-linecap: round;
+    stroke-width: 2px;
+    stroke: black;
+  }
+  path {
+    stroke-linejoin: round;
+  }
+  rect {
+    fill: white;
+  }
+  svg {
+    vertical-align: -3px;
+    stroke: black;
+  }
+  svg.out_link {
+    vertical-align: -1px;
+  }
+  .touchable {
+    cursor: pointer;
+  }
+  .touchable:active {
+    animation: darken .1s;
+  }
+  .twirling {
+    animation-name: twirl;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+  }
+  @keyframes twirl {
+    0% {
+      transform: rotate(0deg);
+      transform-origin: center center;
+    }
+    100% {
+      transform: rotate(360deg);
+      transform-origin: center center;
+    }
+  }
+  @keyframes darken {
+    100% {
+      background-color: lightsteelblue;
+    }
+  }
+  div#task_menu.show {
+        transition-property: max-height;
+        transition: .2s ease-in-out;
+        max-height: 84px;
+        min-height: 0px;
+        overflow: hidden;
+        background-color: rgb(245, 245, 245);
+        padding-top: 8px;
+        padding-left: 65px;
+        margin-left: -28px;
+        margin-right: -1024px;
+        margin-top: 5px;
+        box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
+      }
+  div#task_menu.hide {
+        transition-property: max-height;
+        transition: .2s ease-in-out;
+        max-height: 0px;
+        overflow: hidden;
+      }
+
+  /* Date nav styling */
+  div#header {
+    background-color: white;
+    height: 50px;
+    width: 95vw;
+    max-width: 420px;
+    margin-top: -100px;
+    padding-top: 25px;
+    margin-left: -12px;
+    padding-left: 10px;
+    padding-right: 1024px;
+    margin-right: -10px;
+    padding-bottom: 6px;
+    box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25);
+    position: fixed;
+  }
+  div#date_nav {
+    width: inherit;
+    max-width: inherit;
+    position: fixed;
+    text-align: center;
+  }
+  div#date_center {
+    text-align: center;
+    width: inherit;
+    max-width: inherit;
+  }
+  span#date_text {
+    font-family: sans-serif;
+    font-weight: normal;
+    font-size: 22pt;
+  }
+
+  /* Date nav SVGs */
+  svg.past {
+    color: black;
+  }
+  svg.past line, svg.past rect {
+    stroke: black;
+  }
+  svg.present line#date_backslash, 
+  svg.future line#date_backslash, 
+  svg.future line#date_forwardslash {
+    stroke-width: 0;
+  }
+
+  /* Task text and menu */
+  div#list_container {
+    margin-left: 20px;
+    margin-top: 100px;
+    max-width: 400px;
+  }
+  div#done_container {
+    margin-left: 20px;
+    margin-top: 0px;
+    max-width: 400px;
+  }
+  div#task_container {
+    padding-top: 5px;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    margin-left: -5px;
+    border-radius: 10px;
+  }
+  span.task_text {
+    padding-left: 5px;
+    line-height: 130%;
+  }
+  div.task_menu {
+    display: none;
+    background-color: rgb(245, 245, 245);
+    padding-top: 5px;
+    padding-left: 65px;
+    margin-left: -28px;
+    margin-right: -1024px;
+    margin-top: 5px;
+    vertical-align: top;
+    box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
+  }
+
+
+
+
+  /* Task labels */
+  .label1 {
+    background-color: rgb(242, 185, 181);
+    transition: 1s;
+  }
+  .label2 {
+    background-color: rgb(181, 255, 255);
+    transition: 1s;
+  }
+  .label3 {
+    background-color: rgb(252, 248, 204);
+    transition: 1s;
+  }
+  .label4 {
+    background-color: rgb(198, 255, 206);
+    transition: 1s;
+  }
+  .label5 {
+    background-color: rgb(219, 219, 219);
+    transition: 1s;
+  }
+
+  /* Diamond styles */
+  svg.notdone line, svg.started > line#backslash {
+    stroke-width: 0px;
+    stroke-dasharray: 0 37;
+  }
+  svg.started > line#forwardslash {
+    stroke-width: 2px;
+    transition-property: stroke-dasharray;
+    transition: 0.25s;
+    stroke-dasharray: 37 0;
+  }
+  svg.done + span.task_text {
+    color: gray;
+  }
+  svg.done * {
+    stroke: gray;
+  }
+  svg.done > line#backslash {
+    transition-property: stroke-dasharray;
+    transition: 0.25s;
+    stroke-dasharray: 37 0;    
+  }
+  svg.set_on rect {
+    fill: black;
+  }
+  svg.set_off rect {
+    fill: white;
+  }
+
+  /* Entry form style */
+  input {
+    font-family: sans-serif;
+    font-weight: normal;
+    font-size: 18pt;
+  }
+  #input_form {
+    padding-top: 5px;
+    margin-left: 20px;
+  }
+  #entry_box {
+    width: 80%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    border-bottom: 2px solid black;
+    margin-left: 4px;
+  }
+  #task_edit_box {
+    width: 250px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    border-bottom: 2px dashed black;
+    margin-left: 2px;
+    margin-bottom: 2px;
+    color: gray;
+  }
+  #task_edit_box:focus {
+    color: black;
+  }
+
+  /* Logo stuff */
+  div#tt_logo {
+    color: gray;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    margin-right: 35px;
+    text-align: right;
+  }
+  #logoslash {
+    stroke: gray;
+  }
+</style>
+
+{% macro date_nav() %}
+<div id="header">
+  <div id="date_nav">
+    <svg width="12%" height="30" id="yesterday_button" class="touchable"> 
+      <g transform="translate(18, 0)">
+        <line x1="15" y1="1" x2="1" y2="15" />
+        <line x1="15" y1="29" x2="1" y2="15" />
+      </g>
+    </svg>
+    <svg id="today_button" width="50%" height="30" class="touchable">
+      <circle id="update_indicator" cx="187" cy="5" r="4" stroke-width="0" fill="transparent" />
+    </svg>
+    <svg width="12%" height="30" id="tomorrow_button" class="touchable"> 
+      <g transform="translate(18, 0)">
+        <line x1="1" y1="1" x2="15" y2="15" />
+        <line x1="15" y1="15" x2="1" y2="29" />
+      </g>
+    </svg>        
+  </div>
+  <div id="date_center">
+    <svg class="future" id="date_diamond" height="30" width="30">
+      <rect x="6" y="6" rx="1" ry="1" stroke-width="2px" width="18" height="18" transform="rotate(45 15 15)" />  
+      <line id="date_forwardslash" x1="27" y1="3" x2="3" y2="27" />
+      <line id="date_backslash" x1="3" y1="3" x2="27" y2="27" />
+    </svg>
+    <span id="date_text">{{ get_readable_date(date) }}</span>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro draw_task(task) %}
+<div id="task_container" class="{{ task['label'] }}" date="{{ date }}" key="{{ task['task_key'] }}">
+  <svg id="task_diamond" class="{{ task['status'] }} touchable" width="28" height="28">
+    <g transform="translate(0) rotate(45 12 16)">
+      <rect class="touchable" x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2px" />
+    </g>
+    <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
+    <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
+  </svg>
+  <span class="task_text touchable">{{ parse_links(task['description'])|safe }}</span>
+  <div id="task_menu" class="hide">
+    <span class="touchable" id="un-do">{{ draw_undo() }}un-do</span><br>
+    <span class="touchable" id="delete">{{ draw_delete() }}delete</span><br>
+    <span class="touchable" id="move-tomorrow">{{ draw_tomorrow() }}tomorrow</span>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro draw_close() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="8" y1="8" x2="14" y2="14" />
+  <line x1="14" y1="8" x2="8" y2="14" />
+  <circle cx="11" cy="11" r="9" stroke-width="2" fill="transparent" />
+</svg>
+{% endmacro %}
+
+{% macro draw_undo() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <g transform="translate(0) rotate(45 15 10)">
+    <rect x="6" y="6" rx="1" ry="1" width="14" height="14" stroke="black" stroke-width="2px" fill-opacity="0.0" />
+  </g>
+</svg>
+{% endmacro %}
+
+{% macro draw_delete() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="3" y1="3" x2="19" y2="19" />
+  <line x1="19" y1="3" x2="3" y2="19" />
+</svg>
+{% endmacro %}
+
+{% macro draw_tomorrow() %}
+<svg width="22" height="22" viewBox="0 0 22 22">
+  <line x1="3" y1="10" x2="18" y2="10" />
+  <line x1="10" y1="3" x2="19" y2="10" />
+  <line x1="10" y1="18" x2="19" y2="10" />
+</svg>
+{% endmacro %}
+
+<body>
+{{ date_nav() }}
+
+<div id="list_container">
+{% for task in tasks %}
+  {% if task['status'] != 'done' %}
+    {{ draw_task(task) }}
+  {% endif %}
+{% endfor %}
+</div>
+
+<div id="done_container">
+{% for task in tasks %}
+  {% if task['status'] == 'done' %}
+    {{ draw_task(task) }}
+  {% endif %}
+{% endfor %}
+</div>
+
+<div id="input_form">
+  <form autocomplete="off">
+    <svg id="new_task_diamond" class="touchable" width="28" height="28">
+      <g transform="translate(0) rotate(45 12 16)">
+        <rect class="touchable" x="3" y="4" rx="1" ry="1" stroke-width="2px" width="18" height="18"   />
+      </g>
+    </svg>
+    <label for="entry_box" hidden="hidden">Enter a new task here and press enter.</label>
+    <input id="entry_box" type="text" name="description" autofocus="autofocus">
+    <input id="date_due_box" hidden="hidden" type="text" name="date_due" value="{{ date }}">
+  </form>
+</div>
+
+<div id="tt_logo" class="touchable">
+  <svg id="logo" class="started" width="28" height="28" viewBox="0 0 28 28">
+    <g transform="translate(0) rotate(45 16 16)">
+      <rect x="8" y="8" rx="1" ry="1" width="16" height="16" stroke="gray" stroke-width="2px" />
+    </g>
+    <line id="logoslash" x1="27" y1="5" x2="5" y2="27" />
+  </svg><span> tinytask</span>
+</div>
+
+<!-- <div id="data_cache" hidden="hidden">
+  {% for item in cached_data %}
+    <input type="text" id="{{ item }}" value="{{ cached_data[item] }}">
+  {% endfor %}
+</div> -->
+
+<div id="prototypes" hidden="hidden">
+
+  <div id="task_container_prototype" class="" date="{{ date }}" key="">
+    <svg id="task_diamond" class="" width="28" height="28">
+      <g transform="translate(0) rotate(45 12 16)">
+        <rect class="touchable" x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2px" />
+      </g>
+      <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
+      <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
+    </svg>
+    <span class="task_text touchable">task_text</span>
+    <div id="task_menu" class="hide">
+      <span class="touchable" id="un-do">
+        <svg width="22" height="22" viewBox="0 0 22 22">
+          <g transform="translate(0) rotate(45 15 10)">
+            <rect x="6" y="6" rx="1" ry="1" width="14" height="14" stroke="black" stroke-width="2px" fill-opacity="0.0" />
+          </g>
+        </svg>
+        un-do
+      </span><br>
+      <span class="touchable" id="delete">
+        <svg width="22" height="22" viewBox="0 0 22 22">
+          <line x1="3" y1="3" x2="19" y2="19" />
+          <line x1="19" y1="3" x2="3" y2="19" />
+        </svg>
+        delete
+      </span><br>
+      <span class="touchable" id="move-tomorrow">
+        <svg width="22" height="22" viewBox="0 0 22 22">
+          <line x1="3" y1="10" x2="18" y2="10" />
+          <line x1="10" y1="3" x2="19" y2="10" />
+          <line x1="10" y1="18" x2="19" y2="10" />
+        </svg>
+        tomorrow
+      </span>
+    </div>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  set_logo_tense();
+  set_task_menus();
+  add_listeners();
+});
+function set_logo_tense() {
+  var list_date = "{{ date }}";
+  var today = get_todays_date();
+  var tense = "present";
+  if (list_date > today) { tense = "future"; }
+  if (list_date < today) { tense = "past"; }
+  document.querySelector("svg#date_diamond").setAttribute("class", tense);
+}
+function set_task_menus() { 
+  var all_diamonds = document.querySelectorAll("svg#task_diamond")
+  all_diamonds.forEach(function(e) {
+    update_menu_tomorrow(e);
+    update_menu_undo(e);
+  });
+}
+function user_is_typing() {
+  var is_typing = true;
+  if (document.activeElement.getAttribute("id") !== "entry_box") {
+    is_typing = false;
+  } else if (document.activeElement.value === "") {
+    is_typing = false;
+  }
+  if (document.activeElement.getAttribute("id") === "task_edit_box") {
+    is_typing = true;
+  }
+  return is_typing;
+}
+function insert_task() {
+  var new_task_diamond = document.querySelector("svg#new_task_diamond");
+  new_task_diamond.classList.add("twirling");
+  var entered_text = document.querySelector("#entry_box").value;
+  if (entered_text !== "") {
+    var data = {
+      "description": entered_text,
+      "date_or_project": document.querySelector("#date_due_box").value
+    };
+    append_task(data);
+  } else {
+    new_task_diamond.classList.remove("twirling");
+  }
+}
+function append_task(data) {
+  var container = document.querySelector("#list_container");
+  var prototype = document.querySelector("#task_container_prototype");
+  var clone = prototype.cloneNode(true);
+  clone.querySelector("#task_diamond").setAttribute("class", "notdone");
+  clone.querySelector("#task_diamond").setAttribute("key", "fakekey");
+  clone.querySelector(".task_text").textContent = data.description;
+
+  container.appendChild(clone);
+}
+function set_task(task, container) {
+  console.log("Task " + task.task_key + " set to: " + task.status);
+  container.setAttribute("class", task.status + " touchable" );
+}
+function update_menu_undo(container) {
+  var undo_span = container.parentNode.querySelector("span#un-do");
+  if (container.classList.contains("notdone")) {
+      undo_span.setAttribute("style", "display: none;");
+      undo_span.nextElementSibling.setAttribute("style", "display: none;");
+  } else {
+      undo_span.setAttribute("style", "");
+      undo_span.nextElementSibling.setAttribute("style", "");
+  }
+}
+function update_menu_tomorrow(container) {
+  var tomorrow_span = container.parentNode.querySelector("span#move-tomorrow");
+  if (container.classList.contains("done")) {
+    tomorrow_span.setAttribute("style", "display: none;");
+  } else {
+    tomorrow_span.setAttribute("style", "");
+  }
+}
+function go_tomorrow() {
+  return false;
+}
+function go_yesterday() {
+  return false;
+}
+function get_todays_date() {
+  var today = new Date();
+  var year = today.toLocaleDateString("en-US", {year: "numeric"});
+  var month = today.toLocaleDateString("en-US", {month: "2-digit"});
+  var day = today.toLocaleDateString("en-US", {day: "2-digit"});
+  return year + month + day;
+}
+function check_if_refresh_needed() {
+  return false;
+}
+function toggle_task_menu(task) {
+  var task_menu = task.nextElementSibling;
+  if (task_menu.classList.contains("show")) {
+    task_menu.classList.remove("show");
+    task_menu.classList.add("hide");
+  } else {
+    var task_menus = document.querySelectorAll("div#task_menu");
+    task_menus.forEach(function(e) {
+      e.classList.remove("show");
+      e.classList.add("hide");
+    });
+    task_menu.classList.remove("hide");
+    task_menu.classList.add("show");
+  }
+}
+function set_label(task_container, label) {
+  task_container.setAttribute("class", label)
+}
+function advance_task_status(diamond) {
+  if (diamond.classList.contains("done")) {
+    return;
+  }
+  if (diamond.classList.contains("started")) {
+    diamond.setAttribute("class", "done touchable");
+    update_menu_tomorrow(diamond);
+  }
+  if (diamond.classList.contains("notdone")) {
+    diamond.setAttribute("class", "started touchable");
+    update_menu_undo(diamond);
+  }
+
+}
+function un_do_task(un_do_span) {
+  var diamond = un_do_span.parentNode.parentNode.children[0];
+  un_do_span.parentNode.classList.add("hide");
+  var data = {
+    "date_or_project": un_do_span.parentNode.parentNode.getAttribute("date"),
+    "task_key": un_do_span.parentNode.parentNode.getAttribute("key"),
+    "status": "notdone"
+  };
+  set_task(data, diamond);
+  un_do_span.parentNode.classList.remove("show");
+  un_do_span.parentNode.classList.add("hide");
+  update_menu_undo(diamond);
+  update_menu_tomorrow(diamond);
+}
+function delete_task(delete_span) {
+    delete_span.parentNode.parentNode.setAttribute("style", "display: none;");
+}
+function move_to_tomorrow(move_span) {
+    move_span.parentNode.parentNode.classList.remove("show");
+    move_span.parentNode.parentNode.classList.add("hide");
+}
+// querySelector listeners
+function add_listeners() {
+  document.querySelector("#today_button").addEventListener("click", function(){
+    window.location.href = "/date/";
+  });
+  var task_menus = document.querySelectorAll("span.task_text");
+  task_menus.forEach(function(e) {
+    e.addEventListener("click", function() { 
+      if (document.activeElement.classList.contains("out_link")) {
+        return false;
+      }
+      toggle_task_menu(this); 
+    });
+  });
+  var task_diamonds = document.querySelectorAll("svg#task_diamond");
+  task_diamonds.forEach(function(e) {
+    e.addEventListener("click", function() { advance_task_status(this); });
+  });
+  var un_do_spans = document.querySelectorAll("span#un-do");
+  un_do_spans.forEach(function(e) {
+    e.addEventListener("click", function() { un_do_task(this); });
+  });
+  var delete_spans = document.querySelectorAll("span#delete");
+  delete_spans.forEach(function(e) {
+    e.addEventListener("click", function() { delete_task(this); });
+  });
+  var tomorrow_spans = document.querySelectorAll("span#move-tomorrow");
+  tomorrow_spans.forEach(function(e) {
+    e.addEventListener("click", function() { move_to_tomorrow(this); });
+  });
+  document.querySelector("#yesterday_button").addEventListener("click", function() { go_yesterday(); });
+  document.querySelector("#tomorrow_button").addEventListener("click", function() { go_tomorrow(); });
+  document.querySelector("#new_task_diamond").addEventListener("click", function() { insert_task(); });
+  document.querySelector("#tt_logo").addEventListener("click", function() {
+    document.querySelector("svg#logo").classList.add("twirling");
+    window.location.href = "/status/";
+  });
+  document.addEventListener("keyup", function(e) {
+    if (e.keyCode === 13) {
+      if (document.activeElement.getAttribute("id") === "entry_box") {
+        insert_task();
+      }
+    }
+    if (user_is_typing()) {
+      return;
+    }
+    if (e.keyCode === 27) {
+      var task_menus = document.querySelectorAll("div#task_menu.show");
+      task_menus.forEach(function(e) {
+        e.classList.remove("show");
+        e.classList.add("hide");
+      });
+    }
+    if (e.keyCode === 37) {
+      go_yesterday();
+    }
+    if (e.keyCode === 39) {
+      go_tomorrow();
+    }
+  });
+}
+window.onfocus = function() {
+  check_if_refresh_needed();
+};
+</script>
+</body>
+</html>

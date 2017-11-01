@@ -578,7 +578,7 @@ function move_to_tomorrow(move_span) {
 // querySelector listeners
 function add_listeners() {
   document.querySelector("#today_button").addEventListener("click", function(){
-    window.location.href = "/date/";
+    return false;
   });
   var task_menus = document.querySelectorAll("span.task_text");
   task_menus.forEach(function(e) {
@@ -610,7 +610,7 @@ function add_listeners() {
   document.querySelector("#new_task_diamond").addEventListener("click", function() { insert_task(); });
   document.querySelector("#tt_logo").addEventListener("click", function() {
     document.querySelector("svg#logo").classList.add("twirling");
-    window.location.href = "/status/";
+    // window.location.href = "/status/";
   });
   document.addEventListener("keyup", function(e) {
     if (e.keyCode === 13) {

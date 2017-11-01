@@ -207,20 +207,36 @@ def render_tasklist(date):
 @app.route('/mock/')
 def render_mock_tasklist():
     date = get_today()
-    username = flask.session.get('tinytask_username', None)
-    if not username:
-        return flask.redirect(flask.url_for('get_google_oauth'))
-    user_tasks = UserTasks(username, task_db)
-    user_settings = user_tasks.get_user_settings()
-    tasks = user_tasks.get_task_group(date)
-    sort_option = user_settings.get('Sorting', None)
-    if sort_option is None or sort_option == 'Started first':
-        tasks_ordered = sort_started_first(tasks)
-    if sort_option == 'Chronological':
-        tasks_ordered = tasks
+    tasks = [
+        {
+            'description': 'thing 1',
+            'status': 'done',
+            'date_or_project': '20171031',
+            'timestamp': 1,
+        },
+        {
+            'description': 'thing 2',
+            'status': 'notdone',
+            'date_or_project': '20171031',
+            'timestamp': 2,
+        },
+        {
+            'description': 'thing 3',
+            'status': 'notdone',
+            'date_or_project': '20171031',
+            'timestamp': 3,
+        },
+        {
+            'description': 'thing 4',
+            'status': 'started',
+            'date_or_project': '20171031',
+            'timestamp': 4,
+        },
+    ]
+    
     return flask.render_template(
         'mock_task_list.html',
-        tasks=tasks_ordered,
+        tasks=tasks,
         date=date,
         time_loaded=int(time.time()),
     )

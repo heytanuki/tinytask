@@ -306,8 +306,8 @@ def insert_from_api(description=None, date_or_project=None):
     new_task = TaskItem(user_db, date_or_project=date_or_project, description=description)
     reponse = {
         'success': True,
-        'date_or_project': new_task['date_or_project'],
-        'task_key': new_task['task_key'],    
+        'date_or_project': new_task.date_or_project,
+        'task_key': new_task.task_key,    
     }
     return json.dumps(response), 200, {'ContentType':'application/json'}
 

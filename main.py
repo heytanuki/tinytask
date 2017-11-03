@@ -341,7 +341,12 @@ def insert_from_api(description=None, date_or_project=None):
         description = flask.request.form.get('description')
     user_db = UserTasks(username, task_db)
     new_task = TaskItem(user_db, date_or_project=date_or_project, description=description)
-    return SUCCESS_RESPONSE
+    reponse = {
+        'success': True,
+        'date_or_project': new_task['date_or_project'],
+        'task_key': new_task['task_key'],    
+    }
+    return json.dumps(response), 200, {'ContentType':'application/json'}
 
 @app.route('/tasklist/update/', methods=['POST'])
 def update_from_api():

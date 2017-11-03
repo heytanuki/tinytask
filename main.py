@@ -309,6 +309,7 @@ def insert_from_api(description=None, date_or_project=None):
         'date_or_project': new_task.date_or_project,
         'task_key': new_task.task_key,    
     }
+    return SUCCESS_RESPONSE
     return json.dumps(response), 200, {'ContentType':'application/json'}
 
 @app.route('/tasklist/update/', methods=['POST'])

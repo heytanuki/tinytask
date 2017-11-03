@@ -135,11 +135,7 @@
     margin-left: 20px;
     margin-top: 100px;
     max-width: 400px;
-  }
-  div#done_container {
-    margin-left: 20px;
-    margin-top: 0px;
-    max-width: 400px;
+    transition: height 1s;
   }
   div#task_container {
     padding-top: 5px;
@@ -162,6 +158,17 @@
     margin-top: 5px;
     vertical-align: top;
     box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
+  }
+  @keyframes breathe {
+    0% {
+      margin-bottom: -3px;
+    }
+    100% {
+      margin-bottom: 15px;
+    }
+  }
+  .breathing {
+    animation: breathe 2s alternate-reverse infinite;
   }
 
 
@@ -351,19 +358,10 @@
 
 <div id="list_container">
 {% for task in tasks %}
-  {% if task['status'] != 'done' %}
     {{ draw_task(task) }}
-  {% endif %}
 {% endfor %}
 </div>
 
-<div id="done_container">
-{% for task in tasks %}
-  {% if task['status'] == 'done' %}
-    {{ draw_task(task) }}
-  {% endif %}
-{% endfor %}
-</div>
 
 <div id="input_form">
   <form autocomplete="off">
@@ -431,6 +429,7 @@
       </span>
     </div>
   </div>
+</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -483,11 +482,11 @@ function append_task(data) {
   var container = document.querySelector("#list_container");
   var prototype = document.querySelector("#task_container_prototype");
   var clone = prototype.cloneNode(true);
+  clone.setAttribute("id", "task_container");
   clone.querySelector("#task_diamond").setAttribute("class", "notdone");
   clone.querySelector("#task_diamond").setAttribute("key", "fakekey");
   clone.querySelector(".task_text").textContent = data.description;
-
-  container.appendChild(clone);
+  container.appendChild(clone).focus();
 }
 function set_task(task, container) {
   console.log("Task " + task.task_key + " set to: " + task.status);

@@ -21,6 +21,7 @@ def run_daily_maintenance():
             error_log[user] = result
     if error_log:
         write_error_log(error_log)
+    print 'If this was run manually, any errors were dumped to {}.'.format(ERROR_LOG_FILE)
         
 def write_error_log(errors_dict):
     filename = ERROR_LOG_FILE

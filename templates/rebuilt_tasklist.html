@@ -7,3 +7,48 @@
 - - append, remove, reposition, change diamond state
 
 -->
+
+<html>
+
+<div id="prototypes" hidden="hidden">
+
+    <div id="task_container_prototype" class="" date="{{ date }}" key="">
+        <svg id="task_diamond" class="" width="28" height="28">
+          <g transform="translate(0) rotate(45 12 16)">
+            <rect class="touchable" x="3" y="4" rx="1" ry="1" width="18" height="18" stroke-width="2px" />
+          </g>
+          <line id="forwardslash" x1="27" y1="1" x2="1" y2="27" />
+          <line id="backslash" x1="1" y1="1" x2="27" y2="27" />
+        </svg>
+        <span class="task_text touchable">task_text</span>
+        <div id="task_menu" class="hide">
+            <span class="touchable" id="un-do">
+            <svg width="22" height="22" viewBox="0 0 22 22">
+              <g transform="translate(0) rotate(45 15 10)">
+                <rect x="6" y="6" rx="1" ry="1" width="14" height="14" stroke="black" stroke-width="2px" fill-opacity="0.0" />
+              </g>
+            </svg>
+            un-do
+          </span><br>
+            <span class="touchable" id="delete">
+            <svg width="22" height="22" viewBox="0 0 22 22">
+              <line x1="3" y1="3" x2="19" y2="19" /> 
+              <line x1="19" y1="3" x2="3" y2="19" />
+            </svg>
+            delete
+          </span><br>
+            <span class="touchable" id="move-tomorrow">
+            <svg width="22" height="22" viewBox="0 0 22 22">
+              <line x1="3" y1="10" x2="18" y2="10" />
+              <line x1="10" y1="3" x2="19" y2="10" />
+              <line x1="10" y1="18" x2="19" y2="10" />
+            </svg>
+            tomorrow
+          </span>
+        </div>
+    </div>
+</div>
+
+
+
+</html>

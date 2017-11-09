@@ -3,33 +3,33 @@ body {
   font-weight: normal;
   font-size: 18pt;
 }
-.no-fouc {
-  display: none;
-}
 a {
   text-decoration: none;
   color: black;
-}
-form {
-  display: inline;
 }
 line {
   stroke-linecap: round;
   stroke-width: 2px;
   stroke: black;
 }
+path {
+  stroke-linejoin: round;
+}
 rect {
-  fill: transparent;
+  fill: white;
 }
 svg {
   vertical-align: -3px;
   stroke: black;
 }
+svg.out_link {
+  vertical-align: -1px;
+}
 .touchable {
   cursor: pointer;
 }
 .touchable:active {
-  animation: darken .3s;
+  animation: darken .1s;
 }
 .twirling {
   animation-name: twirl;
@@ -47,17 +47,8 @@ svg {
   }
 }
 @keyframes darken {
-  0% {
-    background-color: white;
-    color: white;
-    fill: white;
-    stroke: white;
-  }
   100% {
     background-color: lightsteelblue;
-    color: lightsteelblue;
-    fill: lightsteelblue;
-    stroke: black;
   }
 }
 div#task_menu.show {
@@ -132,18 +123,14 @@ div#list_container {
   margin-left: 20px;
   margin-top: 100px;
   max-width: 400px;
-}
-div#done_container {
-  margin-left: 20px;
-  margin-top: 0px;
-  max-width: 400px;
-  /*height: 65px;*/
-  overflow: hidden;
+  transition: height 1s;
 }
 div#task_container {
-  padding-bottom: 10px;
-  margin-right: 20px;
-  max-width: 400px;
+  padding-top: 5px;
+  margin-bottom: 5px;
+  padding-left: 5px;
+  margin-left: -5px;
+  border-radius: 10px;
 }
 span.task_text {
   padding-left: 5px;
@@ -160,19 +147,64 @@ div.task_menu {
   vertical-align: top;
   box-shadow: inset -5px 5px 5px rgba(0, 0, 0, 0.25);
 }
+@keyframes breathe {
+  0% {
+    margin-bottom: -3px;
+  }
+  100% {
+    margin-bottom: 15px;
+  }
+}
+.breathing {
+  animation: breathe 2s alternate-reverse infinite;
+}
+
+
+
+
+/* Task labels */
+.label1 {
+  background-color: rgb(242, 185, 181);
+  transition: 1s;
+}
+.label2 {
+  background-color: rgb(181, 255, 255);
+  transition: 1s;
+}
+.label3 {
+  background-color: rgb(252, 248, 204);
+  transition: 1s;
+}
+.label4 {
+  background-color: rgb(198, 255, 206);
+  transition: 1s;
+}
+.label5 {
+  background-color: rgb(219, 219, 219);
+  transition: 1s;
+}
 
 /* Diamond styles */
 svg.notdone line, svg.started > line#backslash {
   stroke-width: 0px;
+  stroke-dasharray: 0 37;
 }
 svg.started > line#forwardslash {
   stroke-width: 2px;
+  transition-property: stroke-dasharray;
+  transition: 0.25s;
+  stroke-dasharray: 37 0;
 }
 svg.done + span.task_text {
   color: gray;
 }
 svg.done * {
   stroke: gray;
+}
+svg.done > line#backslash {
+  transition-property: stroke-dasharray;
+  transition: 0.25s;
+  stroke-dasharray: 37 0;    
 }
 svg.set_on rect {
   fill: black;
@@ -188,6 +220,7 @@ input {
   font-size: 18pt;
 }
 #input_form {
+  padding-top: 5px;
   margin-left: 20px;
 }
 #entry_box {
@@ -210,6 +243,10 @@ input {
 }
 #task_edit_box:focus {
   color: black;
+}
+#char_count {
+  color: gray;
+  text-align: right;
 }
 
 /* Logo stuff */

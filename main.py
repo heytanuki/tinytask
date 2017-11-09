@@ -156,6 +156,7 @@ def sort_started_first(tasklist):
 
 @app.route('/')
 def index():
+    return flask.redirect('/mock/')
     username = flask.session.get('tinytask_username', None)
     if username:
         return flask.redirect(flask.url_for('get_google_oauth'))

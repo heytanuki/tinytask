@@ -8,6 +8,7 @@ import re
 from flask_sslify import SSLify
 from apiclient import discovery
 from oauth2client import client
+print '* importing TaskDB'
 from tasklist import TaskDB, UserTasks, TaskItem, TaskError
 from tasklist_util import get_x_days_difference, date_is_valid, date_is_in_current_range, get_today
 from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KEY, APP_SECRET_KEY_PROD, AUTHORIZED_EMAILS
@@ -15,6 +16,7 @@ from conf.secrets import GOOGLE_SCOPES, GOOGLE_CLIENT_SECRET_PATH, APP_SECRET_KE
 app = flask.Flask(__name__)
 app.secret_key = APP_SECRET_KEY_PROD
 sslify = SSLify(app, permanent=True)
+print '* instantiating TaskDB'
 task_db = TaskDB()
 
 SUCCESS_RESPONSE = (json.dumps({'success':True}), 200, {'ContentType':'application/json'})

@@ -14,7 +14,16 @@
     font-family: sans-serif;
     font-weight: normal;
     font-size: 18pt;
-    width: 400px;
+    transition: 1s;
+    /*width: 400px;*/
+    /*opacity: 0;*/
+
+  }
+  @media screen and (orientation: landscape) {
+    body {
+      /*opacity: 1;*/
+      background-color: rgb(245,245,245);
+    }
   }
   a {
     text-decoration: none;
@@ -69,35 +78,45 @@
   }
   div#task_menu.show {
     background-color: rgb(245, 245, 245);
-    /* padding-top: 8px; */
-    /* padding-left: 10px; */
     padding: 5px;
     width: 160px;
-    /* margin-left: -28px; */
-    /* margin-right: -1024px; */
-    /* margin-top: 5px; */
     box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25)
   }
   div#task_menu.hide {
-        max-height: 0px;
-        overflow: hidden;
-      }
+    max-height: 0px;
+    overflow: hidden;
+  }
+
+
+  @media screen and (orientation: landscape) {
+    .everything_container {
+      width: 400px;
+      box-shadow: 0px 0px 5px lightgray;
+      /*border: 2px solid black;*/
+      padding-bottom: 10px;
+      margin: 0 auto;
+      background-color: white;
+    }
+  }
+  @media screen and (orientation: portrait) {
+    .everything_container {
+      width: 400px;
+      box-shadow: 0px 0px 5px lightgray;
+      /*border: 2px solid black;*/
+      padding-bottom: 10px;
+      background-color: white;
+    }
+  }
 
   /* Date nav styling */
   div#header {
     background-color: white;
-    width: 380px;
-    transition: 2s;
-    /* max-width: 420px; */
-    /* margin-top: -100px; */
-    padding-top: 25px;
-    /* margin-left: -12px; */
-    /* padding-left: 10px; */
-    /* padding-right: 1024px; */
-    /* margin-right: -10px; */
-    /* padding-bottom: 6px; */
-    /* box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.25); */
-    /* position: fixed; */
+    width: inherit;
+    padding-top: 50px;
+    padding-bottom: 20px;
+    margin-top: -105px;
+    box-shadow: -0px 5px 3px lightgray; 
+    position: fixed;
   }
   div#date_nav {
     width: inherit;
@@ -133,8 +152,8 @@
   div#list_container {
     margin-left: 20px;
     margin-top: 100px;
+    padding-top: 20px;
     max-width: 400px;
-    transition: height 1s;
   }
   div#task_container {
     padding-top: 5px;
@@ -264,11 +283,14 @@
     margin-bottom: 10px;
     margin-right: 35px;
     text-align: right;
+
   }
   #logoslash {
     stroke: gray;
   }
 </style>
+
+<div class="everything_container">
 
 {% macro date_nav() %}
 <div id="header">
@@ -388,7 +410,6 @@
   {% endfor %}
 </div> -->
 
-
 <style>
   div#menu_bubble_container {
     width: 150px;
@@ -418,7 +439,7 @@
   }
 </style>
 
-<div id="menu_bubble_container">
+<div id="menu_bubble_container" hidden>
   <li class="touchable" id="un-do">
     <svg width="22" height="22" viewBox="0 0 22 22">
       <g transform="translate(0) rotate(45 15 10)">
@@ -490,6 +511,8 @@
       </span>
     </div>
   </div>
+</div>
+
 </div>
 
 <script>

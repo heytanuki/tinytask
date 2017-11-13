@@ -29,6 +29,7 @@ class TaskDB(object):
         self.auth = self.firebase.auth()
         self.do_auth()
         self.database = self.firebase.database()
+        print '*** Initialized!'
 
     def do_auth(self):
         self.user = self.auth.sign_in_with_email_and_password(FIREBASE_AUTH_USER, FIREBASE_AUTH_PW)
@@ -42,11 +43,14 @@ class TaskDB(object):
         return self.user['idToken']
 
     def refresh_user(self):
+        print '*** Reconnecting...'
         try:
             self.user = self.auth.refresh(self.user['refreshToken'])
             expiration_timedelta = datetime.timedelta(seconds=int(self.user['expiresIn']) - 600) # trigger refresh 10 minutes early
             self.expiry_time = datetime.datetime.now() + expiration_timedelta
+            print '*** Reconnected!'
         except KeyError:
+            print '*** Error reconnecting, re-initializing...'
             self.__init__()
 
     def get_users(self):

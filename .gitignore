@@ -1,6 +1,8 @@
 *secret*
 deploy.sh
 *.DS_Store
+tried_to_oauth.txt
+error_log.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
